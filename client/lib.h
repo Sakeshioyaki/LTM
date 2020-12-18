@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <ctype.h>
 
 typedef enum {
 	YC_KET_BAN,
@@ -30,9 +31,10 @@ message *createMessage(char buff[], CODE code){
 }
 
 int SEND(int clientSockfd, char mess[1042], CODE code){
-	message *newMess = createMessage(mess, code);
+	
 	if(send(clientSockfd, newMess, sizeof(newMess), 0) == -1){
 			printf("Loi khi send()!\n");
 			exit(0);
 		}
 }
+

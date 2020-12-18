@@ -11,7 +11,7 @@ typedef enum {
 	YC_KET_BAN,
 	YC_CHOI_GAME,
 	CHOI_DO_VUI,
-	LOG_USERNAME,
+	LOG_USERNAME.
 	LOG_PASSWORD,
 	SIGN_UP_USERNAME,
 	SIGN_UP_PASSWORD
@@ -29,7 +29,7 @@ MESSAGE *createMessage(char buff[], CODE code){
 	return newMess;
 }
 
-MESSAGE tachChuoi(char message[1024]){
+MESSAGE tachChuoi(char [1024]){
 	MESSAGE mess;
 	char *token = strtok(message,"/");
 	strcpy(mess.code,token);

@@ -1,10 +1,14 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include<sys/socket.h>
-#include<errno.h>
-#include<netdb.h>
-#include<arpa/inet.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include "lib.c"
+
+
 #define fileName "users.txt"
 #define MAX 50 //max friend
 
@@ -12,7 +16,7 @@ typedef struct profile{
 	int ID;
 	char name[50];
 	char password[10];
-	int IDBFF[MAX];
+	// int IDBFF[MAX];
 	int status;
 }profile;
 
@@ -31,7 +35,7 @@ users* createNewUser(profile a){
 	users* node = (users *)malloc(sizeof(users)); 
 	node->acc = a;
 	node->next = NULL;
-	node->IDBFF = NULL;
+	// node->IDBFF = NULL;
 	return node;
 }
 
@@ -69,21 +73,21 @@ void printListUser(){
 	}
 }
 
-void readFile(){
-	profile newUser;
-	FILE *fb;
-	fb = fopen(fileName,"r");
-	if(fb == NULL) {
-		printf("File NULL !! \n");
-		return;
-	}
-    while(fscanf(fb, "%s%s%d%s", newUser.name, newUser.password, &newUser.status, newUser.homePage) != EOF){
-    	addUser(newUser);
-    	printf("%s - %s\n",newUser.name, newUser.homePage);
-    }
-    fclose(fb);
+// void readFile(){
+// 	profile newUser;
+// 	FILE *fb;
+// 	fb = fopen(fileName,"r");
+// 	if(fb == NULL) {
+// 		printf("File NULL !! \n");
+// 		return;
+// 	}
+//     while(fscanf(fb, "%s%s%d%s", newUser.name, newUser.password, &newUser.status, newUser.homePage) != EOF){
+//     	addUser(newUser);
+//     	printf("%s - %s\n",newUser.name, newUser.homePage);
+//     }
+//     fclose(fb);
 
-}
+// }
 
 profile* login(){
 	char nameUser[50];
@@ -145,12 +149,12 @@ void Register(){
 
 int main(int argc, char*argv[]){
 
-	f(argc != 3){
+	if(argc != 2){
 		printf("Thieu or thua du lieu ! \n");
 		return 0;
 	}
 
-	readFile();
+	// readFile();
 
 	int PORT = atoi(argv[1]);
 	if(PORT == 0){
@@ -179,7 +183,7 @@ int main(int argc, char*argv[]){
 	memset(&serverAddr, '\0', sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(PORT);
-	serverAddr.sin_addr.s_addr = inet_addr(INADDR_ANY);
+	serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	ret = bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 	if(ret < 0){
