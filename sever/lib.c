@@ -11,7 +11,7 @@ typedef enum {
 	YC_KET_BAN,
 	YC_CHOI_GAME,
 	CHOI_DO_VUI,
-	LOG_USERNAME.
+	LOG_USERNAME,
 	LOG_PASSWORD,
 	SIGN_UP_USERNAME,
 	SIGN_UP_PASSWORD
@@ -29,16 +29,16 @@ MESSAGE *createMessage(char buff[], CODE code){
 	return newMess;
 }
 
-MESSAGE tachChuoi(char [1024]){
-	MESSAGE mess;
-	char *token = strtok(message,"/");
-	strcpy(mess.code,token);
-	while(token != NULL){
-		strcpy(mess.mess, token);
-		strtok(NULL,"/");
-	}
-	return mess;
-}
+// MESSAGE tachChuoi(char message[1024]){
+// 	MESSAGE mess;
+// 	char *token = strtok(message,"/");
+// 	strcpy(mess.code,token);
+// 	while(token != NULL){
+// 		strcpy(mess.mess, token);
+// 		strtok(NULL,"/");
+// 	}
+// 	return mess;
+// }
 
 void taoMessage(char *mess, const char *code){
 	//char *save = mess;
@@ -81,7 +81,7 @@ int SEND(int clientSockfd, char mess[1042], CODE code){
 
 
 	// MESSAGE *newMess = createMessage(mess, code);
-	if(send(clientSockfd, mess, sizeof(mess), 0) == -1){
+	if(send(clientSockfd, mess, strlen(mess), 0) == -1){
 			printf("Loi khi send()!\n");
 			exit(0);
 		}

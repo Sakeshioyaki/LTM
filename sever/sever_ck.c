@@ -180,7 +180,7 @@ int main(int argc, char*argv[]){
 	}
 	printf("[+]Server Socket is created.\n");
 
-	memset(&serverAddr, '\0', sizeof(serverAddr));
+	// memset(&serverAddr, '\0', sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(PORT);
 	serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -216,8 +216,8 @@ int main(int argc, char*argv[]){
 		// 	fclose(fb);
 
 
-		if((childpid = fork()) == 0){
-			close(sockfd);
+		// if((childpid = fork()) == 0){
+		// 	close(sockfd);
 
 			while(1){
 				recv(newSocket, buffer, 1024, 0);
@@ -227,12 +227,12 @@ int main(int argc, char*argv[]){
 				}else{
 					printf("Client: %s\n", buffer);
 					send(newSocket, buffer, strlen(buffer), 0);
-					bzero(buffer, sizeof(buffer));
+					// bzero(buffer, sizeof(buffer));
 				}
 			}
 		}
 
-	}
+	
 
 	close(newSocket);
 

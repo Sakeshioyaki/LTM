@@ -7,9 +7,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "lib.c"
+#include<stdio_ext.h>
 #define PORT 8080
 
-int main(){
+int main(int argc, char const *argv[]){
 	int clientSocket, ret;
 	struct sockaddr_in serverAddr;
 	char buffer[1024];
@@ -23,8 +24,8 @@ int main(){
 
 	memset(&serverAddr, '\0', sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(PORT);
-	serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	serverAddr.sin_port = htons(atoi(argv[2]));
+	serverAddr.sin_addr.s_addr = inet_addr(argv[1]);
 
 	ret = connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 	if(ret < 0){
@@ -43,7 +44,9 @@ int main(){
 			printf("1: Login\n");
 			printf("2: Sign up\n");
 			int select;
-			if(scanf("%d",&select) == 0){
+			printf("Nhap vao select : \n");
+			scanf("%d",&select);
+			if( select== 0){
 				printf("Vui long nhap dau vao hop le \n");
 				goto Layout1;
 			}
@@ -52,19 +55,21 @@ int main(){
 					printf("--------------------LOGIN-------------------\n");
 					char nameUser[1024];
 					printf("Nhap ten user : \n");
+					__fpurge(stdin);
 					fgets(nameUser,sizeof(nameUser)-1,stdin);
-					printf("buff1 : %s", nameUser);	
-					char *p = strchr(nameUser, '\n');
-					if(p != NULL){
-						*p = '\0';
-					}
+					nameUser[strlen(nameUser)-1]='\0';
+					// printf("buff1 : %s", nameUser);	
+					// char *p = strchr(nameUser, '\n');
+					// if(p != NULL){
+					// 	*p = '\0';
+					// }
 					//send
-					int Send = send(clientSocket, nameUser,sizeof(nameUser),0);
+					int Send = send(clientSocket, nameUser,strlen(nameUser)+1,0);
 					if(Send == -1){
 						printf("Loi khi send()!\n");
 						exit(0);
 					}
-					printf("buff : %s", nameUser);
+					// printf("buff : %s", nameUser);
 
 					char result[1024],password[1024];
 					//char *p;
