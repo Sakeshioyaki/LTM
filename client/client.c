@@ -64,7 +64,8 @@ int main(int argc, char const *argv[]){
 					// 	*p = '\0';
 					// }
 					//send
-					int Send = send(clientSocket, nameUser,strlen(nameUser)+1,0);
+					// int Send = send(clientSocket, nameUser,strlen(nameUser)+1,0);
+					int Send=SEND(clientSocket,nameUser,LOG_USERNAME);
 					if(Send == -1){
 						printf("Loi khi send()!\n");
 						exit(0);
@@ -74,7 +75,7 @@ int main(int argc, char const *argv[]){
 					char result[1024],password[1024];
 					//char *p;
 					int countPass = 0 ;
-					recv(clientSocket, result, sizeof(result), 0);
+					// recv(clientSocket, result, 1024, 0);
 
 					//printf("%s\n", result);
 					// if(strcmp(result,"NOT OK") == 0){

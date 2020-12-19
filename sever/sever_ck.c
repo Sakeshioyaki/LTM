@@ -220,13 +220,16 @@ int main(int argc, char*argv[]){
 		// 	close(sockfd);
 
 			while(1){
-				recv(newSocket, buffer, 1024, 0);
+				// MESSAGE mess=RECEVE(newSocket,buffer);
+				// printf("chuoi mess nhan duoc la %s\n",mess.mess );
+				// printf("ma code nhan duoc a %d\n",mess.code );
+				recv(newSocket,buffer, 1024, 0);
 				if(strcmp(buffer, ":exit") == 0){
 					printf("Disconnected from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
 					break;
 				}else{
 					printf("Client: %s\n", buffer);
-					send(newSocket, buffer, strlen(buffer), 0);
+					// send(newSocket, buffer, strlen(buffer)+1, 0);
 					// bzero(buffer, sizeof(buffer));
 				}
 			}

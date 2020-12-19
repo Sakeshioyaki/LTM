@@ -18,7 +18,7 @@ typedef enum {
 }CODE;
 
 typedef struct MESSAGE{
-	int code;
+	CODE code;
 	char mess[1042];
 }MESSAGE;
 
@@ -29,30 +29,36 @@ MESSAGE *createMessage(char buff[], CODE code){
 	return newMess;
 }
 
-// MESSAGE tachChuoi(char message[1024]){
-// 	MESSAGE mess;
+MESSAGE tachChuoi(char message[1024]){
+	MESSAGE mess;
+	char *token = strtok(message,"/");
+	mess.code,token=token;
+	while(token != NULL){
+		strcpy(mess.mess, token);
+		strtok(NULL,"/");
+	}
+	return mess;
+}
+MESSAGE RECEVE(int newSocket, char messClient[1024]){
+	MESSAGE mess;
+	recv(newSocket,messClient,1024,0);
+	mess=tachChuoi(messClient);
+	return mess;
 
-// 	char *token = strtok(message,"/");
-// 	strcpy(mess.code,CODE.token);
-// 	while(token != NULL){
-// 		strcpy(mess.mess, token);
-// 		strtok(NULL,"/");
-// 	}
-// 	return mess;
-// }
+}
 
 void taoMessage(char *mess, const char *code){
-	//char *save = mess;
+	// char pc[2] = "/";
 	char resurlt[100];
-	char pc[1] = "/";
+	
 	strcpy(resurlt,code);
-	strcat(resurlt,pc);
+	strcat(resurlt,"/");
 	strcat(resurlt,mess);
 	//mess = NULL;
 	strcpy(mess, resurlt);
 }
 
-int SEND(int clientSockfd, char mess[1042], CODE code){
+int SEND(int clientSockfd, char *mess, CODE code){
 
 	switch(code){
 		case YC_KET_BAN:
@@ -82,8 +88,6 @@ int SEND(int clientSockfd, char mess[1042], CODE code){
 
 
 	// MESSAGE *newMess = createMessage(mess, code);
-	if(send(clientSockfd, mess, strlen(mess), 0) == -1){
-			printf("Loi khi send()!\n");
-			exit(0);
-		}
+	int k=send(clientSockfd, mess, strlen(mess)+1, 0);
+	return k;
 }
