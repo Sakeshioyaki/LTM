@@ -29,23 +29,25 @@ MESSAGE *createMessage(char buff[], CODE code){
 	return newMess;
 }
 
-MESSAGE tachChuoi(char message[1024]){
-	MESSAGE mess;
-	char *token = strtok(message,"/");
-	mess.code,token=token;
-	while(token != NULL){
-		strcpy(mess.mess, token);
-		strtok(NULL,"/");
-	}
-	return mess;
-}
-MESSAGE RECEVE(int newSocket, char messClient[1024]){
-	MESSAGE mess;
-	recv(newSocket,messClient,1024,0);
-	mess=tachChuoi(messClient);
-	return mess;
+// MESSAGE tachChuoi(char message[1024]){
+// 	MESSAGE mess;
+// 	CODE code;
+// 	char *token = strtok(message,"/");
+// 	int k=code[token];
+// 	mess.code=k;
+// 	while(token != NULL){
+// 		strcpy(mess.mess, token);
+// 		strtok(NULL,"/");
+// 	}
+// 	return mess;
+// }
+// MESSAGE RECEVE(int newSocket, char messClient[1024]){
+// 	MESSAGE mess;
+// 	recv(newSocket,messClient,1024,0);
+// 	mess=tachChuoi(messClient);
+// 	return mess;
 
-}
+// }
 
 void taoMessage(char *mess, const char *code){
 	// char pc[2] = "/";
