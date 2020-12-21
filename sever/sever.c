@@ -82,7 +82,7 @@ void readFile(){
     printf("File NULL !! \n");
     return;
   }
-    while(fscanf(fb, "%s%s%d", newUser.name, newUser.password) != EOF){
+    while(fscanf(fb, "%s%s", newUser.name, newUser.password) != EOF){
       addUser(newUser);
     }
     fclose(fb);
