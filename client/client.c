@@ -8,6 +8,13 @@
 #include <arpa/inet.h>
 #include "lib.c"
 #define PORT 8080
+#define MAXLINE 100
+
+
+typedef struct accout{
+	char name[MAXLINE];
+	int status;
+}account;
 
 int main(int argc, char const *argv[]){
 	int clientSocket, ret;
@@ -60,15 +67,13 @@ int main(int argc, char const *argv[]){
 				printf("da send %s\n", userNameLogIn);
 				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
 				RECEVE(clientSocket);
-
-				printf("%s\n", );
 				break;
 			case 2 :
 				printf("\n");
 				break;
 			default:
 				printf("Vui long nhap dau vao hop le !\n");
-				goto: Layout1;
+				goto Layout1;
 				break;
 		}
 
