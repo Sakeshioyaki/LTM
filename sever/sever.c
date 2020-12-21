@@ -82,7 +82,7 @@ void readFile(){
     printf("File NULL !! \n");
     return;
   }
-    while(fscanf(fb, "%s%s%d", newUser.name, newUser.password, &newUser.status) != EOF){
+    while(fscanf(fb, "%s%s%d", newUser.name, newUser.password) != EOF){
       addUser(newUser);
     }
     fclose(fb);
@@ -114,11 +114,6 @@ account* login(){
     }else{
       countLogin++;
       printf("Password khong dung !\n");
-      if(countLogin == 3){
-        printf("Tai khoan tam thoi bi khoa do nhap mat khau sai qua 3 lan !\n");
-        user->acc.status = 0;
-        return NULL;
-      }
     }
   }while(countLogin < 3);
   return NULL;
@@ -129,25 +124,25 @@ account* login(){
 /*
 *jahfjdhfjshfkdshfjsd
 */
-void ghilaivaofile(List *l){
-    FILE *f;
-    f=fopen("account.txt","w");
-    for(Node *k=(*l).head;k!=NULL;k=k->next){
-        fprintf(f, "%s %s %d\n",k->acc.name,k->acc.password,k->acc.status );
-    }
-    fclose(f);
-}
+// void ghilaivaofile(userInfo *l){
+//     FILE *f;
+//     f=fopen("account.txt","w");
+//     for(Node *k=(*l).head;k!=NULL;k=k->next){
+//         fprintf(f, "%s %s %d\n",k->acc.name,k->acc.password,k->acc.status );
+//     }
+//     fclose(f);
+// }
 
 
-void setStatus(List l,account acc, char namestatus[30],int value){
-	for(Node *k=l.head;k!=NULL;k=k->next){
-					if(strcmp(k->acc.name,namestatus)==0){
-						k->acc.status=value;
-						break;
-					}
-				}
-				ghilaivaofile(&l);
-}
+// void setStatus(List l,account acc, char namestatus[30],int value){
+// 	for(Node *k=l.head;k!=NULL;k=k->next){
+// 					if(strcmp(k->acc.name,namestatus)==0){
+// 						k->acc.status=value;
+// 						break;
+// 					}
+// 				}
+// 				ghilaivaofile(&l);
+// }
 
 int main(int argc, char*argv[]){
 
