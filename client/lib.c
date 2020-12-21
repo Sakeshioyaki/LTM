@@ -14,7 +14,8 @@ typedef enum {
 	LOG_USERNAME,
 	LOG_PASSWORD,
 	SIGN_UP_USERNAME,
-	SIGN_UP_PASSWORD
+	SIGN_UP_PASSWORD,
+	SIGN_OUT
 }CODE;
 
 typedef struct MESSAGE{
@@ -22,32 +23,54 @@ typedef struct MESSAGE{
 	char mess[1042];
 }MESSAGE;
 
+
 MESSAGE *createMessage(char buff[], CODE code){
 	MESSAGE *newMess =  (MESSAGE*)malloc(sizeof(MESSAGE));
 	newMess->code = code;
 	strcpy(newMess->mess, buff);
 	return newMess;
 }
+MESSAGE tachChuoi(char message[1024]){
+	MESSAGE mess;
+	CODE code;
+	char *token = strtok(message,"/");
+	if(strcmp(token, "YC_KET_BAN") == 0){
+		mess.code = YC_KET_BAN;
+	}
+	if(strcmp(token, "YC_CHOI_GAME") == 0){
+		mess.code = YC_CHOI_GAME;
+	}
+	if(strcmp(token, "CHOI_DO_VUI") == 0){
+		mess.code = CHOI_DO_VUI;
+	}
+	if(strcmp(token, "LOG_USERNAME") == 0){
+		mess.code = LOG_USERNAME;
+	}
+	if(strcmp(token, "LOG_PASSWORD") == 0){
+		mess.code = LOG_PASSWORD;
+	}
+	if(strcmp(token, "SIGN_UP_USERNAME") == 0){
+		mess.code = SIGN_UP_USERNAME;
+	}
+	if(strcmp(token, "SIGN_UP_PASSWORD") == 0){
+		mess.code = SIGN_UP_PASSWORD;
+	}
+	if(strcmp(token, "SIGN_OUT") == 0){
+		mess.code = SIGN_OUT;
+	}
+	while(token != NULL){
+		strcpy(mess.mess, token);
+		strtok(NULL,"/");
+	}
+	return mess;
+}
+MESSAGE RECEVE(int newSocket){
+	MESSAGE mess;
+	recv(newSocket,messClient,1024,0);
+	mess=tachChuoi(messClient);
+	return mess;
 
-// MESSAGE tachChuoi(char message[1024]){
-// 	MESSAGE mess;
-// 	CODE code;
-// 	char *token = strtok(message,"/");
-// 	int k=code[token];
-// 	mess.code=k;
-// 	while(token != NULL){
-// 		strcpy(mess.mess, token);
-// 		strtok(NULL,"/");
-// 	}
-// 	return mess;
-// }
-// MESSAGE RECEVE(int newSocket, char messClient[1024]){
-// 	MESSAGE mess;
-// 	recv(newSocket,messClient,1024,0);
-// 	mess=tachChuoi(messClient);
-// 	return mess;
-
-// }
+}
 
 void taoMessage(char *mess, const char *code){
 	// char pc[2] = "/";
@@ -93,3 +116,4 @@ int SEND(int clientSockfd, char *mess, CODE code){
 	int k=send(clientSockfd, mess, strlen(mess)+1, 0);
 	return k;
 }
+

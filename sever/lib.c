@@ -15,7 +15,6 @@ typedef enum {
 	LOG_PASSWORD,
 	SIGN_UP_USERNAME,
 	SIGN_UP_PASSWORD,
-	SIGN_UP,
 	SIGN_OUT
 }CODE;
 
@@ -35,15 +34,37 @@ MESSAGE tachChuoi(char message[1024]){
 	MESSAGE mess;
 	CODE code;
 	char *token = strtok(message,"/");
-	int k=code[token];
-	mess.code=k;
+	if(strcmp(token, "YC_KET_BAN") == 0){
+		mess.code = YC_KET_BAN;
+	}
+	if(strcmp(token, "YC_CHOI_GAME") == 0){
+		mess.code = YC_CHOI_GAME;
+	}
+	if(strcmp(token, "CHOI_DO_VUI") == 0){
+		mess.code = CHOI_DO_VUI;
+	}
+	if(strcmp(token, "LOG_USERNAME") == 0){
+		mess.code = LOG_USERNAME;
+	}
+	if(strcmp(token, "LOG_PASSWORD") == 0){
+		mess.code = LOG_PASSWORD;
+	}
+	if(strcmp(token, "SIGN_UP_USERNAME") == 0){
+		mess.code = SIGN_UP_USERNAME;
+	}
+	if(strcmp(token, "SIGN_UP_PASSWORD") == 0){
+		mess.code = SIGN_UP_PASSWORD;
+	}
+	if(strcmp(token, "SIGN_OUT") == 0){
+		mess.code = SIGN_OUT;
+	}
 	while(token != NULL){
 		strcpy(mess.mess, token);
 		strtok(NULL,"/");
 	}
 	return mess;
 }
-MESSAGE RECEVE(int newSocket, char messClient[1024]){
+MESSAGE RECEVE(int newSocket){
 	MESSAGE mess;
 	recv(newSocket,messClient,1024,0);
 	mess=tachChuoi(messClient);
