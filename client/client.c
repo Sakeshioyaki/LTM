@@ -14,6 +14,7 @@ int main(int argc, char const *argv[]){
 	struct sockaddr_in serverAddr;
 	char buffer[1024];
 	char namesignin[100];
+	account* myUser = NULL;
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if(clientSocket < 0){
 		printf("[-]Error in connection.\n");
@@ -45,8 +46,6 @@ int main(int argc, char const *argv[]){
 		printf("Login or sign up\n");
 		printf("1: Login\n");
 		printf("2: Sign up\n");
-		printf("3. Sign out\n");
-		printf("4. Add friend\n");
 		printf("Nhap vao select : \n");
 		scanf("%d",&select);
 		printf("%d\n",select );
@@ -59,24 +58,32 @@ int main(int argc, char const *argv[]){
 				printf("User Name : ");
 				scanf("%s",userNameLogIn);
 				printf("da send %s\n", userNameLogIn);
-				// send(clientSocket, userNameLogIn, strlen(userNameLogIn), 0);
 				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
-				printf("da send\n");
 				RECEVE(clientSocket);
+
+				printf("%s\n", );
 				break;
 			case 2 :
 				printf("\n");
 				break;
-			case 3 :
-				break;
-			case 4 :
-				break;
-
 			default:
 				printf("Vui long nhap dau vao hop le !\n");
+				goto: Layout1;
 				break;
-		}	
-			
+		}
+
+		Layout2:
+		printf("---------------------------------------------\n");
+		printf("WELLCOME TO 'CHILL WITH YOU'\n");
+		if(myUser != NULL){
+			printf(" =>> Xin chao %s !\n",myUser->name);
+		}
+		printf("---------------------------------------------\n");		printf("1: Login\n");
+		printf("2: Sign up\n");
+		printf("Nhap vao select : \n");
+		scanf("%d",&select);
+		printf("%d\n",select );
+					
 	}//end while(1)
 	close(clientSocket);
 	return 0;

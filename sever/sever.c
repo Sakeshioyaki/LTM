@@ -8,67 +8,127 @@
 #include <arpa/inet.h>
 #include "lib.c"
 #define PORT 8080
+#define fileName "account.txt"
 
 #define MAXLINE 100
-
-#define fileName "users.txt"
 #define MAX 50 //max friend
 
 typedef struct accout{
   char name[MAXLINE];
   char password[MAXLINE];
-  int status;
 }account;
-typedef struct Node
-{
+
+typedef struct userInfo{
   account acc;
-  struct Node *next;
-}Node;
-typedef struct List{
-  Node *head;
-  Node *tail;
-}List;
-void khoitao(List *l){
-  (*l).head=(*l).tail=NULL;
+  int status;
+  struct userInfo *next;
+}userInfo;
+
+userInfo* root = NULL;
+
+userInfo* createNewUser(account a){
+  userInfo* node = (userInfo *)malloc(sizeof(userInfo)); 
+  node->acc = a;
+  node->next = NULL;
+  return node;
 }
-Node *getNode(account acc){
-  Node *p;
-  p=(Node*)malloc(sizeof(Node));
-     if(p==NULL){
-        printf("failed\n");
-    }
-    else{
-        strcpy(p->acc.name,acc.name);
-        strcpy(p->acc.password,acc.password);
-        p->acc.status=acc.status;
-        p->next=NULL;
-    }
-  return p;
-}
-void themdulieu(List *l,Node *p){
-  if(l->head==NULL){
-    l->head=p;
-    l->tail=p;
-  }
-  else{
-    l->tail->next=p;
-    l->tail=p;
+
+void addUser(account a){
+  userInfo* newUser = createNewUser(a);
+  if(root == NULL){
+    root = newUser;
+  }else{
+  newUser->next = root;
+  root = newUser;
   }
 }
-void rê(List *l){
-    for(Node *k=(*l).head;k!=NULL;k=k->next){
-        (*l).head=(*l).head->next;
-        free(k);
+
+userInfo* searchUser(char nameUser[]){
+  if(root == NULL){
+    printf("List user is NULL !\n");
+    return NULL;
+  }
+  userInfo* tmp = root;
+  while(tmp != NULL){
+    if(strcmp(tmp->acc.name, nameUser) == 0 ){
+      return tmp;
     }
+    tmp = tmp->next;
+  }
+  return NULL;
 }
-int kiemtratontai(List l, char name[MAXLINE]){
-  for(Node *k=l.head;k!=NULL;k=k->next){
-            if(strcmp(k->acc.name,name)==0){
-              return 0;
-            }
-        }
-          return 1;
+
+// void rê(List *l){
+//     for(Node *k=(*l).head;k!=NULL;k=k->next){
+//         (*l).head=(*l).head->next;
+//         free(k);
+//     }
+// }
+
+void printListUser(){
+  userInfo* tmp = root;
+  printf("Nguoi dung\n");
+  while(tmp != NULL){
+    printf("%s\n", tmp->acc.name);
+    tmp = tmp->next;
+  }
 }
+
+void readFile(){
+  account newUser;
+  FILE *fb;
+  fb = fopen(fileName,"r");
+  if(fb == NULL) {
+    printf("File NULL !! \n");
+    return;
+  }
+    while(fscanf(fb, "%s%s%d", newUser.name, newUser.password, &newUser.status) != EOF){
+      addUser(newUser);
+    }
+    fclose(fb);
+
+}
+
+
+//EDIT
+/*
+*shjfdhjfhdjfhsjfhjsfhsjfd
+*/
+account* login(){
+  char nameUser[50];
+  char passwordUser[10];
+  int countLogin = 0;
+  printf("Ten dang nhap : \n");
+  scanf("%s",nameUser);
+  userInfo* user =  searchUser(nameUser);
+  if(user == NULL){
+    printf("Khong tim thay nguoi dung !\n");
+    return NULL;
+  }
+  do { 
+    printf("Nhap password : ");
+    scanf("%s",passwordUser);
+    if(strcmp(passwordUser,user->acc.password) == 0){
+      printf("Dang nhap thanh cong \n");
+      return &user->acc;
+    }else{
+      countLogin++;
+      printf("Password khong dung !\n");
+      if(countLogin == 3){
+        printf("Tai khoan tam thoi bi khoa do nhap mat khau sai qua 3 lan !\n");
+        user->acc.status = 0;
+        return NULL;
+      }
+    }
+  }while(countLogin < 3);
+  return NULL;
+}
+
+
+//EDIT
+/*
+*jahfjdhfjshfkdshfjsd
+*/
 void ghilaivaofile(List *l){
     FILE *f;
     f=fopen("account.txt","w");
@@ -77,33 +137,7 @@ void ghilaivaofile(List *l){
     }
     fclose(f);
 }
-void xuatds(List l){
-    Node *k=NULL;
-    for (k=l.head;k!=NULL;k=k->next){
-      printf("%20s%20s%5d", k->acc.name,k->acc.password,k->acc.status);
-      printf("\n");
-      
-    }
-    printf("\n");
-  }
-int kiemtratkhople(List l, char name[MAXLINE],char password[MAXLINE]){
-    int h=kiemtratontai(l,name);
-    if(h==0){
-        for (Node *k=l.head;k!=NULL;k=k->next){
-            if(strcmp(k->acc.name,name)==0){
-                if(strcmp(k->acc.password,password)==0){
-                    return 0;
-                   
-                }
-                else{
-                      return 1;
-                }
-              
-            }
-        }
-    }
-    
-}
+
 
 void setStatus(List l,account acc, char namestatus[30],int value){
 	for(Node *k=l.head;k!=NULL;k=k->next){
@@ -156,23 +190,24 @@ int main(int argc, char*argv[]){
   char tmp[1024];
 
 	while(1){
-	newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
-		if(newSocket < 0){
-			exit(1);
-		}
-	printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
-	int hu=0;
-	if((childpid=fork())==0){
-		close(sockfd);
-		while(1){
-      printf("bat dau ket noi !\n");
-      // recv(newSocket, tmp, 1024, 0);
-      MESSAGE mess = RECEVE(newSocket);
-      // MESSAGE mess = RECEVE(newSocket);
-      printf("mess : %s\n",mess.mess);
-      printf("code : %d", mess.code);
-    }
-	}
+
+  	newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
+  		if(newSocket < 0){
+  			exit(1);
+  		}
+  	printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
+  	int hu=0;
+  	if((childpid=fork())==0){
+  		close(sockfd);
+  		while(1){
+        printf("bat dau ket noi !\n");
+        // recv(newSocket, tmp, 1024, 0);
+        MESSAGE mess = RECEVE(newSocket);
+        // MESSAGE mess = RECEVE(newSocket);
+        printf("mess : %s\n",mess.mess);
+        printf("code : %d", mess.code);
+      }
+  	}
 
 }
 	close(newSocket);
