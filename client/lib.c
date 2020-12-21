@@ -66,6 +66,7 @@ MESSAGE tachChuoi(char message[1024]){
 }
 MESSAGE RECEVE(int newSocket){
 	MESSAGE mess;
+	char messClient[1024];
 	recv(newSocket,messClient,1024,0);
 	mess=tachChuoi(messClient);
 	return mess;

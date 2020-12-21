@@ -7,7 +7,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "lib.c"
-#include<stdio_ext.h>
 #define PORT 8080
 
 int main(int argc, char const *argv[]){
@@ -24,8 +23,8 @@ int main(int argc, char const *argv[]){
 
 	memset(&serverAddr, 0, sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(atoi(argv[2]));
-	serverAddr.sin_addr.s_addr = inet_addr(argv[1]);
+	serverAddr.sin_port = htons(PORT);
+	serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	ret = connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 	if(ret < 0){
@@ -34,6 +33,8 @@ int main(int argc, char const *argv[]){
 	}
 	printf("[+]Connected to Server.\n");
 	char userNameLogIn[50];
+	int select;
+
 
 	while(1){
 		printf("---------------------------------------------\n");
@@ -46,27 +47,34 @@ int main(int argc, char const *argv[]){
 		printf("2: Sign up\n");
 		printf("3. Sign out\n");
 		printf("4. Add friend\n");
-		int select;
 		printf("Nhap vao select : \n");
-		if(scanf("%d",&select) == 0 ){
-			select = 0;
-		}
+		scanf("%d",&select);
+		printf("%d\n",select );
+		// if(scanf("%d",&select) == 0 ){
+		// 	select = 0;
+		// }
 		switch(select){
-			case 1:
+			case 1 :
+				getchar();
 				printf("User Name : ");
-				fgets(userNameLogIn,sizeof(userNameLogIn),stdin);
+				scanf("%s",userNameLogIn);
+				printf("da send %s\n", userNameLogIn);
+				// send(clientSocket, userNameLogIn, strlen(userNameLogIn), 0);
 				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
+				printf("da send\n");
+				RECEVE(clientSocket);
 				break;
-			case 2:
+			case 2 :
 				printf("\n");
 				break;
-			case 3:
+			case 3 :
 				break;
-			case 4:
+			case 4 :
 				break;
 
 			default:
-			printf("Vui long nhap dau vao hop le !\n");
+				printf("Vui long nhap dau vao hop le !\n");
+				break;
 		}	
 			
 	}//end while(1)

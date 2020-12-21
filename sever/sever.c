@@ -7,7 +7,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "lib.c"
-#define SERV_PORT 3000
+#define PORT 8080
+
 #define MAXLINE 100
 
 #define fileName "users.txt"
@@ -116,75 +117,44 @@ void setStatus(List l,account acc, char namestatus[30],int value){
 
 int main(int argc, char*argv[]){
 
-	if(argc != 2){
-		printf("Thieu or thua du lieu ! \n");
-		return 0;
-	}
-	FILE *f;
-	account acc;
-	List l;
-	khoitao(&l);
-	f=fopen("account.txt","r");
-    if(f==NULL){
-        printf("file khong ton tai \n");
-    }
-    while(!feof(f)){
-        
-        if(fscanf(f, "%s %s %d", acc.name,acc.password,&acc.status)!=EOF){
+  int sockfd, ret;
+   struct sockaddr_in serverAddr;
 
-        Node *p=getNode(acc);
-        themdulieu(&l,p);
-    	}
-	}
-fclose(f);
-	
+  int newSocket;
+  struct sockaddr_in newAddr;
 
-	int PORT = atoi(argv[1]);
-	if(PORT == 0){
-		printf("Du lieu  nhap vao khong dung !\n");
-		return 0;
-	}
-	
-	char u2[10];
-	char u[20];
-	char yc[1024];
-	char namesignin[100]=" ";
-	int sockfd, ret;
-	struct sockaddr_in serverAddr;
+  socklen_t addr_size;
 
-	int newSocket;
-	struct sockaddr_in newAddr;
+  char buffer[1024];
+  pid_t childpid;
 
-	socklen_t addr_size;
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if(sockfd < 0){
+    printf("[-]Error in connection.\n");
+    exit(1);
+  }
+  printf("[+]Server Socket is created.\n");
 
-	char buffer[1024];
-	pid_t childpid;
+  memset(&serverAddr, '\0', sizeof(serverAddr));
+  serverAddr.sin_family = AF_INET;
+  serverAddr.sin_port = htons(PORT);
+  serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if(sockfd < 0){
-		printf("[-]Error in connection.\n");
-		exit(1);
-	}
-	printf("[+]Server Socket is created.\n");
+  ret = bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+  if(ret < 0){
+    printf("[-]Error in binding.\n");
+    exit(1);
+  }
+  printf("[+]Bind to port %d\n", 4444);
 
-	memset(&serverAddr, '\0', sizeof(serverAddr));
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(atoi(argv[1]));
-	serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  if(listen(sockfd, 10) == 0){
+    printf("[+]Listening....\n");
+  }else{
+    printf("[-]Error in binding.\n");
+  }
 
-	ret = bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
-	if(ret < 0){
-		printf("[-]Error in binding.\n");
-		exit(1);
-	}
-	printf("[+]Bind to port %d\n", 4444);
+  char tmp[1024];
 
-	if(listen(sockfd, 10) == 0){
-		printf("[+]Listening....\n");
-	}else{
-		printf("[-]Error in binding.\n");
-	}
-	// addr_size=sizeof(newAddr);
 	while(1){
 	newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
 		if(newSocket < 0){
@@ -194,11 +164,17 @@ fclose(f);
 	int hu=0;
 	if((childpid=fork())==0){
 		close(sockfd);
-		
+		while(1){
+      printf("bat dau ket noi !\n");
+      // recv(newSocket, tmp, 1024, 0);
+      MESSAGE mess = RECEVE(newSocket);
+      // MESSAGE mess = RECEVE(newSocket);
+      printf("mess : %s\n",mess.mess);
+      printf("code : %d", mess.code);
+    }
 	}
 
 }
-gpds(&l);
 	close(newSocket);
 
 
