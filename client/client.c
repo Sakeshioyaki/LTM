@@ -74,6 +74,7 @@ int main(int argc, char const *argv[]){
 	printf("[+]Connected to Server.\n");
 	int select;
 	MESSAGE mess;
+	char tmp[10] = "hello";
 
 
 	while(1){
@@ -93,8 +94,8 @@ int main(int argc, char const *argv[]){
 		// }
 		switch(select){
 			case 1 :
-			
-			loginUser(mess,clientSocket,statususer,statuspass);
+				SEND(clientSocket,tmp,LOG_USERNAME);
+				loginUser(mess,clientSocket,statususer,statuspass);
 			goto Layout1;	
 				break;
 			case 2 :
