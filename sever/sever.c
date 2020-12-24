@@ -160,7 +160,7 @@ int main(int argc, char*argv[]){
  MESSAGE mess;
   userInfo *user;
   int sockfd, ret;
-   struct sockaddr_in serverAddr;
+  struct sockaddr_in serverAddr;
 
   int newSocket;
   struct sockaddr_in newAddr;
@@ -204,18 +204,18 @@ int main(int argc, char*argv[]){
         exit(1);
       }
     printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
-    int hu=0;
     if((childpid=fork())==0){
       close(sockfd);
       while(1){
         int statususer=0;
         int statuspass=0;
         printf("bat dau ket noi !\n");
+        char nameUser[256], password[30];       
+        mess = RECEVE(newSocket);
+        if(mess.code == LOG_USERNAME){
+          user=loginUser(mess,newSocket,statususer,statuspass);
+        }
         
-        char nameUser[256], password[30];
-        
-       
-        user=loginUser(mess,newSocket,statususer,statuspass);
       }
     }
 
