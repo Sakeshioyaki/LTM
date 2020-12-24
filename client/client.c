@@ -34,10 +34,10 @@ void loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
 					scanf("%s",pass);
 					SEND(clientSocket,pass,LOG_PASSWORD);
 					mess=RECEVE(clientSocket);
-					printf("mes tuw pass gui ve la %s\n", mess.mess);
+					printf("server: %s\n", mess.mess);
 					if(strcmp(mess.mess,"login success")==0){
 						statuspass=1;
-						printf("chuoi thanh cong %s\n",mess.mess );
+						
 						
 					}
 				}
