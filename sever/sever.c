@@ -184,7 +184,11 @@ void loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
 int main(int argc, char*argv[]){
   readFile();
   printListUser();
+<<<<<<< HEAD
  MESSAGE mess;
+=======
+
+>>>>>>> c93c0f7c54cbcccbb1476f739801d6416b42b710
   int sockfd, ret;
    struct sockaddr_in serverAddr;
 
@@ -237,11 +241,37 @@ int main(int argc, char*argv[]){
         int statususer=0;
         int statuspass=0;
         printf("bat dau ket noi !\n");
+<<<<<<< HEAD
         
         char nameUser[256], password[30];
         
        
         loginUser(mess,newSocket,statususer,statuspass);
+=======
+        // recv(newSocket, tmp, 1024, 0);
+        // MESSAGE mess =  RECEVE(newSocket);
+        // // MESSAGE mess = RECEVE(newSocket);
+        // printf("mess : %s\n",mess.mess);
+        // printf("code : %d", mess.code);
+
+        char nameUser[256], password[30];
+        MESSAGE mess = RECEVE(newSocket);
+
+        userInfo* user = searchUser(mess.mess); 
+        //char result[6];
+        printf("NameUser da nhan : %s\n",mess.mess);
+        if (user == NULL){
+          printf("Khong tim thay ng dung\n");
+          char result[6] = "NOT OK";
+          SEND(newSocket,result,mess.code);
+        }else{
+          printf("Da tim thay ng dung\n");
+          printf("Da tim thay nguoi dung !\n");
+          char result[6] = "OK";
+          SEND(newSocket,result,LOG_USERNAME);
+
+        }
+>>>>>>> c93c0f7c54cbcccbb1476f739801d6416b42b710
       }
     }
 

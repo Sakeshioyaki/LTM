@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 hust hust123 
 hka nana 
 kaka huhu 
 kda koko 
+=======
+hust hust123
+hka nana
+kaka huhu
+kda koko
+>>>>>>> c93c0f7c54cbcccbb1476f739801d6416b42b710

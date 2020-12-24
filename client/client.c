@@ -91,9 +91,19 @@ int main(int argc, char const *argv[]){
 		// }
 		switch(select){
 			case 1 :
+<<<<<<< HEAD
 			
 			loginUser(mess,clientSocket,statususer,statuspass);
 			goto Layout1;	
+=======
+				getchar();
+				printf("User Name : ");
+				scanf("%s",userNameLogIn);
+				printf("da send %s\n", userNameLogIn);
+				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
+				mess = RECEVE(clientSocket);
+				printf("=>sever :%s\n", mess.mess);
+>>>>>>> c93c0f7c54cbcccbb1476f739801d6416b42b710
 				break;
 			case 2 :
 				printf("\n");
