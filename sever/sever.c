@@ -120,6 +120,43 @@ account* login(){
 }
 
 
+void loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
+ while(statususer==0){
+           MESSAGE mess = RECEVE(newSocket);
+
+          userInfo* user = searchUser(mess.mess); 
+          printf("NameUser da nhan : %s\n",mess.mess);
+          if (user == NULL){
+            printf("Khong tim thay ng dung\n");
+            char result[6] = "NOT OK";
+            SEND(newSocket,result,mess.code);
+          }else{
+            statususer=1;
+            printf("Da tim thay ng dung\n");
+            char result[6] = "OK";
+            SEND(newSocket,result,LOG_USERNAME);
+            while(statuspass==0){
+              mess=RECEVE(newSocket);
+              printf("chuoi server nhan duoc pass tu client la %s\n",mess.mess );
+              if(strcmp(mess.mess,user->acc.password)==0){
+                char login[30]="login success";
+                SEND(newSocket,login,LOG_PASSWORD);
+                statuspass=1;
+              }
+              else{
+                char login[30]="LOG_PASSWORD NOT OK";
+                SEND(newSocket,login,LOG_PASSWORD);
+              }
+            }
+
+
+          }
+        }  
+  
+}
+
+
+
 //EDIT
 /*
 *jahfjdhfjshfkdshfjsd
@@ -135,17 +172,19 @@ account* login(){
 
 
 // void setStatus(List l,account acc, char namestatus[30],int value){
-// 	for(Node *k=l.head;k!=NULL;k=k->next){
-// 					if(strcmp(k->acc.name,namestatus)==0){
-// 						k->acc.status=value;
-// 						break;
-// 					}
-// 				}
-// 				ghilaivaofile(&l);
+//  for(Node *k=l.head;k!=NULL;k=k->next){
+//          if(strcmp(k->acc.name,namestatus)==0){
+//            k->acc.status=value;
+//            break;
+//          }
+//        }
+//        ghilaivaofile(&l);
 // }
 
 int main(int argc, char*argv[]){
-
+  readFile();
+  printListUser();
+ MESSAGE mess;
   int sockfd, ret;
    struct sockaddr_in serverAddr;
 
@@ -184,31 +223,32 @@ int main(int argc, char*argv[]){
 
   char tmp[1024];
 
-	while(1){
+  while(1){
 
-  	newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
-  		if(newSocket < 0){
-  			exit(1);
-  		}
-  	printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
-  	int hu=0;
-  	if((childpid=fork())==0){
-  		close(sockfd);
-  		while(1){
-        printf("bat dau ket noi !\n");
-        // recv(newSocket, tmp, 1024, 0);
-        MESSAGE mess = RECEVE(newSocket);
-        // MESSAGE mess = RECEVE(newSocket);
-        printf("mess : %s\n",mess.mess);
-        printf("code : %d", mess.code);
+    newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
+      if(newSocket < 0){
+        exit(1);
       }
-  	}
+    printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
+    int hu=0;
+    if((childpid=fork())==0){
+      close(sockfd);
+      while(1){
+        int statususer=0;
+        int statuspass=0;
+        printf("bat dau ket noi !\n");
+        
+        char nameUser[256], password[30];
+        
+       
+        loginUser(mess,newSocket,statususer,statuspass);
+      }
+    }
 
 }
-	close(newSocket);
+  close(newSocket);
 
 
-	return 0;
-	
+  return 0;
+  
 }
-

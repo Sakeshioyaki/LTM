@@ -45,18 +45,22 @@ int convert(char a[100]){
 MESSAGE tachChuoi(char message[1024]){
 	MESSAGE mess;
 	char mama[100];
-	char *token = strtok(message,"/");
-	int k=convert(token);
-	mess.code=k;
+	char *token;
+	token = strtok(message,"/");
+	// int k=convert(token);
+	// mess.code=k;
+	printf("gia tri mess.code la %s\n",token );
+	
 	while(token != NULL){
+		k++;
 		// printf("gia tri cua token la %s\n",token );
 		strcpy(mess.mess, token);
 
-		strtok(NUsLL,"/");
-		
+		token=strtok(NULL,"/");
 		
 	}
-	printf("token la %s\n",token );
+
+	// printf("token mess.mess la %s\n",mess.mess );
 	
 	return mess;
 }
@@ -73,4 +77,87 @@ int main(){
 	printf("%s\n",mess.mess );
 	printf("%d\n",mess.code );
 
+}
+
+
+
+
+
+
+
+
+
+void loginUser(int newSocket){
+  int statususer=0;
+  int statuspass=0;
+  while (statususer==0)
+  {
+    MESSAGE mess= RECEVE(newSocket);
+    printf("nhan xong r nhe\n");
+    userInfo* user =  searchUser(mess.mess);
+    if(user == NULL){
+         SEND(newSocket,"LOG_USERNAME NOT OK",mess.code);
+     }
+     else{
+       statususer=1;
+       SEND(newSocket,"LOG_USERNAME OK",mess.code);
+       while(statuspass==0){
+         MESSAGE messpass= RECEVE(newSocket);
+          if(strcmp(messpass.mess,user->acc.password)==0){
+              SEND(newSocket,"login access",messpass.code);
+              statuspass=1;
+          }
+          else{
+            SEND(newSocket,"LOG_PASSWORD NOT OK",messpass.code);
+          }
+       }
+     }
+     
+  }
+  
+  
+}
+
+
+
+
+
+
+
+
+client
+
+
+void loginUser(int clientSocket){
+	int statususer=0;
+	int statuspass=0;
+	while(statususer==0){
+		char userNameLogIn[30];
+		char passLogin[20]; 
+		printf("User Name : ");
+		__fpurge(stdin);
+		fgets(userNameLogIn,sizeof(userNameLogIn),stdin);
+		userNameLogIn[strlen(userNameLogIn)-1]='\0';
+		SEND(clientSocket, userNameLogIn, LOG_USERNAME);
+		MESSAGE mess=RECEVE(clientSocket);
+		printf("day la %s",mess.mess);
+		if(strcmp(mess.mess,"LOG_USERNAME OK")==0){
+			statususer=1;
+			while(statuspass==0){
+				printf("User pass : ");
+				// __fpuge(stdin);
+				scanf("%s",passLogin);
+				// fgets(passLogin,sizeof(passLogin),stdin);
+				SEND(clientSocket, passLogin, LOG_PASSWORD);
+				MESSAGE messpass=RECEVE(clientSocket);
+				printf("%s",messpass.mess);
+				if(strcmp(messpass.mess,"login access")==0){
+					statuspass=1;
+					printf("%s",messpass.mess);
+				}
+			}
+			
+		}
+		
+	}
 }

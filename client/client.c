@@ -9,17 +9,47 @@
 #include "lib.c"
 #define PORT 8080
 #define MAXLINE 100
-
+// Layout1;
 
 typedef struct accout{
 	char name[MAXLINE];
 	int status;
 }account;
 
+
+void loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
+	char userNameLogIn[50];
+	char pass[20];
+	while(statususer==0){
+				getchar();
+				printf("User Name : ");
+				scanf("%s",userNameLogIn);
+				printf("da send %s\n", userNameLogIn);
+				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
+				mess = RECEVE(clientSocket);
+				printf("=>sever :%s\n", mess.mess);
+				if(strcmp(mess.mess,"OK")==0){
+					statususer=1;
+					printf("User pass:  ");
+					scanf("%s",pass);
+					SEND(clientSocket,pass,LOG_PASSWORD);
+					mess=RECEVE(clientSocket);
+					printf("mes tuw pass gui ve la %s\n", mess.mess);
+					if(strcmp(mess.mess,"login success")==0){
+						statuspass=1;
+						printf("chuoi thanh cong %s\n",mess.mess );
+						
+					}
+				}
+			}
+}
 int main(int argc, char const *argv[]){
 	int clientSocket, ret;
 	struct sockaddr_in serverAddr;
 	char buffer[1024];
+	
+	int statususer=0;
+			int statuspass=0;
 	char namesignin[100];
 	account* myUser = NULL;
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -40,8 +70,8 @@ int main(int argc, char const *argv[]){
 		exit(1);
 	}
 	printf("[+]Connected to Server.\n");
-	char userNameLogIn[50];
 	int select;
+	MESSAGE mess;
 
 
 	while(1){
@@ -61,12 +91,9 @@ int main(int argc, char const *argv[]){
 		// }
 		switch(select){
 			case 1 :
-				getchar();
-				printf("User Name : ");
-				scanf("%s",userNameLogIn);
-				printf("da send %s\n", userNameLogIn);
-				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
-				RECEVE(clientSocket);
+			
+			loginUser(mess,clientSocket,statususer,statuspass);
+			goto Layout1;	
 				break;
 			case 2 :
 				printf("\n");
