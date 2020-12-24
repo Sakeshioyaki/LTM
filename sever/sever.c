@@ -18,6 +18,8 @@ typedef struct accout{
   char password[MAXLINE];
 }account;
 
+//status = 0 : offline
+//status = 1 : online
 typedef struct userInfo{
   account acc;
   int status;
@@ -121,38 +123,35 @@ account* login(){
 
 
 void loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
- while(statususer==0){
-           MESSAGE mess = RECEVE(newSocket);
+  while(statususer==0){
+    MESSAGE mess = RECEVE(newSocket);
 
-          userInfo* user = searchUser(mess.mess); 
-          printf("NameUser da nhan : %s\n",mess.mess);
-          if (user == NULL){
-            printf("Khong tim thay ng dung\n");
-            char result[6] = "NOT OK";
-            SEND(newSocket,result,mess.code);
-          }else{
-            statususer=1;
-            printf("Da tim thay ng dung\n");
-            char result[6] = "OK";
-            SEND(newSocket,result,LOG_USERNAME);
-            while(statuspass==0){
-              mess=RECEVE(newSocket);
-              printf("chuoi server nhan duoc pass tu client la %s\n",mess.mess );
-              if(strcmp(mess.mess,user->acc.password)==0){
-                char login[30]="login success";
-                SEND(newSocket,login,LOG_PASSWORD);
-                statuspass=1;
-              }
-              else{
-                char login[30]="LOG_PASSWORD NOT OK";
-                SEND(newSocket,login,LOG_PASSWORD);
-              }
-            }
-
-
-          }
-        }  
-  
+    userInfo* user = searchUser(mess.mess); 
+    printf("NameUser da nhan : %s\n",mess.mess);
+    if (user == NULL){
+      printf("Khong tim thay ng dung\n");
+      char result[6] = "NOT OK";
+      SEND(newSocket,result,mess.code);
+    }else{
+      statususer=1;
+      printf("Da tim thay ng dung\n");
+      char result[6] = "OK";
+      SEND(newSocket,result,LOG_USERNAME);
+      while(statuspass==0){
+        mess=RECEVE(newSocket);
+        printf("chuoi server nhan duoc pass tu client la %s\n",mess.mess );
+        if(strcmp(mess.mess,user->acc.password)==0){
+          char login[30]="login success";
+          SEND(newSocket,login,LOG_PASSWORD);
+          statuspass=1;
+        }
+        else{
+          char login[30]="LOG_PASSWORD NOT OK";
+          SEND(newSocket,login,LOG_PASSWORD);
+        }
+      }
+    }
+  }
 }
 
 
@@ -184,11 +183,7 @@ void loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
 int main(int argc, char*argv[]){
   readFile();
   printListUser();
-<<<<<<< HEAD
  MESSAGE mess;
-=======
-
->>>>>>> c93c0f7c54cbcccbb1476f739801d6416b42b710
   int sockfd, ret;
    struct sockaddr_in serverAddr;
 
@@ -241,37 +236,8 @@ int main(int argc, char*argv[]){
         int statususer=0;
         int statuspass=0;
         printf("bat dau ket noi !\n");
-<<<<<<< HEAD
-        
         char nameUser[256], password[30];
-        
-       
         loginUser(mess,newSocket,statususer,statuspass);
-=======
-        // recv(newSocket, tmp, 1024, 0);
-        // MESSAGE mess =  RECEVE(newSocket);
-        // // MESSAGE mess = RECEVE(newSocket);
-        // printf("mess : %s\n",mess.mess);
-        // printf("code : %d", mess.code);
-
-        char nameUser[256], password[30];
-        MESSAGE mess = RECEVE(newSocket);
-
-        userInfo* user = searchUser(mess.mess); 
-        //char result[6];
-        printf("NameUser da nhan : %s\n",mess.mess);
-        if (user == NULL){
-          printf("Khong tim thay ng dung\n");
-          char result[6] = "NOT OK";
-          SEND(newSocket,result,mess.code);
-        }else{
-          printf("Da tim thay ng dung\n");
-          printf("Da tim thay nguoi dung !\n");
-          char result[6] = "OK";
-          SEND(newSocket,result,LOG_USERNAME);
-
-        }
->>>>>>> c93c0f7c54cbcccbb1476f739801d6416b42b710
       }
     }
 

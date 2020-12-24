@@ -21,27 +21,25 @@ void loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
 	char userNameLogIn[50];
 	char pass[20];
 	while(statususer==0){
-				getchar();
-				printf("User Name : ");
-				scanf("%s",userNameLogIn);
-				printf("da send %s\n", userNameLogIn);
-				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
-				mess = RECEVE(clientSocket);
-				printf("=>sever :%s\n", mess.mess);
-				if(strcmp(mess.mess,"OK")==0){
-					statususer=1;
-					printf("User pass:  ");
-					scanf("%s",pass);
-					SEND(clientSocket,pass,LOG_PASSWORD);
-					mess=RECEVE(clientSocket);
-					printf("server: %s\n", mess.mess);
-					if(strcmp(mess.mess,"login success")==0){
-						statuspass=1;
-						
-						
-					}
-				}
+		getchar();
+		printf("User Name : ");
+		scanf("%s",userNameLogIn);
+		printf("da send %s\n", userNameLogIn);
+		SEND(clientSocket, userNameLogIn, LOG_USERNAME);
+		mess = RECEVE(clientSocket);
+		printf("=>sever :%s\n", mess.mess);
+		if(strcmp(mess.mess,"OK")==0){
+			statususer=1;
+			printf("User pass:  ");
+			scanf("%s",pass);
+			SEND(clientSocket,pass,LOG_PASSWORD);
+			mess=RECEVE(clientSocket);
+			printf("server: %s\n", mess.mess);
+			if(strcmp(mess.mess,"login success")==0){
+				statuspass=1;	
 			}
+		}
+	}
 }
 int main(int argc, char const *argv[]){
 	int clientSocket, ret;
@@ -91,19 +89,8 @@ int main(int argc, char const *argv[]){
 		// }
 		switch(select){
 			case 1 :
-<<<<<<< HEAD
-			
-			loginUser(mess,clientSocket,statususer,statuspass);
+				loginUser(mess,clientSocket,statususer,statuspass);
 			goto Layout1;	
-=======
-				getchar();
-				printf("User Name : ");
-				scanf("%s",userNameLogIn);
-				printf("da send %s\n", userNameLogIn);
-				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
-				mess = RECEVE(clientSocket);
-				printf("=>sever :%s\n", mess.mess);
->>>>>>> c93c0f7c54cbcccbb1476f739801d6416b42b710
 				break;
 			case 2 :
 				printf("\n");
@@ -120,7 +107,8 @@ int main(int argc, char const *argv[]){
 		if(myUser != NULL){
 			printf(" =>> Xin chao %s !\n",myUser->name);
 		}
-		printf("---------------------------------------------\n");		printf("1: Login\n");
+		printf("---------------------------------------------\n");		
+		printf("1: Login\n");
 		printf("2: Sign up\n");
 		printf("Nhap vao select : \n");
 		scanf("%d",&select);
