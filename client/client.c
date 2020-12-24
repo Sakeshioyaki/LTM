@@ -38,6 +38,7 @@ void loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
 						printf("server: %s\n", mess.mess);
 						if(strcmp(mess.mess,"login success")==0){
 							statuspass=1;
+							
 						}
 					}
 					
@@ -97,7 +98,7 @@ int main(int argc, char const *argv[]){
 			goto Layout1;	
 				break;
 			case 2 :
-				printf("\n");
+
 				break;
 			default:
 				printf("Vui long nhap dau vao hop le !\n");
@@ -111,11 +112,7 @@ int main(int argc, char const *argv[]){
 		if(myUser != NULL){
 			printf(" =>> Xin chao %s !\n",myUser->name);
 		}
-		printf("---------------------------------------------\n");		printf("1: Login\n");
-		printf("2: Sign up\n");
-		printf("Nhap vao select : \n");
-		scanf("%d",&select);
-		printf("%d\n",select );
+
 					
 	}//end while(1)
 	close(clientSocket);
