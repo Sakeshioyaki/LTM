@@ -31,36 +31,39 @@ MESSAGE *createMessage(char buff[], CODE code){
 	return newMess;
 }
 MESSAGE tachChuoi(char message[1024]){
+	printf("%s\n", message);
 	MESSAGE mess;
 	CODE code;
 	char *token = strtok(message,"/");
+	printf("%s\n",token);
 	if(strcmp(token, "YC_KET_BAN") == 0){
-		mess.code = YC_KET_BAN;
+		code = YC_KET_BAN;
 	}
 	if(strcmp(token, "YC_CHOI_GAME") == 0){
-		mess.code = YC_CHOI_GAME;
+		code = YC_CHOI_GAME;
 	}
 	if(strcmp(token, "CHOI_DO_VUI") == 0){
-		mess.code = CHOI_DO_VUI;
+		code = CHOI_DO_VUI;
 	}
 	if(strcmp(token, "LOG_USERNAME") == 0){
-		mess.code = LOG_USERNAME;
+		code = LOG_USERNAME;
 	}
 	if(strcmp(token, "LOG_PASSWORD") == 0){
-		mess.code = LOG_PASSWORD;
+		code = LOG_PASSWORD;
 	}
 	if(strcmp(token, "SIGN_UP_USERNAME") == 0){
-		mess.code = SIGN_UP_USERNAME;
+		code = SIGN_UP_USERNAME;
 	}
 	if(strcmp(token, "SIGN_UP_PASSWORD") == 0){
-		mess.code = SIGN_UP_PASSWORD;
+		code = SIGN_UP_PASSWORD;
 	}
 	if(strcmp(token, "SIGN_OUT") == 0){
-		mess.code = SIGN_OUT;
+		code = SIGN_OUT;
 	}
+	mess.code = code;
 	while(token != NULL){
 		strcpy(mess.mess, token);
-		strtok(NULL,"/");
+		token = strtok(NULL,"/");
 	}
 	return mess;
 }

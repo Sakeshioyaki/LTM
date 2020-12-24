@@ -42,6 +42,7 @@ int main(int argc, char const *argv[]){
 	printf("[+]Connected to Server.\n");
 	char userNameLogIn[50];
 	int select;
+	MESSAGE mess;
 
 
 	while(1){
@@ -66,7 +67,8 @@ int main(int argc, char const *argv[]){
 				scanf("%s",userNameLogIn);
 				printf("da send %s\n", userNameLogIn);
 				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
-				RECEVE(clientSocket);
+				mess = RECEVE(clientSocket);
+				printf("=>sever :%s\n", mess.mess);
 				break;
 			case 2 :
 				printf("\n");

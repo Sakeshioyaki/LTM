@@ -77,13 +77,10 @@ MESSAGE RECEVE(int newSocket){
 }
 
 void taoMessage(char *mess, const char *code){
-	// char pc[2] = "/";
 	char resurlt[100];
-	
 	strcpy(resurlt,code);
 	strcat(resurlt,"/");
 	strcat(resurlt,mess);
-	//mess = NULL;
 	strcpy(mess, resurlt);
 }
 
