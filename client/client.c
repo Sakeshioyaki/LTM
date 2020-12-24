@@ -30,16 +30,17 @@ void loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
 				printf("=>sever :%s\n", mess.mess);
 				if(strcmp(mess.mess,"OK")==0){
 					statususer=1;
-					printf("User pass:  ");
-					scanf("%s",pass);
-					SEND(clientSocket,pass,LOG_PASSWORD);
-					mess=RECEVE(clientSocket);
-					printf("server: %s\n", mess.mess);
-					if(strcmp(mess.mess,"login success")==0){
-						statuspass=1;
-						
-						
+					while(statuspass==0){
+						printf("User pass:  ");
+						scanf("%s",pass);
+						SEND(clientSocket,pass,LOG_PASSWORD);
+						mess=RECEVE(clientSocket);
+						printf("server: %s\n", mess.mess);
+						if(strcmp(mess.mess,"login success")==0){
+							statuspass=1;
+						}
 					}
+					
 				}
 			}
 }

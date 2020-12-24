@@ -94,54 +94,27 @@ void readFile(){
 /*
 *shjfdhjfhdjfhsjfhjsfhsjfd
 */
-account* login(){
-  char nameUser[50];
-  char passwordUser[10];
-  int countLogin = 0;
-  printf("Ten dang nhap : \n");
-  scanf("%s",nameUser);
-  userInfo* user =  searchUser(nameUser);
-  if(user == NULL){
-    printf("Khong tim thay nguoi dung !\n");
-    return NULL;
-  }
-  do { 
-    printf("Nhap password : ");
-    scanf("%s",passwordUser);
-    if(strcmp(passwordUser,user->acc.password) == 0){
-      printf("Dang nhap thanh cong \n");
-      return &user->acc;
-    }else{
-      countLogin++;
-      printf("Password khong dung !\n");
-    }
-  }while(countLogin < 3);
-  return NULL;
-}
 
 
-void loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
+userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
  while(statususer==0){
            MESSAGE mess = RECEVE(newSocket);
 
           userInfo* user = searchUser(mess.mess); 
-          printf("NameUser da nhan : %s\n",mess.mess);
           if (user == NULL){
-            printf("Khong tim thay ng dung\n");
             char result[6] = "NOT OK";
             SEND(newSocket,result,mess.code);
           }else{
             statususer=1;
-            printf("Da tim thay ng dung\n");
             char result[6] = "OK";
             SEND(newSocket,result,LOG_USERNAME);
             while(statuspass==0){
               mess=RECEVE(newSocket);
-              printf("chuoi server nhan duoc pass tu client la %s\n",mess.mess );
               if(strcmp(mess.mess,user->acc.password)==0){
                 char login[30]="login success";
                 SEND(newSocket,login,LOG_PASSWORD);
                 statuspass=1;
+                return user;
               }
               else{
                 char login[30]="LOG_PASSWORD NOT OK";
@@ -185,6 +158,7 @@ int main(int argc, char*argv[]){
   readFile();
   printListUser();
  MESSAGE mess;
+  userInfo *user;
   int sockfd, ret;
    struct sockaddr_in serverAddr;
 
@@ -241,7 +215,7 @@ int main(int argc, char*argv[]){
         char nameUser[256], password[30];
         
        
-        loginUser(mess,newSocket,statususer,statuspass);
+        user=loginUser(mess,newSocket,statususer,statuspass);
       }
     }
 
