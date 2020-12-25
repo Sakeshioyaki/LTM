@@ -17,9 +17,13 @@ typedef struct accout{
 }account;
 
 
-void loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
+account loginUser(int clientSocket){
 	char userNameLogIn[50];
 	char pass[20];
+	int statususer=0;
+	int statuspass=0;
+	MESSAGE mess;
+	account user;
 	while(statususer==0){
 		getchar();
 		printf("User Name : ");
@@ -30,26 +34,51 @@ void loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
 		printf("=>sever :%s\n", mess.mess);
 		if(strcmp(mess.mess,"OK")==0){
 			statususer=1;
-			printf("User pass:  ");
-			scanf("%s",pass);
-			SEND(clientSocket,pass,LOG_PASSWORD);
-			mess=RECEVE(clientSocket);
-			printf("server: %s\n", mess.mess);
-			if(strcmp(mess.mess,"login success")==0){
-				statuspass=1;	
-			}
-		}
+			while(statuspass==0){
+				printf("User pass:  ");
+				scanf("%s",pass);
+				SEND(clientSocket,pass,LOG_PASSWORD);
+				mess=RECEVE(clientSocket);
+				printf("server: %s\n", mess.mess);
+				if(strcmp(mess.mess,"login success")==0){
+					statuspass=1;
+					strcpy(user.name, userNameLogIn);
+					user.status = 1;
+				}
+			}	
+		}	
 	}
+	return user;
 }
+
+account sigUp(int clientSocket){
+	char name[MAXLINE];
+	char password[MAXLINE];
+	MESSAGE mess;
+	account user;
+	printf("Nhap ten dang nhap : \n");
+	scanf("%s", name);
+	strcpy(user.name,name);
+	SEND(clientSocket, name, SIGN_UP_USERNAME);
+	mess = RECEVE(clientSocket);
+	printf("sever : %s\n",mess.mess );
+	printf("Nhap mat khau: \n");
+	scanf("%s",password);
+	SEND(clientSocket,password,SIGN_UP_PASSWORD);
+	user.status = 1;
+	return user;
+}
+
+
 int main(int argc, char const *argv[]){
 	int clientSocket, ret;
 	struct sockaddr_in serverAddr;
 	char buffer[1024];
 	
-	int statususer=0;
-			int statuspass=0;
 	char namesignin[100];
-	account* myUser = NULL;
+	account myUser;
+	//chua dang nhap
+	myUser.status = 0;
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if(clientSocket < 0){
 		printf("[-]Error in connection.\n");
@@ -70,13 +99,14 @@ int main(int argc, char const *argv[]){
 	printf("[+]Connected to Server.\n");
 	int select;
 	MESSAGE mess;
+	char tmp[10] = "hello";
+	char userName[MAXLINE];
 
 
 	while(1){
 		printf("---------------------------------------------\n");
 		printf("WELLCOME TO 'CHILL WITH YOU'\n");
 		printf("---------------------------------------------\n");
-//Layout 1 : Login and sign up
 		Layout1:
 		printf("Login or sign up\n");
 		printf("1: Login\n");
@@ -84,32 +114,37 @@ int main(int argc, char const *argv[]){
 		printf("Nhap vao select : \n");
 		scanf("%d",&select);
 		printf("%d\n",select );
-		// if(scanf("%d",&select) == 0 ){
-		// 	select = 0;
-		// }
 		switch(select){
 			case 1 :
-				loginUser(mess,clientSocket,statususer,statuspass);
-			goto Layout1;	
+				myUser = loginUser(clientSocket);
+				goto Layout1;	
 				break;
 			case 2 :
-				printf("\n");
+				myUser = sigUp(clientSocket);
+				if(myUser.status != 0){
+					printf("Da tao tai khoan thanh cong ! Ban dang dang nhap \n");
+				}else{
+					printf("Loi khi tao tai khoan\n");
+				}
 				break;
 			default:
 				printf("Vui long nhap dau vao hop le !\n");
 				goto Layout1;
 				break;
 		}
-
 		Layout2:
 		printf("---------------------------------------------\n");
 		printf("WELLCOME TO 'CHILL WITH YOU'\n");
-		if(myUser != NULL){
-			printf(" =>> Xin chao %s !\n",myUser->name);
+		if(myUser.status == 1){
+			printf(" =>> Xin chao %s !\n",myUser.name);
 		}
 		printf("---------------------------------------------\n");		
-		printf("1: Login\n");
-		printf("2: Sign up\n");
+		printf("1: Choi game voi may\n");
+		printf("2: Choi game voi ban\n");
+		printf("3: Chat voi ban\n");
+		printf("4: Ket ban\n");
+		printf("5: Xem danh sach ban be\n");
+		printf("6: Log Out\n");
 		printf("Nhap vao select : \n");
 		scanf("%d",&select);
 		printf("%d\n",select );
