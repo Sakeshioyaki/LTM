@@ -73,7 +73,6 @@ MESSAGE RECEVE(int newSocket){
 	recv(newSocket,messClient,1024,0);
 	mess=tachChuoi(messClient);
 	return mess;
-
 }
 
 void taoMessage(char *mess, const char *code){

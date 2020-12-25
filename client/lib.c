@@ -87,7 +87,7 @@ void taoMessage(char *mess, const char *code){
 	strcpy(mess, resurlt);
 }
 
-int SEND(int clientSockfd, char *mess, CODE code){
+void SEND(int clientSockfd, char *mess, CODE code){
 
 	switch(code){
 		case YC_KET_BAN:
@@ -114,9 +114,6 @@ int SEND(int clientSockfd, char *mess, CODE code){
 		default:
 			printf("SAI MA CODE !");
 	}
-
-
 	// MESSAGE *newMess = createMessage(mess, code);
-	int k=send(clientSockfd, mess, strlen(mess)+1, 0);
-	return k;
+	send(clientSockfd, mess, strlen(mess)+1, 0);
 }
