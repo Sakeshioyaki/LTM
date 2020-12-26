@@ -78,6 +78,7 @@ int main(int argc, char const *argv[]){
 	char tmp[10] = "hello";
 	char result[50];
 	char game[20]="choi game";
+	int trueQues;
 	while(1){
 		printf("---------------------------------------------\n");
 		printf("WELLCOME TO 'CHILL WITH YOU'\n");
@@ -104,17 +105,26 @@ int main(int argc, char const *argv[]){
 			
 				break;
 			case 2 :
-			
-				SEND(clientSocket,game,YC_CHOI_GAME);
-				mess=RECEVE(clientSocket);
-				printf("Question : %s\n",mess.mess );
-				__fpurge(stdin);
-				fgets(result,sizeof(result),stdin);
-				result[strlen(result)-1]='\0';
-				// scanf("%s",result);
-				SEND(clientSocket,result,YC_CHOI_GAME);
-				mess=RECEVE(clientSocket);
-				printf("=>server: %s\n", mess.mess);
+					trueQues=1;
+					int k=0;
+				while(trueQues==1){
+					k++;
+					printf("gui lan nay la %d\n",k );
+					SEND(clientSocket,game,YC_CHOI_GAME);
+					mess=RECEVE(clientSocket);
+					printf("Question : %s\n",mess.mess );
+					__fpurge(stdin);
+					fgets(result,sizeof(result),stdin);
+					result[strlen(result)-1]='\0';
+					// scanf("%s",result);
+					SEND(clientSocket,result,YC_CHOI_GAME);
+					mess=RECEVE(clientSocket);
+					printf("=>server: %s\n", mess.mess);
+					if(strcmp(mess.mess,"OK")!=0){
+						trueQues=0;
+					}
+				}
+				
 				
 				break;
 			default:

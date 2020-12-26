@@ -113,7 +113,7 @@ int SEND(int clientSockfd, char *mess, CODE code){
 			printf("SAI MA CODE !");
 	}
 
-
+	printf("gui chuoi %s\n",mess );
 	// MESSAGE *newMess = createMessage(mess, code);
 	int k=send(clientSockfd, mess, strlen(mess)+1, 0);
 	return k;

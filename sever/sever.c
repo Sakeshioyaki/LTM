@@ -17,8 +17,8 @@
 typedef struct question
 {
   int id;
-  char ques[500];
-  char solustion[100];
+  char ques[800];
+  char solustion[500];
 }question;
 typedef struct QuestionList
 {
@@ -139,13 +139,13 @@ void readFile(){
 void readfileGame(){
   question newquestion;
   FILE *f;
-  char result[200];
+  char result[1024];
   f=fopen("question.txt","r");
   if(f==NULL){
     printf("file not exsist\n");
     return;
   }
-  while(fgets(result,100,f)!= NULL){
+  while(fgets(result,1024,f)!= NULL){
       char *token;
       int k=0;
       token=strtok(result,"\t");
@@ -318,7 +318,7 @@ int main(int argc, char*argv[]){
         char time[10];
         printf("bat dau ket noi !\n");
         char nameUser[256], password[30];       
-       conti: mess = RECEVE(newSocket);
+        conti:   mess = RECEVE(newSocket);
         if(mess.code == LOG_USERNAME){
           user=loginUser(mess,newSocket,statususer,statuspass);
         }
@@ -331,6 +331,7 @@ int main(int argc, char*argv[]){
          if(strstr(mess.mess,result)==NULL){
           char ph[20]="OK";
           SEND(newSocket,ph,YC_CHOI_GAME);
+          goto conti;
           
          }
          else{
