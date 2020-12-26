@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <time.h>
 #include "lib.c"
 #define PORT 8080
 #define fileName "account.txt"
@@ -16,7 +17,7 @@
 typedef struct question
 {
   int id;
-  char ques[200];
+  char ques[500];
   char solustion[100];
 }question;
 typedef struct QuestionList
@@ -39,6 +40,24 @@ void addQuestion(question question){
     newquestion->next=ques;
     ques=newquestion;
   }
+}
+void printListQuestion(){
+  QuestionList* tmp = ques;
+  printf("List question: \n");
+  while(tmp != NULL){
+    printf("%d   %s     %s\n", tmp->qs.id,tmp->qs.ques,tmp->qs.solustion);
+    tmp = tmp->next;
+  }
+}
+
+int lengList(){
+  QuestionList* tmp = ques;
+  int k=0;
+  while(tmp != NULL){
+    k++;
+    tmp = tmp->next;
+  }
+  return k;
 }
 // user
 typedef struct accout{
@@ -120,14 +139,33 @@ void readFile(){
 void readfileGame(){
   question newquestion;
   FILE *f;
+  char result[200];
   f=fopen("question.txt","r");
   if(f==NULL){
     printf("file not exsist\n");
     return;
   }
-  while(fscanf(f,"%d  %s  %s  ",&newquestion.id,newquestion.ques,newquestion.solustion)){
-    printf("%d %s %s\n",newquestion.id,newquestion.ques,newquestion.solustion );
-    addQuestion(newquestion);
+  while(fgets(result,100,f)!= NULL){
+      char *token;
+      int k=0;
+      token=strtok(result,"\t");
+      // printf("%s\n",token );
+      while(token!=NULL){
+        k++;
+        if(k==1){
+          newquestion.id=atoi(token);
+        }
+        else if(k==2){
+          strcpy(newquestion.ques,token);
+        }
+        else if(k==3){
+          strcpy(newquestion.solustion,token);
+          addQuestion(newquestion);
+        }
+       
+        token=strtok(NULL,"\t");
+        // printf("%s\n",token );
+      }
   }
   fclose(f);
 }
@@ -172,7 +210,29 @@ userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
   
 }
 
+char* sendQuestion(int newSocket){
+  QuestionList* tmp = ques;
+  int u=lengList();
+  int k=1+rand()%u;
+  while(tmp != NULL){
+    if(tmp->qs.id==k){
+      SEND(newSocket,tmp->qs.ques,YC_CHOI_GAME);
+      return tmp->qs.solustion;
+    }
+    tmp = tmp->next;
+  }
 
+}
+// thoi gian ma client tra loi 
+
+void format_time(char *output){
+    time_t rawtime;
+    struct tm * timeinfo;
+ 
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );
+    sprintf(output,"%d:%d\n",timeinfo->tm_min,timeinfo->tm_sec);
+}
 
 //EDIT
 /*
@@ -201,8 +261,12 @@ userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
 int main(int argc, char*argv[]){
   readFile();
   printListUser();
- MESSAGE mess;
+  MESSAGE mess;
   userInfo *user;
+  // QuestionList *ques;
+  printf("%s\t%s\n","hello","world" );
+  readfileGame();
+  printListQuestion();
   int sockfd, ret;
   struct sockaddr_in serverAddr;
 
@@ -253,11 +317,30 @@ int main(int argc, char*argv[]){
       while(1){
         int statususer=0;
         int statuspass=0;
+        char time[10];
         printf("bat dau ket noi !\n");
         char nameUser[256], password[30];       
-        mess = RECEVE(newSocket);
+       conti: mess = RECEVE(newSocket);
+        printf("yeu cau nan duo la %s\n", mess.mess);
         if(mess.code == LOG_USERNAME){
           user=loginUser(mess,newSocket,statususer,statuspass);
+        }
+        else if(mess.code == YC_CHOI_GAME){
+         char* result=sendQuestion(newSocket);
+         printf("result cua cau hoi nayf la %s\n", result);
+         mess=RECEVE(newSocket);
+         format_time(time);
+         printf("time: %s\n", time);
+         if(strcmp(mess.mess,result)==0){
+          printf("vao day chuwa\n");
+          char ph[20]="OK";
+          SEND(newSocket,ph,YC_CHOI_GAME);
+          
+         }
+         else{
+          char ph[50]="ban da thua";
+          SEND(newSocket,ph,YC_CHOI_GAME);
+         }
         }
         
       }

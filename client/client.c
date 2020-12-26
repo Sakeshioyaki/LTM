@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdio_ext.h>
 #include "lib.c"
 #define PORT 8080
 #define MAXLINE 100
@@ -75,8 +76,8 @@ int main(int argc, char const *argv[]){
 	int select;
 	MESSAGE mess;
 	char tmp[10] = "hello";
-
-
+	char result[50];
+	char game[20]="choi game";
 	while(1){
 		printf("---------------------------------------------\n");
 		printf("WELLCOME TO 'CHILL WITH YOU'\n");
@@ -96,10 +97,24 @@ int main(int argc, char const *argv[]){
 			case 1 :
 				SEND(clientSocket,tmp,LOG_USERNAME);
 				loginUser(mess,clientSocket,statususer,statuspass);
-			goto Layout1;	
+				printf("gia trij statuspass laf %d\n", statuspass);
+				if(statuspass==1){
+					goto Layout2;
+				}
+			
 				break;
 			case 2 :
-
+			
+				SEND(clientSocket,game,YC_CHOI_GAME);
+				mess=RECEVE(clientSocket);
+				printf("Question : %s\n",mess.mess );
+				__fpurge(stdin);
+				fgets(result,sizeof(result),stdin);
+				result[strlen(result)-1]='\0';
+				SEND(clientSocket,result,YC_CHOI_GAME);
+				mess=RECEVE(clientSocket);
+				printf("=>server: %s\n", mess.mess);
+				
 				break;
 			default:
 				printf("Vui long nhap dau vao hop le !\n");

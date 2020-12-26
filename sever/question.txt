@@ -1,3 +1,8 @@
 1	con meo tieng anh la gi		cat
 2	1dm=?cm		10
 3 	Bỏ ngoài nướng trong, ăn ngoài bỏ trong là gì?		Nướng bắp ngô
+4	Bệnh gì bác siz bó tay?		gãy tay
+5 	Con gì ăn lửa với nước than? 	con tàu 
+6 	Có 1 đàn chim đậu trên cành, người thợ săn bắn cái rằm. Hỏi chết mấy con?	15 con
+7	Nắng ba năm tôi không bỏ bạn, mưa 1 ngày sao bạn lại bỏ tôi là cái gì? 	cái bóng của mình
+8 	Tay cầm cục thịt nắn nắn, tay vỗ mông là đang làm gì? 	cho con bú
