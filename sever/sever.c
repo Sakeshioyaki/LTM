@@ -149,7 +149,6 @@ void readfileGame(){
       char *token;
       int k=0;
       token=strtok(result,"\t");
-      // printf("%s\n",token );
       while(token!=NULL){
         k++;
         if(k==1){
@@ -164,7 +163,6 @@ void readfileGame(){
         }
        
         token=strtok(NULL,"\t");
-        // printf("%s\n",token );
       }
   }
   fclose(f);
@@ -210,14 +208,15 @@ userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
   
 }
 
-char* sendQuestion(int newSocket){
+void sendQuestion(int newSocket,char solu[50]){
   QuestionList* tmp = ques;
   int u=lengList();
-  int k=1+rand()%u;
+  int k=rand()%u+1;
   while(tmp != NULL){
     if(tmp->qs.id==k){
       SEND(newSocket,tmp->qs.ques,YC_CHOI_GAME);
-      return tmp->qs.solustion;
+      strcpy(solu,tmp->qs.solustion);
+      break;
     }
     tmp = tmp->next;
   }
@@ -264,7 +263,6 @@ int main(int argc, char*argv[]){
   MESSAGE mess;
   userInfo *user;
   // QuestionList *ques;
-  printf("%s\t%s\n","hello","world" );
   readfileGame();
   printListQuestion();
   int sockfd, ret;
@@ -321,18 +319,16 @@ int main(int argc, char*argv[]){
         printf("bat dau ket noi !\n");
         char nameUser[256], password[30];       
        conti: mess = RECEVE(newSocket);
-        printf("yeu cau nan duo la %s\n", mess.mess);
         if(mess.code == LOG_USERNAME){
           user=loginUser(mess,newSocket,statususer,statuspass);
         }
-        else if(mess.code == YC_CHOI_GAME){
-         char* result=sendQuestion(newSocket);
-         printf("result cua cau hoi nayf la %s\n", result);
+        else if(mess.code == 1){
+          char result[50];
+         sendQuestion(newSocket,result);
          mess=RECEVE(newSocket);
          format_time(time);
          printf("time: %s\n", time);
-         if(strcmp(mess.mess,result)==0){
-          printf("vao day chuwa\n");
+         if(strstr(mess.mess,result)==NULL){
           char ph[20]="OK";
           SEND(newSocket,ph,YC_CHOI_GAME);
           

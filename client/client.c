@@ -18,7 +18,7 @@ typedef struct accout{
 }account;
 
 
-void loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
+int loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
 	char userNameLogIn[50];
 	char pass[20];
 	while(statususer==0){
@@ -39,7 +39,7 @@ void loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
 						printf("server: %s\n", mess.mess);
 						if(strcmp(mess.mess,"login success")==0){
 							statuspass=1;
-							
+							return statuspass;
 						}
 					}
 					
@@ -96,7 +96,7 @@ int main(int argc, char const *argv[]){
 		switch(select){
 			case 1 :
 				SEND(clientSocket,tmp,LOG_USERNAME);
-				loginUser(mess,clientSocket,statususer,statuspass);
+				statuspass= loginUser(mess,clientSocket,statususer,statuspass);
 				printf("gia trij statuspass laf %d\n", statuspass);
 				if(statuspass==1){
 					goto Layout2;
@@ -111,6 +111,7 @@ int main(int argc, char const *argv[]){
 				__fpurge(stdin);
 				fgets(result,sizeof(result),stdin);
 				result[strlen(result)-1]='\0';
+				// scanf("%s",result);
 				SEND(clientSocket,result,YC_CHOI_GAME);
 				mess=RECEVE(clientSocket);
 				printf("=>server: %s\n", mess.mess);
