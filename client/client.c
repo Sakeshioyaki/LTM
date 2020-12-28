@@ -17,9 +17,10 @@ typedef struct accout{
 }account;
 
 
-account loginUser(int clientSocket){
+int loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
 	char userNameLogIn[50];
 	char pass[20];
+<<<<<<< Updated upstream
 	int statususer=0;
 	int statuspass=0;
 	MESSAGE mess;
@@ -49,6 +50,32 @@ account loginUser(int clientSocket){
 		}	
 	}
 	return user;
+=======
+	while(statususer==0){
+				getchar();
+				printf("User Name : ");
+				scanf("%s",userNameLogIn);
+				printf("da send %s\n", userNameLogIn);
+				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
+				mess = RECEVE(clientSocket);
+				printf("=>sever :%s\n", mess.mess);
+				if(strcmp(mess.mess,"OK")==0){
+					statususer=1;
+					while(statuspass==0){
+						printf("User pass:  ");
+						scanf("%s",pass);
+						SEND(clientSocket,pass,LOG_PASSWORD);
+						mess=RECEVE(clientSocket);
+						printf("server: %s\n", mess.mess);
+						if(strcmp(mess.mess,"login success")==0){
+							statuspass=1;
+							return statuspass;
+						}
+					}
+					
+				}
+			}
+>>>>>>> Stashed changes
 }
 
 account sigUp(int clientSocket){
@@ -76,7 +103,7 @@ int main(int argc, char const *argv[]){
 	char buffer[1024];
 	
 	char namesignin[100];
-	account myUser;
+	account  myUser;
 	//chua dang nhap
 	myUser.status = 0;
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -101,6 +128,8 @@ int main(int argc, char const *argv[]){
 	MESSAGE mess;
 	char tmp[10] = "hello";
 	char userName[MAXLINE];
+	int statususer=0;
+	int statuspass=0;
 
 
 	while(1){
@@ -116,8 +145,12 @@ int main(int argc, char const *argv[]){
 		printf("%d\n",select );
 		switch(select){
 			case 1 :
-				myUser = loginUser(clientSocket);
-				goto Layout1;	
+				SEND(clientSocket,tmp,LOG_USERNAME);
+				statuspass= loginUser(mess,clientSocket,statususer,statuspass);
+				printf("gia trij statuspass laf %d\n", statuspass);
+				if(statuspass==1){
+					goto Layout2;
+				}
 				break;
 			case 2 :
 				myUser = sigUp(clientSocket);
