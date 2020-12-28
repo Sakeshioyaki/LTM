@@ -25,7 +25,6 @@ int loginUser(MESSAGE mess, int clientSocket,int statususer,int statuspass){
 				getchar();
 				printf("User Name : ");
 				scanf("%s",userNameLogIn);
-				printf("da send %s\n", userNameLogIn);
 				SEND(clientSocket, userNameLogIn, LOG_USERNAME);
 				mess = RECEVE(clientSocket);
 				printf("=>sever :%s\n", mess.mess);
@@ -96,7 +95,7 @@ int main(int argc, char const *argv[]){
 		// }
 		switch(select){
 			case 1 :
-				SEND(clientSocket,tmp,LOG_USERNAME);
+				// SEND(clientSocket,tmp,LOG_USERNAME);
 				statuspass= loginUser(mess,clientSocket,statususer,statuspass);
 				printf("gia trij statuspass laf %d\n", statuspass);
 				if(statuspass==1){
@@ -104,26 +103,26 @@ int main(int argc, char const *argv[]){
 				}
 			
 				break;
-			case 2 :
-					trueQues=1;
-				while(1){
-					SEND(clientSocket,game,YC_CHOI_GAME);
-					mess=RECEVE(clientSocket);
-					printf("Question : %s\n",mess.mess );
-					__fpurge(stdin);
-					fgets(result,sizeof(result),stdin);
-					result[strlen(result)-1]='\0';
-					SEND(clientSocket,result,YC_CHOI_GAME);
-					mess=RECEVE(clientSocket);
-					printf("=>server: %s\n", mess.mess);
+			// case 2 :
+			// 		trueQues=1;
+			// 	while(1){
+			// 		SEND(clientSocket,game,YC_CHOI_GAME);
+			// 		mess=RECEVE(clientSocket);
+			// 		printf("Question : %s\n",mess.mess );
+			// 		__fpurge(stdin);
+			// 		fgets(result,sizeof(result),stdin);
+			// 		result[strlen(result)-1]='\0';
+			// 		SEND(clientSocket,result,YC_CHOI_GAME);
+			// 		mess=RECEVE(clientSocket);
+			// 		printf("=>server: %s\n", mess.mess);
 					// if(strcmp(mess.mess,"OK")!=0){
 					// 	trueQues=0;
 					// }
 
-				}
+				// }
 				
 				
-				break;
+				// break;
 			default:
 				printf("Vui long nhap dau vao hop le !\n");
 				goto Layout1;

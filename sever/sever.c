@@ -312,39 +312,39 @@ int main(int argc, char*argv[]){
     printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
     if((childpid=fork())==0){
       close(sockfd);
-      int diem=0;
       while(1){
         int statususer=0;
         int statuspass=0;
         char time[10];
         printf("bat dau ket noi !\n");
-        char nameUser[256], password[30];       
-        conti:   mess = RECEVE(newSocket);
-        if(mess.code == LOG_USERNAME){
+        char nameUser[256], password[30]; 
+        // int diem=0;      
+        // conti:   mess = RECEVE(newSocket);
+        // if(mess.code == LOG_USERNAME){
           user=loginUser(mess,newSocket,statususer,statuspass);
-        }
-        else if(mess.code == 1){
-          char result[50];
-         sendQuestion(newSocket,result);
-         mess=RECEVE(newSocket);
-         format_time(time);
-         printf("time: %s\n", time);
-         if(strstr(result,mess.mess)!=NULL){
-          char ph[20]="OK";
-          diem++;
-          printf("diem hien tai la %d\n",diem );
-          SEND(newSocket,ph,YC_CHOI_GAME);
-          goto conti;
+        // }
+        // else if(mess.code == 1){
+        //   char result[50];
+        //  sendQuestion(newSocket,result);
+        //  mess=RECEVE(newSocket);
+        //  format_time(time);
+        //  printf("time: %s\n", time);
+        //  if(strstr(result,mess.mess)!=NULL){
+        //   char ph[20]="OK";
+        //   diem++;
+        //   printf("diem hien tai la %d\n",diem );
+        //   SEND(newSocket,ph,YC_CHOI_GAME);
+        //   goto conti;
           
-         }
-         else{
-          char ph[50]="ban da thua";
-          diem--;
-           printf("diem hien tai la %d\n",diem );
-          SEND(newSocket,ph,YC_CHOI_GAME);
-          goto conti;
-         }
-        }
+        //  }
+        //  else{
+        //   char ph[50]="ban da thua";
+        //   diem--;
+        //    printf("diem hien tai la %d\n",diem );
+        //   SEND(newSocket,ph,YC_CHOI_GAME);
+        //   goto conti;
+        //  }
+        // }
         
       }
     }
