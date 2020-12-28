@@ -14,7 +14,35 @@
 
 #define MAXLINE 100
 #define MAX 50 //max friend
-
+// question
+typedef struct question
+{
+  int id;
+  char ques[200];
+  char solustion[100];
+}question;
+typedef struct QuestionList
+{
+  question qs;
+  struct QuestionList *next;
+}QuestionList;
+QuestionList *ques=NULL;
+QuestionList *createNewQuestion(question question){
+  QuestionList *node=(QuestionList *)malloc(sizeof(QuestionList));
+  node->qs=question;
+  node->next=NULL;
+  return node;
+}
+void addQuestion(question question){
+  QuestionList *newquestion=createNewQuestion(question);
+  if(ques==NULL){
+    ques=newquestion;
+  }else{
+    newquestion->next=ques;
+    ques=newquestion;
+  }
+}
+// user
 typedef struct accout{
   char name[MAXLINE];
   char password[MAXLINE];
@@ -92,42 +120,58 @@ void readFile(){
 
 }
 
+void readfileGame(){
+  question newquestion;
+  FILE *f;
+  f=fopen("question.txt","r");
+  if(f==NULL){
+    printf("file not exsist\n");
+    return;
+  }
+  while(fscanf(f,"%d  %s  %s  ",&newquestion.id,newquestion.ques,newquestion.solustion)){
+    printf("%d %s %s\n",newquestion.id,newquestion.ques,newquestion.solustion );
+    addQuestion(newquestion);
+  }
+  fclose(f);
+}
+
+
 
 //EDIT
 /*
 *shjfdhjfhdjfhsjfhjsfhsjfd
 */
 
-userInfo* loginUser(MESSAGE mess, int newSocket,userInfo *user){
-  int statususer = 0;
-  int statuspass = 0;
-  while(statususer==0){
-    MESSAGE mess = RECEVE(newSocket);
+// userInfo* loginUser(MESSAGE mess, int newSocket,userInfo *user){
+//   int statususer = 0;
+//   int statuspass = 0;
+//   while(statususer==0){
+//     MESSAGE mess = RECEVE(newSocket);
 
-    userInfo* user = searchUser(mess.mess); 
-    if (user == NULL){
-      char result[6] = "NOT OK";
-      SEND(newSocket,result,mess.code);
-    }else{
-      statususer=1;
-      char result[6] = "OK";
-      SEND(newSocket,result,LOG_USERNAME);
-      while(statuspass==0){
-        mess=RECEVE(newSocket);
-        if(strcmp(mess.mess,user->acc.password)==0){
-          char login[30]="login success";
-          SEND(newSocket,login,LOG_PASSWORD);
-          statuspass=1;
-          return user;
-        }
-        else{
-          char login[30]="LOG_PASSWORD NOT OK";
-          SEND(newSocket,login,LOG_PASSWORD);
-        }
-      }
-    }
-  }
-}
+//     userInfo* user = searchUser(mess.mess); 
+//     if (user == NULL){
+//       char result[6] = "NOT OK";
+//       SEND(newSocket,result,mess.code);
+//     }else{
+//       statususer=1;
+//       char result[6] = "OK";
+//       SEND(newSocket,result,LOG_USERNAME);
+//       while(statuspass==0){
+//         mess=RECEVE(newSocket);
+//         if(strcmp(mess.mess,user->acc.password)==0){
+//           char login[30]="login success";
+//           SEND(newSocket,login,LOG_PASSWORD);
+//           statuspass=1;
+//           return user;
+//         }
+//         else{
+//           char login[30]="LOG_PASSWORD NOT OK";
+//           SEND(newSocket,login,LOG_PASSWORD);
+//         }
+//       }
+//     }
+//   }
+// }
 
 void WriteToFile(account newAccount){
   printf("dang viet vao %s %s\n",newAccount.name, newAccount.password );
@@ -154,6 +198,38 @@ userInfo *singUp(MESSAGE mess,int newSocket){
   WriteToFile(newAccount);
   printf("ok \n");
   return user;
+}
+
+userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
+ while(statususer==0){
+           MESSAGE mess = RECEVE(newSocket);
+
+          userInfo* user = searchUser(mess.mess); 
+          if (user == NULL){
+            char result[6] = "NOT OK";
+            SEND(newSocket,result,mess.code);
+          }else{
+            statususer=1;
+            char result[6] = "OK";
+            SEND(newSocket,result,LOG_USERNAME);
+            while(statuspass==0){
+              mess=RECEVE(newSocket);
+              if(strcmp(mess.mess,user->acc.password)==0){
+                char login[30]="login success";
+                SEND(newSocket,login,LOG_PASSWORD);
+                statuspass=1;
+                return user;
+              }
+              else{
+                char login[30]="LOG_PASSWORD NOT OK";
+                SEND(newSocket,login,LOG_PASSWORD);
+              }
+            }
+
+
+          }
+        }  
+  
 }
 
 
@@ -235,17 +311,7 @@ int main(int argc, char*argv[]){
 
         //login
         if(mess.code == LOG_USERNAME){
-          user = searchUser(mess.mess);
-          // printf("username : %s\n", user->acc.name );
-          if(user == NULL){
-            printf("Ten ng dung ko ton tai!");
-            char result[6] = "NOT OK";
-            SEND(newSocket,result,LOG_USERNAME);
-            continue;
-          }else{
-            printf("Dang login ....n");
-            loginUser(mess,newSocket,user);
-          }
+          user=loginUser(mess,newSocket,statususer,statuspass);
         }
 
         //dang ki

@@ -31,11 +31,9 @@ MESSAGE *createMessage(char buff[], CODE code){
 	return newMess;
 }
 MESSAGE tachChuoi(char message[1024]){
-	printf("%s\n", message);
 	MESSAGE mess;
 	CODE code;
 	char *token = strtok(message,"/");
-	printf("%s\n",token);
 	if(strcmp(token, "YC_KET_BAN") == 0){
 		code = YC_KET_BAN;
 	}

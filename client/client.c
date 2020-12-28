@@ -25,10 +25,12 @@ account loginUser(int clientSocket){
 	MESSAGE mess;
 	account user;
 	int statuspass =0;
-	int statusname = 0;
+	int statususer = 0;
 	int nghichoi= 1;
 	getchar();
-	do{
+
+	while(statususer==0){
+		getchar();
 		printf("User Name : ");
 		scanf("%s",userNameLogIn);
 		printf("da send %s\n", userNameLogIn);
@@ -36,27 +38,20 @@ account loginUser(int clientSocket){
 		mess = RECEVE(clientSocket);
 		printf("=>sever :%s\n", mess.mess);
 		if(strcmp(mess.mess,"OK")==0){
-			statusname = 1;
+			statususer=1;
 			while(statuspass==0){
 				printf("User pass:  ");
 				scanf("%s",pass);
 				SEND(clientSocket,pass,LOG_PASSWORD);
-				printf("da send  pass : %s\n", pass);
 				mess=RECEVE(clientSocket);
 				printf("server: %s\n", mess.mess);
 				if(strcmp(mess.mess,"login success")==0){
 					statuspass=1;
-					strcpy(user.name, userNameLogIn);
-					user.status = 1;
+					
 				}
-			}	
-		}else{
-			printf("Ten dang nhap khong hop le\n");
-			printf("Nhap 0 de dung dang nhap \n");
-			scanf("%d", &nghichoi);
-		}	
-	}while(statusname == 0 || nghichoi != 0);
-
+			}
+		}
+	}
 	return user;
 }
 
@@ -121,7 +116,6 @@ int main(int argc, char const *argv[]){
 	MESSAGE mess;
 	char tmp[10] = "hello";
 	char userName[MAXLINE];
-
 
 	while(1){
 		printf("---------------------------------------------\n");
