@@ -106,23 +106,20 @@ int main(int argc, char const *argv[]){
 				break;
 			case 2 :
 					trueQues=1;
-					int k=0;
-				while(trueQues==1){
-					k++;
-					printf("gui lan nay la %d\n",k );
+				while(1){
 					SEND(clientSocket,game,YC_CHOI_GAME);
 					mess=RECEVE(clientSocket);
 					printf("Question : %s\n",mess.mess );
 					__fpurge(stdin);
 					fgets(result,sizeof(result),stdin);
 					result[strlen(result)-1]='\0';
-					// scanf("%s",result);
 					SEND(clientSocket,result,YC_CHOI_GAME);
 					mess=RECEVE(clientSocket);
 					printf("=>server: %s\n", mess.mess);
-					if(strcmp(mess.mess,"OK")!=0){
-						trueQues=0;
-					}
+					// if(strcmp(mess.mess,"OK")!=0){
+					// 	trueQues=0;
+					// }
+
 				}
 				
 				

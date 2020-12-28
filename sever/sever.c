@@ -312,6 +312,7 @@ int main(int argc, char*argv[]){
     printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
     if((childpid=fork())==0){
       close(sockfd);
+      int diem=0;
       while(1){
         int statususer=0;
         int statuspass=0;
@@ -328,15 +329,20 @@ int main(int argc, char*argv[]){
          mess=RECEVE(newSocket);
          format_time(time);
          printf("time: %s\n", time);
-         if(strstr(mess.mess,result)==NULL){
+         if(strstr(result,mess.mess)!=NULL){
           char ph[20]="OK";
+          diem++;
+          printf("diem hien tai la %d\n",diem );
           SEND(newSocket,ph,YC_CHOI_GAME);
           goto conti;
           
          }
          else{
           char ph[50]="ban da thua";
+          diem--;
+           printf("diem hien tai la %d\n",diem );
           SEND(newSocket,ph,YC_CHOI_GAME);
+          goto conti;
          }
         }
         

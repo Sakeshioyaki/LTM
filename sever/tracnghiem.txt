@@ -1,0 +1,16 @@
+1	Có một ddnf vịt,cho biết 1 con đi trước thì có 2 con đi sau, 1 con đi sau thì có 2 con đi trước,1 con đi giữa thì có 2 con đi 2 bên.HỎi đàn vịt có mấy con?
+A.1 
+B.2 
+C.3 
+D.4		C	
+2	Làm thế nào để qua được câu này?
+A.bỏ cuộc 
+B.Cho tôi qua đi mà 
+C.Không thể qua 
+D.Câu này khó quá 		A
+3	Sở thú bị cháy, con gì chạy ra đầu tiên? 
+A.con chim 
+B.con rắn 
+C.con người 
+D.con tê giác 		C
+4	
