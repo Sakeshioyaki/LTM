@@ -19,7 +19,7 @@ typedef struct accout{
 }account;
 
 
-account loginUser(int clientSocket){
+account *loginUser(int clientSocket){
 	char userNameLogIn[50];
 	char pass[20];
 	MESSAGE mess;
@@ -52,10 +52,10 @@ account loginUser(int clientSocket){
 			}
 		}
 	}
-	return user;
+	return &user;
 }
 
-account sigUp(int clientSocket){
+account *sigUp(int clientSocket){
 	char name[MAXLINE];
 	char password[MAXLINE];
 	MESSAGE mess;
@@ -81,8 +81,33 @@ account sigUp(int clientSocket){
 		}
 		
 	}while(check == 0);
-	return user;
+	return &user;
 }
+
+void requestFriend(int clientSocket){
+	char name[MAXLINE];
+	MESSAGE mess;
+	int check = 0;
+	do{
+		printf("Nhap ten nguoi ban muon ket ban : ");
+		fgets(name,MAXLINE,stdin);
+		name[sizeof(name)-1] = '\0';
+		SEND(clientSocket, name,YC_KET_BAN);
+		mess = RECEVE(clientSocket);
+		if(strcmp(mess.mess, NOTOK) == 0){
+			printf("Khong ton tai nguoi dung trong he thong ! 
+					\nVui long nhap ten hop le\n
+					<<Nhan 1 de ket thuc / 0 de tiep tuc>>");
+			scanf("%d",&check);
+		}else{
+			printf("Yeu cau cua ban da duoc gui!\n
+				Vui long cho ban cua ban xac nhan \n");
+			return;
+		}
+	}while(check == 0);
+
+}
+
 
 
 int main(int argc, char const *argv[]){
@@ -91,7 +116,7 @@ int main(int argc, char const *argv[]){
 	char buffer[1024];
 	
 	char namesignin[100];
-	account myUser;
+	account *myUser;
 	//chua dang nhap
 	myUser.status = 0;
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -135,7 +160,7 @@ int main(int argc, char const *argv[]){
 				break;
 			case 2 :
 				myUser = sigUp(clientSocket);
-				if(myUser.status != 0){
+				if(myUser->status != 0){
 					printf("Da tao tai khoan thanh cong ! Ban dang dang nhap \n");
 				}else{
 					printf("Loi khi tao tai khoan\n");
@@ -149,8 +174,8 @@ int main(int argc, char const *argv[]){
 		Layout2:
 		printf("---------------------------------------------\n");
 		printf("WELLCOME TO 'CHILL WITH YOU'\n");
-		if(myUser.status == 1){
-			printf(" =>> Xin chao %s !\n",myUser.name);
+		if(myUser->status == 1){
+			printf(" =>> Xin chao %s !\n",myUser->name);
 		}
 		printf("---------------------------------------------\n");		
 		printf("1: Choi game voi may\n");
@@ -162,6 +187,26 @@ int main(int argc, char const *argv[]){
 		printf("Nhap vao select : \n");
 		scanf("%d",&select);
 		printf("%d\n",select );
+		switch(select){
+			case 1:
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+			case 4:
+				requestFriend(clientSocket);
+				break;
+			case 5:
+				break;
+			case 6:
+				myUser->status = 0;
+				myUser = NULL;
+				break;
+			default:
+				printf("nhap lua chon hop le !\n");
+				break;
+		}
 					
 	}//end while(1)
 	close(clientSocket);

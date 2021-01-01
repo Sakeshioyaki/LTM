@@ -7,260 +7,29 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "lib.c"
+#include "user.c"
+#include "question.c"
+#include "userOnlineAndChatRoom.c"
+
 #define PORT 8080
 #define fileName "account.txt"
 #define NOTOK "NOT OK"
 #define OK "OK"
-
 #define MAXLINE 100
 #define MAX 50 //max friend
-// question
-typedef struct question
-{
-  int id;
-  char ques[200];
-  char solustion[100];
-}question;
-typedef struct QuestionList
-{
-  question qs;
-  struct QuestionList *next;
-}QuestionList;
-QuestionList *ques=NULL;
-QuestionList *createNewQuestion(question question){
-  QuestionList *node=(QuestionList *)malloc(sizeof(QuestionList));
-  node->qs=question;
-  node->next=NULL;
-  return node;
-}
-void addQuestion(question question){
-  QuestionList *newquestion=createNewQuestion(question);
-  if(ques==NULL){
-    ques=newquestion;
-  }else{
-    newquestion->next=ques;
-    ques=newquestion;
-  }
-}
-// user
-typedef struct accout{
-  char name[MAXLINE];
-  char password[MAXLINE];
-}account;
-
-//status = 0 : offline
-//status = 1 : online
-typedef struct userInfo{
-  account acc;
-  int status;
-  struct userInfo *next;
-}userInfo;
-
-userInfo* root = NULL;
-
-userInfo* createNewUser(account a){
-  userInfo* node = (userInfo *)malloc(sizeof(userInfo)); 
-  node->acc = a;
-  node->next = NULL;
-  return node;
-}
-
-void addUser(userInfo* newUser){
-  if(root == NULL){
-    root = newUser;
-  }else{
-  newUser->next = root;
-  root = newUser;
-  }
-}
-
-userInfo* searchUser(char nameUser[]){
-  if(root == NULL){
-    printf("List user is NULL !\n");
-    return NULL;
-  }
-  userInfo* tmp = root;
-  while(tmp != NULL){
-    if(strcmp(tmp->acc.name, nameUser) == 0 ){
-      return tmp;
-    }
-    tmp = tmp->next;
-  }
-  return NULL;
-}
-
-// void rê(List *l){
-//     for(Node *k=(*l).head;k!=NULL;k=k->next){
-//         (*l).head=(*l).head->next;
-//         free(k);
-//     }
-// }
-
-void printListUser(){
-  userInfo* tmp = root;
-  printf("Nguoi dung\n");
-  while(tmp != NULL){
-    printf("%s\n", tmp->acc.name);
-    tmp = tmp->next;
-  }
-}
-
-void readFile(){
-  account newUser;
-  FILE *fb;
-  fb = fopen(fileName,"r");
-  if(fb == NULL) {
-    printf("File NULL !! \n");
-    return;
-  }
-    while(fscanf(fb, "%s%s", newUser.name, newUser.password) != EOF){
-      addUser(createNewUser(newUser));
-    }
-    fclose(fb);
-
-}
-
-void readfileGame(){
-  question newquestion;
-  FILE *f;
-  f=fopen("question.txt","r");
-  if(f==NULL){
-    printf("file not exsist\n");
-    return;
-  }
-  while(fscanf(f,"%d  %s  %s  ",&newquestion.id,newquestion.ques,newquestion.solustion)){
-    printf("%d %s %s\n",newquestion.id,newquestion.ques,newquestion.solustion );
-    addQuestion(newquestion);
-  }
-  fclose(f);
-}
-
-
-
-//EDIT
-/*
-*shjfdhjfhdjfhsjfhjsfhsjfd
-*/
-
-// userInfo* loginUser(MESSAGE mess, int newSocket,userInfo *user){
-//   int statususer = 0;
-//   int statuspass = 0;
-//   while(statususer==0){
-//     MESSAGE mess = RECEVE(newSocket);
-
-//     userInfo* user = searchUser(mess.mess); 
-//     if (user == NULL){
-//       char result[6] = "NOT OK";
-//       SEND(newSocket,result,mess.code);
-//     }else{
-//       statususer=1;
-//       char result[6] = "OK";
-//       SEND(newSocket,result,LOG_USERNAME);
-//       while(statuspass==0){
-//         mess=RECEVE(newSocket);
-//         if(strcmp(mess.mess,user->acc.password)==0){
-//           char login[30]="login success";
-//           SEND(newSocket,login,LOG_PASSWORD);
-//           statuspass=1;
-//           return user;
-//         }
-//         else{
-//           char login[30]="LOG_PASSWORD NOT OK";
-//           SEND(newSocket,login,LOG_PASSWORD);
-//         }
-//       }
-//     }
-//   }
-// }
-
-void WriteToFile(account newAccount){
-  printf("dang viet vao %s %s\n",newAccount.name, newAccount.password );
-  FILE *fb = fopen(fileName, "a+");
-  fprintf(fb, "\0");
-  fprintf(fb, "%s\t%s\t\n", newAccount.name, newAccount.password);
-  fclose(fb);
-}
-
-userInfo *singUp(MESSAGE mess,int newSocket){
-  account newAccount;
-  char tmp[10] = "OK";
-  SEND(newSocket,tmp, SIGN_UP_PASSWORD);
-  MESSAGE messs = RECEVE(newSocket);
-  printf("pass :%s\n", messs.mess);
-  strcpy(newAccount.name, mess.mess);
-  printf("User name dang ki : %s\n",newAccount.name);
-  printf("what the name : %s-%s\n", newAccount.name,mess.mess );
-  strcpy(newAccount.password, messs.mess);
-  printf("%s-%s\n", newAccount.password, messs.mess);
-  userInfo *user = createNewUser(newAccount);
-  printf("tai day : %s %s\n", newAccount.name, newAccount.password);
-  addUser(user);
-  WriteToFile(newAccount);
-  printf("ok \n");
-  return user;
-}
-
-userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
- while(statususer==0){
-           MESSAGE mess = RECEVE(newSocket);
-
-          userInfo* user = searchUser(mess.mess); 
-          if (user == NULL){
-            char result[6] = "NOT OK";
-            SEND(newSocket,result,mess.code);
-          }else{
-            statususer=1;
-            char result[6] = "OK";
-            SEND(newSocket,result,LOG_USERNAME);
-            while(statuspass==0){
-              mess=RECEVE(newSocket);
-              if(strcmp(mess.mess,user->acc.password)==0){
-                char login[30]="login success";
-                SEND(newSocket,login,LOG_PASSWORD);
-                statuspass=1;
-                return user;
-              }
-              else{
-                char login[30]="LOG_PASSWORD NOT OK";
-                SEND(newSocket,login,LOG_PASSWORD);
-              }
-            }
-
-
-          }
-        }  
-  
-}
-
-
-
-//EDIT
-/*
-*jahfjdhfjshfkdshfjsd
-*/
-
-
-// void setStatus(List l,account acc, char namestatus[30],int value){
-//  for(Node *k=l.head;k!=NULL;k=k->next){
-//          if(strcmp(k->acc.name,namestatus)==0){
-//            k->acc.status=value;
-//            break;
-//          }
-//        }
-//        ghilaivaofile(&l);
-// }
 
 int main(int argc, char*argv[]){
   readFile();
   printListUser();
- MESSAGE mess;
+  MESSAGE mess;
   userInfo *user;
+  userInfo *friend;
+
+  //KHOI TAO SEVER
   int sockfd, ret;
   struct sockaddr_in serverAddr;
-
   int newSocket;
   struct sockaddr_in newAddr;
-
   socklen_t addr_size;
 
   char buffer[1024];
@@ -272,25 +41,25 @@ int main(int argc, char*argv[]){
     exit(1);
   }
   printf("[+]Server Socket is created.\n");
-
   memset(&serverAddr, '\0', sizeof(serverAddr));
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_port = htons(PORT);
   serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
   ret = bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
   if(ret < 0){
     printf("[-]Error in binding.\n");
     exit(1);
   }
   printf("[+]Bind to port %d\n", 4444);
-
   if(listen(sockfd, 10) == 0){
     printf("[+]Listening....\n");
   }else{
     printf("[-]Error in binding.\n");
   }
 
+  /*
+  *Bat dau ket noi
+  */
   char tmp[1024];
 
   while(1){
@@ -309,23 +78,47 @@ int main(int argc, char*argv[]){
         mess = RECEVE(newSocket);
         printf("Thong tin mess nhan dc %s - %d\n",mess.mess, mess.code );
 
-        //login
-        if(mess.code == LOG_USERNAME){
-          user=loginUser(mess,newSocket,statususer,statuspass);
-        }
+        switch(mess.code){
 
-        //dang ki
-        else if(mess.code == SIGN_UP_USERNAME){
-          printf("Dang tao tai khoan\n");
-          user = searchUser(mess.mess);
-          if(user != NULL){
-            printf("Da ton tai ng nay trong he thong\n");
-            char tmp[10] = "NOT OK";
-            SEND(newSocket, tmp, SIGN_UP_USERNAME);
-            continue;
-          }else{
-            user = singUp(mess, newSocket);
-          }
+          /*
+          *LOGIN
+          */
+          case LOG_USERNAME:
+          user=loginUser(mess,newSocket,statususer,statuspass);
+            break;
+
+          /*
+          *SIGN UP
+          */
+          case SIGN_UP_USERNAME:
+            printf("Dang tao tai khoan\n");
+            user = searchUser(mess.mess);
+            if(user != NULL){
+              printf("Da ton tai ng nay trong he thong\n");
+              char tmp[10] = "NOT OK";
+              SEND(newSocket, tmp, SIGN_UP_USERNAME);
+              continue;
+            }else{
+              user = singUp(mess, newSocket);
+            } 
+            break;
+
+          /*
+          *REQUEST FRIEND
+          */
+          case YC_KET_BAN :
+            mess = RECEVE(newSocket);
+            friend = searchUser(mess.mess);
+            char resrult[MAXLINE] = "NOT OK"
+            if(friend == NULL){
+              printf("Khong tin thay ng nay \n");
+              SEND(newSocket, resrult, YC_KET_BAN);
+            }else{
+              printf("Da tim thay nguoi dung!\n");
+            }
+            break;
+          default:
+            break;
         }
       }
     }
