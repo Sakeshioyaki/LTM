@@ -19,11 +19,14 @@ int main(int argc, char*argv[]){
   userInfo *user;
   userInfo *friend;
 
+  listFriend *tmp1;
+
+
   char notok[MAXLINE] = "NOTOK";
   char ok[MAXLINE] = "OK";
 
   //KHOI TAO SEVER
-  int sockfd, ret;
+  int sockfd, ret, i;
   struct sockaddr_in serverAddr;
   int newSocket;
   struct sockaddr_in newAddr;
@@ -129,11 +132,20 @@ int main(int argc, char*argv[]){
            */ 
           case YC_XEM_BAN_BE:
             printf("Client yeu cau xem yeu cau ket ban\n");
+            readRequestFriend(fileNameFriend, &(user->requestFd));
             sprintf(count,"%d",countRequestFriend);
             strcpy(fileNameFriend, user->acc.name);
             strcat(fileNameFriend,"YC_KET_BAN.txt\0");
-            readRequestFriend(fileNameFriend, &(user->requestFd));
             SEND(newSocket, count, YC_XEM_BAN_BE);
+            strcpy(fileName, user->acc.name);
+            strcat(fileName,"BAN_BE.txt\0");
+            tmp1 = user->requestFd;
+            for(i = 1; i<=countRequestFriend; i++){
+              SEND(newSocket,tmp1->myFriend.name, YC_XEM_BAN_BE);
+              mess = RECEVE(newSocket);
+              if(strcpy(mess.mess, notok)==0) rejectFriend(tmp1->myFriend.name, &(user->requestFd));
+              else acceptFriend(tmp1->myFriend.name,&(user->requestFd), &(user->listFd), fileName);
+            }
             break;
           default:
             break;

@@ -20,17 +20,12 @@ typedef struct accout{
 }account;
 
 
-account loginUser(int clientSocket){
+account loginUser(int clientSocket,int statususer,int statuspass ){
 	char userNameLogIn[50];
 	char pass[20];
 	MESSAGE mess;
 	account user;
-	int statuspass =0;
-	int statususer = 0;
-	getchar();
-
-	while(statususer==0){
-		fflush(stdout);
+	while(1){
 		printf("User Name : ");
 		scanf("%s",userNameLogIn);
 		printf("da send %s\n", userNameLogIn);
@@ -39,22 +34,21 @@ account loginUser(int clientSocket){
 		printf("=>sever :%s\n", mess.mess);
 		if(strcmp(mess.mess,"OK")==0){
 			statususer=1;
-			while(statuspass==0){
-				printf("User pass:  ");
-				scanf("%s",pass);
-				SEND(clientSocket,pass,LOG_PASSWORD);
-				mess=RECEVE(clientSocket);
-				printf("server: %s\n", mess.mess);
-				if(strcmp(mess.mess,"login success")==0){
-					statuspass=1;
-					strcpy(user.name,userNameLogIn);
-					user.status = 1;
-					
-				}
+			printf("User pass:  ");
+			scanf("%s",pass);
+			SEND(clientSocket,pass,LOG_PASSWORD);
+			printf("pass: %s\n", pass);
+			mess=RECEVE(clientSocket);
+			printf("server: %s\n", mess.mess);
+			if(strcmp(mess.mess,"login success")==0){
+				statuspass=1;
+				strcpy(user.name,userNameLogIn);
+				user.status = 1;
+				return user;
 			}
 		}
 	}
-	return user;
+	
 }
 
 account sigUp(int clientSocket){
@@ -118,14 +112,15 @@ void requestFriend(int clientSocket){
 
 
 int main(int argc, char const *argv[]){
-	int clientSocket, ret,select;
+	int clientSocket, ret, select, requestFd, i, tmp1;
 	struct sockaddr_in serverAddr;
 	char buffer[1024];
 	char tmp[MAXLINE] = "hello";
 	MESSAGE mess;
-	
+	char ok[MAXLINE] = "OK";
+	char notok[MAXLINE] = "NOT OK";
 	int statususer=0;
-			int statuspass=0;
+	int statuspass=0;
 	char namesignin[100];
 	account myUser;
 	myUser.status = 0;
@@ -160,7 +155,7 @@ int main(int argc, char const *argv[]){
 		printf("%d\n",select );
 		switch(select){
 			case 1 :
-				myUser = loginUser(clientSocket);
+				myUser = loginUser(clientSocket,statususer,statuspass);
 				goto Layout1;	
 				break;
 			case 2 :
@@ -212,6 +207,18 @@ int main(int argc, char const *argv[]){
 				SEND(clientSocket,tmp,YC_XEM_BAN_BE);
 				mess = RECEVE(clientSocket);
 				printf("so yeu cau ket ban la %s\n",mess.mess );
+				requestFd = atoi(mess.mess);
+				for(i=1; i<=requestFd; i++){
+					mess = RECEVE(clientSocket);
+					printf("%d: %s\n",i, mess.mess );
+					printf("1: dong y 0: tu choi\n");
+					scanf("%d",&tmp1);
+					if(tmp1 == 1){
+						SEND(clientSocket, ok, YC_XEM_BAN_BE);
+					}else{
+						SEND(clientSocket, notok,YC_XEM_BAN_BE);
+					}
+				}
 				goto Layout2;
 				break;
 			case 7:

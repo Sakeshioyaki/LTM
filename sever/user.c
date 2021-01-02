@@ -8,7 +8,6 @@
 #include <arpa/inet.h>
 #include "lib.c"
 #include "friend.c"
-#define MAXLINE 100
 
 typedef struct accout{
   char name[MAXLINE];
@@ -112,31 +111,29 @@ userInfo *singUp(MESSAGE mess,int newSocket){
 }
 
 userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
- while(statususer==0){
-    MESSAGE mess = RECEVE(newSocket);
-    userInfo* user = searchUser(mess.mess); 
-    if (user == NULL){
-      char result[6] = "NOT OK";
-      SEND(newSocket,result,mess.code);
+  // MESSAGE mess = RECEVE(newSocket);
+  MESSAGE mess2;
+  userInfo* user = searchUser(mess.mess); 
+  printf("da tim dc ng dung pass la : %s\n",user->acc.password );
+  if (user == NULL){
+    char result[6] = "NOT OK";
+    SEND(newSocket,result,mess.code);
+    return NULL;
+  }else{
+    statususer=1;
+    char result[6] = "OK";
+    SEND(newSocket,result,LOG_USERNAME);
+    mess2=RECEVE(newSocket);
+    printf("mess nhan dc la passs pass dung : %s\n", user->acc.password );
+    if(strcmp(mess2.mess,user->acc.password)==0){
+      char login[30]="login success";
+      SEND(newSocket,login,LOG_PASSWORD);
+      return user;
+    }
+    else{
+      char login[30]="LOG_PASSWORD NOT OK";
+      SEND(newSocket,login,LOG_PASSWORD);
       return NULL;
-    }else{
-      statususer=1;
-      char result[6] = "OK";
-      SEND(newSocket,result,LOG_USERNAME);
-      while(statuspass==0){
-        mess=RECEVE(newSocket);
-        if(strcmp(mess.mess,user->acc.password)==0){
-          char login[30]="login success";
-          SEND(newSocket,login,LOG_PASSWORD);
-          statuspass=1;
-          return user;
-        }
-        else{
-          char login[30]="LOG_PASSWORD NOT OK";
-          SEND(newSocket,login,LOG_PASSWORD);
-          return NULL;
-        }
-      }
     }
   }    
 }

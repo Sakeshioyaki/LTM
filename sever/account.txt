@@ -18,3 +18,7 @@ chacdcroi	chacko
 metmoi	how	
 jcungdc	metmoi	
 test1	test	
+ma	mano	
+lol	lol	
+pop	pop	
+vit	vit	

@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#define MAXLINE 100
+
 
 typedef enum {
 	YC_KET_BAN,
@@ -21,7 +23,7 @@ typedef enum {
 
 typedef struct MESSAGE{
 	CODE code;
-	char mess[1042];
+	char mess[MAXLINE];
 }MESSAGE;
 
 
@@ -31,7 +33,7 @@ MESSAGE *createMessage(char buff[], CODE code){
 	strcpy(newMess->mess, buff);
 	return newMess;
 }
-MESSAGE tachChuoi(char message[1024]){
+MESSAGE tachChuoi(char message[MAXLINE]){
 	MESSAGE mess;
 	CODE code;
 	char *token = strtok(message,"/");
@@ -71,8 +73,8 @@ MESSAGE tachChuoi(char message[1024]){
 }
 MESSAGE RECEVE(int newSocket){
 	MESSAGE mess;
-	char messClient[1024];
-	recv(newSocket,messClient,1024,0);
+	char messClient[MAXLINE];
+	recv(newSocket,messClient,MAXLINE,0);
 	mess=tachChuoi(messClient);
 	return mess;
 
