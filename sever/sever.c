@@ -18,6 +18,7 @@ int main(int argc, char*argv[]){
   MESSAGE mess;
   userInfo *user;
   userInfo *friend;
+  int count2;
 
   listFriend *tmp1;
 
@@ -140,11 +141,19 @@ int main(int argc, char*argv[]){
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");
             tmp1 = user->requestFd;
-            for(i = 1; i<=countRequestFriend; i++){
+            count2 = countRequestFriend;
+            for(i = 1; i<=count2; i++){
               SEND(newSocket,tmp1->myFriend.name, YC_XEM_BAN_BE);
+              printf("kore kore\n");
               mess = RECEVE(newSocket);
-              if(strcpy(mess.mess, notok)==0) rejectFriend(tmp1->myFriend.name, &(user->requestFd));
-              else acceptFriend(tmp1->myFriend.name,&(user->requestFd), &(user->listFd), fileName);
+              if(strcpy(mess.mess, notok)==0) {
+                printf("dang rejectFriend\n");
+                rejectFriend(tmp1->myFriend.name, &(user->requestFd));
+              }
+              else {
+                printf("dang accept friend\n");
+                acceptFriend(tmp1->myFriend.name,&(user->requestFd), &(user->listFd), fileName);
+              }
             }
             break;
           default:

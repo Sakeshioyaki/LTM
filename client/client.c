@@ -101,7 +101,7 @@ void requestFriend(int clientSocket){
 			printf(" mess nhan dc %s\n", mess.mess);
 			if(strcmp(mess.mess, ok) == 0){
 				printf("Yeu cau cua ban da duoc gui!\n");
-				printf("Vui long cho ban cua ban xac nhan \n");
+				printf("Vui long cho xac nhan \n");
 			}
 			return;
 		}
@@ -208,6 +208,7 @@ int main(int argc, char const *argv[]){
 				mess = RECEVE(clientSocket);
 				printf("so yeu cau ket ban la %s\n",mess.mess );
 				requestFd = atoi(mess.mess);
+				printf("so yeu cau ket ban la %d\n",requestFd );
 				for(i=1; i<=requestFd; i++){
 					mess = RECEVE(clientSocket);
 					printf("%d: %s\n",i, mess.mess );
@@ -224,6 +225,7 @@ int main(int argc, char const *argv[]){
 			case 7:
 				myUser.status = 0;
 				strcpy(myUser.name,"\0");
+				goto Layout1;
 				break;
 			default:
 				printf("nhap lua chon hop le !\n");

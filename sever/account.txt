@@ -22,3 +22,7 @@ ma	mano
 lol	lol	
 pop	pop	
 vit	vit	
+bo	bo	
+mit	mit	
+ko	ko	
+lp	lp	
