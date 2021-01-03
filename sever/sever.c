@@ -1,187 +1,156 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "lib.c"
-#define PORT 8080
-#define fileName "account.txt"
+// #include "question.c"
+#include "user.c"
+#include "game.c"
+#include "userOnlineAndChatRoom.c"
 
-#define MAXLINE 100
+#define PORT 8080
+#define NOTOK "NOT OK"
+#define OK "OK"
 #define MAX 50 //max friend
 
-typedef struct accout{
-  char name[MAXLINE];
-  char password[MAXLINE];
-}account;
-
-//status = 0 : offline
-//status = 1 : online
-typedef struct userInfo{
-  account acc;
-  int status;
-  struct userInfo *next;
-}userInfo;
-
-userInfo* root = NULL;
-
-userInfo* createNewUser(account a){
-  userInfo* node = (userInfo *)malloc(sizeof(userInfo)); 
-  node->acc = a;
-  node->next = NULL;
-  return node;
-}
-
-void addUser(userInfo* newUser){
-  if(root == NULL){
-    root = newUser;
-  }else{
-  newUser->next = root;
-  root = newUser;
-  }
-}
-
-userInfo* searchUser(char nameUser[]){
-  if(root == NULL){
-    printf("List user is NULL !\n");
-    return NULL;
-  }
-  userInfo* tmp = root;
-  while(tmp != NULL){
-    if(strcmp(tmp->acc.name, nameUser) == 0 ){
-      return tmp;
+int isTrung(int mang[],int count, int k ){
+  for (int i=0;i<count;i++){
+    if(k==mang[i]){
+      return 1;
     }
-    tmp = tmp->next;
   }
-  return NULL;
+  return 0;
 }
-
-// void rê(List *l){
-//     for(Node *k=(*l).head;k!=NULL;k=k->next){
-//         (*l).head=(*l).head->next;
-//         free(k);
+// void ganqs(QuestionList *ques,QuestionList *tmp, int i, int k){
+//   int u=0;
+//   while(ques!=NULL){
+//     u++;
+//     if(u==i){
+//       ques->qs=tmp->qs;
 //     }
+
+//   }
 // }
 
-void printListUser(){
-  userInfo* tmp = root;
-  printf("Nguoi dung\n");
+// void layngaunhien15cau(QuestionList *ques, int n, QuestionList *tmp){
+//   int k;
+//   int mang[15];
+//   srand(time(NULL));
+//   for(int i=0;i<15;i++){
+//     do{
+//       k=rand()%n;
+//     }while(isTrung(mang,i,k)==1);
+//     mang[i]=k;
+//     ganqs(ques,tmp,i,k);
+//   }
+// }
+// int chaycauhoir(QuestionList *tmp,int newSocket){
+//   for(int i=0;i<15;i++){
+//     system("cls");
+//     SEND(newSocket,tmp->qs.ques,YC_CHOI_GAME);
+
+//   }
+// }
+void randomquestion(int mang[15]){
+  int k;
+  srand(time(NULL));
+  for(int i=0;i<15;i++){
+    do{
+      k=rand()%15;
+    }while(isTrung(mang,i,k)==1);
+    mang[i]=k;
+    
+  }
+  
+}
+void sendQuestion(int newSocket,char solu[50], int random,int mang[15]){
+  QuestionList* tmp = ques;
+  
   while(tmp != NULL){
-    printf("%s\n", tmp->acc.name);
+    if(tmp->qs.id==mang[random]){
+      SEND(newSocket,tmp->qs.ques,YC_CHOI_GAME);
+      strcpy(solu,tmp->qs.solustion);
+      break;
+    }
     tmp = tmp->next;
   }
-}
-
-void readFile(){
-  account newUser;
-  FILE *fb;
-  fb = fopen(fileName,"r");
-  if(fb == NULL) {
-    printf("File NULL !! \n");
-    return;
-  }
-    while(fscanf(fb, "%s%s", newUser.name, newUser.password) != EOF){
-      addUser(createNewUser(newUser));
-    }
-    fclose(fb);
 
 }
 
-
-//EDIT
-/*
-*shjfdhjfhdjfhsjfhjsfhsjfd
-*/
-
-userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
- while(statususer==0){
-    MESSAGE mess = RECEVE(newSocket);
-
-    userInfo* user = searchUser(mess.mess); 
-    if (user == NULL){
-      char result[6] = "NOT OK";
-      SEND(newSocket,result,mess.code);
-      return NULL;
-    }
-    statususer=1;
-    char result[6] = "OK";
-    SEND(newSocket,result,LOG_USERNAME);
-    while(statuspass==0){
-      mess=RECEVE(newSocket);
-      if(strcmp(mess.mess,user->acc.password)==0){
-        char login[30]="login success";
-        SEND(newSocket,login,LOG_PASSWORD);
-        statuspass=1;
-        return user;
+void playgame(int newSocket,char time[10]){
+ MESSAGE mess;
+ int diem=0;
+ int doi=0;
+ int mang[15];
+ char result[100];
+ randomquestion(mang);
+ play:
+ if(doi>=1&&doi<=15){
+  doi++;
+   mess=RECEVE(newSocket);
+    sendQuestion(newSocket,result,doi,mang);
+     mess=RECEVE(newSocket);
+     printf("doi day la %d\n", doi);
+     format_time(time);
+     if(strstr(result,mess.mess)!=NULL){
+        char ph[20]="OK";
+        diem++;
+        printf("diem hien tai la %d\n",diem );
+        SEND(newSocket,ph,YC_CHOI_GAME);
+        goto play;
+              
       }
-      char login[30]="LOG_PASSWORD NOT OK";
-      SEND(newSocket,login,LOG_PASSWORD);
-      return NULL;
-    }
-  } 
-  free(&mess);
+     else{
+      char ph[50]="ban da thua";
+      diem--;
+       printf("diem hien tai la %d\n",diem );
+      SEND(newSocket,ph,YC_CHOI_GAME);
+      goto play;
+     }
+
+ }
+ if(doi==0){
+      doi++;
+      sendQuestion(newSocket,result,doi,mang);
+     mess=RECEVE(newSocket);
+     format_time(time);
+     if(strstr(result,mess.mess)!=NULL){
+        char ph[20]="OK";
+        diem++;
+        printf("diem hien tai la %d\n",diem );
+        SEND(newSocket,ph,YC_CHOI_GAME);
+        // mess=RECEVE(newSocket);
+        goto play;
+              
+      }
+     else{
+      char ph[50]="ban da thua";
+      diem--;
+       printf("diem hien tai la %d\n",diem );
+      SEND(newSocket,ph,YC_CHOI_GAME);
+      goto play;
+     }
+ }
 }
-
-void WriteToFile(account newAccount){
-  printf("dang viet vao %s %s\n",newAccount.name, newAccount.password );
-  FILE *fb = fopen(fileName, "a+");
-  fprintf(fb, "\0");
-  fprintf(fb, "%s\t%s\t\n", newAccount.name, newAccount.password);
-  fclose(fb);
-}
-
-userInfo *singUp(MESSAGE mess,int newSocket){
-  account newAccount;
-  char tmp[10] = "OK";
-  SEND(newSocket,tmp, SIGN_UP_PASSWORD);
-  MESSAGE messs = RECEVE(newSocket);
-  printf("pass :%s\n", messs.mess);
-  strcpy(newAccount.name, mess.mess);
-  printf("User name dang ki : %s\n",newAccount.name);
-  printf("what the name : %s-%s\n", newAccount.name,mess.mess );
-  strcpy(newAccount.password, messs.mess);
-  printf("%s-%s\n", newAccount.password, messs.mess);
-  userInfo *user = createNewUser(newAccount);
-  printf("tai day : %s %s\n", newAccount.name, newAccount.password);
-  addUser(user);
-  WriteToFile(newAccount);
-  printf("ok \n");
-  return user;
-}
-
-
-
-//EDIT
-/*
-*jahfjdhfjshfkdshfjsd
-*/
-
-
-// void setStatus(List l,account acc, char namestatus[30],int value){
-//  for(Node *k=l.head;k!=NULL;k=k->next){
-//          if(strcmp(k->acc.name,namestatus)==0){
-//            k->acc.status=value;
-//            break;
-//          }
-//        }
-//        ghilaivaofile(&l);
-// }
-
 int main(int argc, char*argv[]){
   readFile();
   printListUser();
- MESSAGE mess;
+  MESSAGE mess;
   userInfo *user;
+  userInfo *friend;
+  char time[10];
+  char notok[MAXLINE] = "NOTOK";
+  char ok[MAXLINE] = "OK";
+
+  //KHOI TAO SEVER
   int sockfd, ret;
   struct sockaddr_in serverAddr;
-
   int newSocket;
   struct sockaddr_in newAddr;
-
   socklen_t addr_size;
+
+  //bien tam
+  char fileName[MAXLINE];
 
   char buffer[1024];
   pid_t childpid;
@@ -192,25 +161,25 @@ int main(int argc, char*argv[]){
     exit(1);
   }
   printf("[+]Server Socket is created.\n");
-
   memset(&serverAddr, '\0', sizeof(serverAddr));
   serverAddr.sin_family = AF_INET;
   serverAddr.sin_port = htons(PORT);
   serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
   ret = bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
   if(ret < 0){
     printf("[-]Error in binding.\n");
     exit(1);
   }
   printf("[+]Bind to port %d\n", 4444);
-
   if(listen(sockfd, 10) == 0){
     printf("[+]Listening....\n");
   }else{
     printf("[-]Error in binding.\n");
   }
 
+  /*
+  *Bat dau ket noi
+  */
   char tmp[1024];
 
   while(1){
@@ -227,12 +196,58 @@ int main(int argc, char*argv[]){
         printf("bat dau ket noi !\n");
         char nameUser[256], password[30];       
         mess = RECEVE(newSocket);
-        if(mess.code == LOG_USERNAME){
+        printf("Thong tin mess nhan dc %s - %d\n",mess.mess, mess.code );
+
+        switch(mess.code){
+
+          /*
+          *LOGIN
+          */
+          case LOG_USERNAME:
+          SEND(newSocket,ok,LOG_USERNAME);
           user=loginUser(mess,newSocket,statususer,statuspass);
-        }
-        else if(mess.code == SIGN_UP_USERNAME){
-          printf("Dang tao tai khoan\n");
-          user = singUp(mess, newSocket);
+            break;
+
+          /*
+          *SIGN UP
+          */
+          case SIGN_UP_USERNAME:
+            printf("Dang tao tai khoan\n");
+            user = searchUser(mess.mess);
+            if(user != NULL){
+              printf("Da ton tai ng nay trong he thong\n");
+              char tmp[10] = "NOT OK";
+              SEND(newSocket, tmp, SIGN_UP_USERNAME);
+              continue;
+            }else{
+              user = singUp(mess, newSocket);
+            } 
+            break;
+
+          /*
+          *REQUEST FRIEND
+          */
+          case YC_KET_BAN :
+            printf("dang xu li yc ket ban\n");
+            friend = searchUser(mess.mess);
+            if(friend == NULL){
+              printf("Khong tin thay ng nay \n");
+              SEND(newSocket, notok, YC_KET_BAN);
+            }else{
+              printf("Da tim thay nguoi dung!\n");
+              strcpy(fileName, friend->acc.name);
+              strcat(fileName,"YC_KET_BAN\0");
+              requestFriend(user->acc.name,fileName);
+              SEND(newSocket, ok, YC_KET_BAN);
+              printf("da send : %s\n", ok );
+            }
+            break;
+            case YC_CHOI_GAME :
+            readfileGame();
+            playgame(newSocket,time);
+            break;
+          default:
+            break;
         }
       }
     }

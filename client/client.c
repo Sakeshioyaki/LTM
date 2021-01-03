@@ -6,26 +6,28 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdio_ext.h>
 #include "lib.c"
+
 #define PORT 8080
 #define MAXLINE 100
+#define NOTOK "NOT OK"
+#define OK "OK"
 // Layout1;
 
+
+//status = 1 : dang onine
 typedef struct accout{
 	char name[MAXLINE];
 	int status;
 }account;
 
 
-account loginUser(int clientSocket){
+account loginUser(int clientSocket,account user,int statususer,int statuspass ){
+	MESSAGE mess;
 	char userNameLogIn[50];
 	char pass[20];
-	int statususer=0;
-	int statuspass=0;
-	MESSAGE mess;
-	account user;
 	while(statususer==0){
-		getchar();
 		printf("User Name : ");
 		scanf("%s",userNameLogIn);
 		printf("da send %s\n", userNameLogIn);
@@ -42,13 +44,14 @@ account loginUser(int clientSocket){
 				printf("server: %s\n", mess.mess);
 				if(strcmp(mess.mess,"login success")==0){
 					statuspass=1;
-					strcpy(user.name, userNameLogIn);
+					strcpy(user.name,userNameLogIn);
 					user.status = 1;
+					return user;
 				}
-			}	
-		}	
+			}
+		}
 	}
-	return user;
+	
 }
 
 account sigUp(int clientSocket){
@@ -56,28 +59,88 @@ account sigUp(int clientSocket){
 	char password[MAXLINE];
 	MESSAGE mess;
 	account user;
-	printf("Nhap ten dang nhap : \n");
-	scanf("%s", name);
-	strcpy(user.name,name);
-	SEND(clientSocket, name, SIGN_UP_USERNAME);
-	mess = RECEVE(clientSocket);
-	printf("sever : %s\n",mess.mess );
-	printf("Nhap mat khau: \n");
-	scanf("%s",password);
-	SEND(clientSocket,password,SIGN_UP_PASSWORD);
-	user.status = 1;
+	int check = 1;
+	do{
+		printf("Nhap ten dang nhap : \n");
+		scanf("%s", name);
+		strcpy(user.name,name);
+		SEND(clientSocket, name, SIGN_UP_USERNAME);
+		mess = RECEVE(clientSocket);
+		printf("sever : %s\n",mess.mess );
+		if(strcmp(mess.mess, NOTOK) == 0){
+			printf("Ten tai khoan da ton tai ! Vui long chon ten khac\n");
+			check = 0;
+			strcpy(user.name,"\0");
+		}else{
+			printf("user name %s %s\n", user.name, name);
+			printf("Nhap mat khau: \n");
+			scanf("%s",password);
+			SEND(clientSocket,password,SIGN_UP_PASSWORD);
+			user.status = 1;
+			check = 1;
+		}
+		
+	}while(check == 0);
 	return user;
 }
 
+void requestFriend(int clientSocket){
+	char name[MAXLINE];
+	MESSAGE mess;
+	int check = 0;
+	char ok[MAXLINE] = "OK";
+	do{
+		printf("Nhap ten nguoi ban muon ket ban : ");
+		scanf("%s",name);
+		printf(" name : %s\n", name);
+		SEND(clientSocket, name,YC_KET_BAN);
+		mess = RECEVE(clientSocket);
+		if(strcmp(mess.mess, NOTOK) == 0){
+			printf("Khong ton tai nguoi dung trong he thong !\n");
+			printf("Vui long nhap ten hop le\n");
+			printf("<<Nhan 1 de ket thuc / 0 de tiep tuc>>\n");
+			scanf("%d",&check);
+		}else{
+			printf(" mess nhan dc %s\n", mess.mess);
+			if(strcmp(mess.mess, ok) == 0){
+				printf("Yeu cau cua ban da duoc gui!\n");
+				printf("Vui long cho ban cua ban xac nhan \n");
+			}
+			return;
+		}
+	}while(check == 0);
 
+}
+
+void game(int clientSocket){
+	MESSAGE mess;
+	char solution[40];
+	char u[20]="choi game";
+	play:
+	SEND(clientSocket,u,YC_CHOI_GAME);
+	mess=RECEVE(clientSocket);
+	printf("Question: %s \n",mess.mess );
+	__fpurge(stdin);
+	fgets(solution,sizeof(solution),stdin);
+	solution[strlen(solution)-1]='\0';
+	SEND(clientSocket,solution,YC_CHOI_GAME);
+	mess=RECEVE(clientSocket);
+	printf("server: %s\n",mess.mess );
+	goto play;
+	
+	
+}
 int main(int argc, char const *argv[]){
-	int clientSocket, ret;
+	int clientSocket, ret,select;
+	MESSAGE mess;
 	struct sockaddr_in serverAddr;
 	char buffer[1024];
+	char tmp[MAXLINE] = "hello";
 	
+	int statususer=0;
+			int statuspass=0;
 	char namesignin[100];
 	account myUser;
-	//chua dang nhap
 	myUser.status = 0;
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if(clientSocket < 0){
@@ -96,12 +159,6 @@ int main(int argc, char const *argv[]){
 		printf("[-]Error in connection.\n");
 		exit(1);
 	}
-	printf("[+]Connected to Server.\n");
-	int select;
-	MESSAGE mess;
-	char tmp[10] = "hello";
-	char userName[MAXLINE];
-
 
 	while(1){
 		printf("---------------------------------------------\n");
@@ -116,8 +173,10 @@ int main(int argc, char const *argv[]){
 		printf("%d\n",select );
 		switch(select){
 			case 1 :
-				myUser = loginUser(clientSocket);
-				goto Layout1;	
+				SEND(clientSocket,tmp,LOG_USERNAME);
+				mess=RECEVE(clientSocket);
+				myUser = loginUser( clientSocket,myUser,statususer,statuspass);
+				goto Layout2;	
 				break;
 			case 2 :
 				myUser = sigUp(clientSocket);
@@ -132,6 +191,7 @@ int main(int argc, char const *argv[]){
 				goto Layout1;
 				break;
 		}
+		select = 0;
 		Layout2:
 		printf("---------------------------------------------\n");
 		printf("WELLCOME TO 'CHILL WITH YOU'\n");
@@ -144,10 +204,36 @@ int main(int argc, char const *argv[]){
 		printf("3: Chat voi ban\n");
 		printf("4: Ket ban\n");
 		printf("5: Xem danh sach ban be\n");
-		printf("6: Log Out\n");
+		printf("6: Xem yeu cau ket ban\n");
+		printf("7: Log Out\n");
 		printf("Nhap vao select : \n");
 		scanf("%d",&select);
 		printf("%d\n",select );
+		switch(select){
+			case 1:
+				game(clientSocket);
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+			case 4:
+				printf("Bat dau ket ban\n");
+				requestFriend(clientSocket);
+				break;
+			case 5:
+				break;
+			case 6:
+				SEND(clientSocket,tmp,YC_XEM_BAN_BE);
+				break;
+			case 7:
+				myUser.status = 0;
+				strcpy(myUser.name,"\0");
+				break;
+			default:
+				printf("nhap lua chon hop le !\n");
+				break;
+		}
 					
 	}//end while(1)
 	close(clientSocket);

@@ -2,10 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 typedef enum {
 	YC_KET_BAN,
@@ -15,7 +11,8 @@ typedef enum {
 	LOG_PASSWORD,
 	SIGN_UP_USERNAME,
 	SIGN_UP_PASSWORD,
-	SIGN_OUT
+	SIGN_OUT,
+	YC_XEM_BAN_BE
 }CODE;
 
 typedef struct MESSAGE{
@@ -57,6 +54,9 @@ MESSAGE tachChuoi(char message[1024]){
 	}
 	if(strcmp(token, "SIGN_OUT") == 0){
 		code = SIGN_OUT;
+	}
+	if(strcmp(token, "YC_XEM_BAN_BE") == 0){
+		code = YC_XEM_BAN_BE;
 	}
 	mess.code = code;
 	while(token != NULL){
@@ -105,6 +105,9 @@ int SEND(int clientSockfd, char *mess, CODE code){
 			break;
 		case SIGN_UP_PASSWORD:
 			taoMessage(mess,"SIGN_UP_PASSWORD");
+			break;
+		case YC_XEM_BAN_BE:
+			taoMessage(mess,"YC_XEM_BAN_BE");
 			break;
 		default:
 			printf("SAI MA CODE !");
