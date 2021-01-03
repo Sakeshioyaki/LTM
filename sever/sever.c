@@ -85,32 +85,34 @@ void playgame(int newSocket,char time[10]){
  char result[100];
  randomquestion(mang);
  play:
- if(doi>=1&&doi<=15){
-  doi++;
-   mess=RECEVE(newSocket);
-    sendQuestion(newSocket,result,doi,mang);
-     mess=RECEVE(newSocket);
-     printf("doi day la %d\n", doi);
-     format_time(time);
-     if(strstr(result,mess.mess)!=NULL){
-        char ph[20]="OK";
-        diem++;
-        printf("diem hien tai la %d\n",diem );
-        SEND(newSocket,ph,YC_CHOI_GAME);
-        goto play;
+ // if(doi>=1&&doi<=15){
+ //  doi++;
+ //  printf("mang doi tương ưng cau hoi la %d\n",mang[doi] );
+ //   mess=RECEVE(newSocket);
+ //    sendQuestion(newSocket,result,doi,mang);
+ //     mess=RECEVE(newSocket);
+ //     printf("doi day la %d\n", doi);
+ //     format_time(time);
+ //     if(strstr(result,mess.mess)!=NULL){
+ //        char ph[20]="OK";
+ //        diem++;
+ //        printf("diem hien tai la %d\n",diem );
+ //        SEND(newSocket,ph,YC_CHOI_GAME);
+ //        goto play;
               
-      }
-     else{
-      char ph[50]="ban da thua";
-      diem--;
-       printf("diem hien tai la %d\n",diem );
-      SEND(newSocket,ph,YC_CHOI_GAME);
-      goto play;
-     }
+ //      }
+ //     else{
+ //      char ph[50]="ban da thua";
+ //      diem--;
+ //       printf("diem hien tai la %d\n",diem );
+ //      SEND(newSocket,ph,YC_CHOI_GAME);
+ //      goto play;
+ //     }
 
- }
- if(doi==0){
+ // }
+ // if(doi==0){
       doi++;
+      printf("mang doi tương ưng cau hoi la %d\n",mang[doi] );
       sendQuestion(newSocket,result,doi,mang);
      mess=RECEVE(newSocket);
      format_time(time);
@@ -119,7 +121,8 @@ void playgame(int newSocket,char time[10]){
         diem++;
         printf("diem hien tai la %d\n",diem );
         SEND(newSocket,ph,YC_CHOI_GAME);
-        // mess=RECEVE(newSocket);
+        mess=RECEVE(newSocket);
+        printf("mess nhan duoc la %s\n",mess.mess );
         goto play;
               
       }
@@ -128,9 +131,11 @@ void playgame(int newSocket,char time[10]){
       diem--;
        printf("diem hien tai la %d\n",diem );
       SEND(newSocket,ph,YC_CHOI_GAME);
+      mess=RECEVE(newSocket);
+        printf("mess nhan duoc la %s\n",mess.mess );
       goto play;
      }
- }
+ // }
 }
 int main(int argc, char*argv[]){
   readFile();

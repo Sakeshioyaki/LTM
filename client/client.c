@@ -116,8 +116,8 @@ void game(int clientSocket){
 	MESSAGE mess;
 	char solution[40];
 	char u[20]="choi game";
-	play:
 	SEND(clientSocket,u,YC_CHOI_GAME);
+	play:
 	mess=RECEVE(clientSocket);
 	printf("Question: %s \n",mess.mess );
 	__fpurge(stdin);
@@ -126,6 +126,8 @@ void game(int clientSocket){
 	SEND(clientSocket,solution,YC_CHOI_GAME);
 	mess=RECEVE(clientSocket);
 	printf("server: %s\n",mess.mess );
+	char request[10]="ok";
+	SEND(clientSocket,request,YC_CHOI_GAME);
 	goto play;
 	
 	
