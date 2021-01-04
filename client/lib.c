@@ -18,7 +18,8 @@ typedef enum {
 	SIGN_UP_USERNAME,
 	SIGN_UP_PASSWORD,
 	SIGN_OUT,
-	YC_XEM_BAN_BE
+	YC_XEM_BAN_BE,
+	YC_XEM_DS_BAN_BE
 }CODE;
 
 typedef struct MESSAGE{
@@ -62,6 +63,9 @@ MESSAGE tachChuoi(char message[MAXLINE]){
 		code = SIGN_OUT;
 	}
 	if(strcmp(token, "YC_XEM_BAN_BE") == 0){
+		code = YC_XEM_BAN_BE;
+	}
+	if(strcmp(token, "YC_XEM_DS_BAN_BE") == 0){
 		code = YC_XEM_BAN_BE;
 	}
 	mess.code = code;
@@ -117,6 +121,9 @@ void SEND(int clientSockfd, char *mess, CODE code){
 			break;
 		case YC_XEM_BAN_BE:
 			taoMessage(mess,"YC_XEM_BAN_BE");
+			break;
+		case YC_XEM_DS_BAN_BE:
+			taoMessage(mess,"YC_XEM_DS_BAN_BE");
 			break;
 		default:
 			printf("SAI MA CODE !");

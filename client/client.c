@@ -229,6 +229,7 @@ int main(int argc, char const *argv[]){
 				break;
 			default:
 				printf("nhap lua chon hop le !\n");
+				goto Layout2;
 				break;
 		}
 					

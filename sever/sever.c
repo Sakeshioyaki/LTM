@@ -35,6 +35,7 @@ int main(int argc, char*argv[]){
 
   //bien tam
   char fileName[MAXLINE];
+  char tmpName[MAXLINE];
 
   char buffer[1024];
   pid_t childpid;
@@ -134,7 +135,7 @@ int main(int argc, char*argv[]){
           case YC_XEM_BAN_BE:
             printf("Client yeu cau xem yeu cau ket ban\n");
             readRequestFriend(fileNameFriend, &(user->requestFd));
-            sprintf(count,"%d",countRequestFriend);
+            sprintf(count,"%d",countRequestFriend);            
             strcpy(fileNameFriend, user->acc.name);
             strcat(fileNameFriend,"YC_KET_BAN.txt\0");
             SEND(newSocket, count, YC_XEM_BAN_BE);
@@ -143,18 +144,35 @@ int main(int argc, char*argv[]){
             tmp1 = user->requestFd;
             count2 = countRequestFriend;
             for(i = 1; i<=count2; i++){
-              SEND(newSocket,tmp1->myFriend.name, YC_XEM_BAN_BE);
+              strcpy(tmpName, tmp1->myFriend.name);
+              SEND(newSocket,tmpName, YC_XEM_BAN_BE);
               printf("kore kore\n");
               mess = RECEVE(newSocket);
               if(strcpy(mess.mess, notok)==0) {
                 printf("dang rejectFriend\n");
                 rejectFriend(tmp1->myFriend.name, &(user->requestFd));
+                printf("so luong ban be la %d\n", countFriend );
+                printf("so luong request friend %d\n", countRequestFriend );
               }
               else {
-                printf("dang accept friend\n");
+                printf("dang accept friend %s\n", tmp1->myFriend.name);
                 acceptFriend(tmp1->myFriend.name,&(user->requestFd), &(user->listFd), fileName);
+                printf("so luong ban be la %d\n", countFriend );
+                printf("so luong request friend %d\n", countRequestFriend );
               }
             }
+            break;
+
+            /*
+            *YEU CAU XEM DANH SACH BAN BE   
+            */
+          case YC_XEM_DS_BAN_BE:
+            strcpy(fileName, user->acc.name);
+            strcat(fileName,"BAN_BE.txt\0");
+            readFriendFile(fileName, &(user->listFd));
+            sprintf(count,"%d",countFriend);            sprintf(count,"%d",countRequestFriend);            strcpy(fileNameFriend, user->acc.name);
+            SEND(newSocket, count, YC_XEM_DS_BAN_BE);
+
             break;
           default:
             break;
