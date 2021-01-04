@@ -35,8 +35,6 @@ void addFriend(listFriend **newFd, listFriend **listFd){
 		((*newFd)->next) = (*listFd);
 		(*listFd) = (*newFd);
 	}
-	printf("bug loi \n");
-	printf("neu khong bug thi in ra cai nay  : %s\n",(*newFd)->myFriend.name );
 }
 
 void writeToFriendFile(char fileName[MAXLINE], listFriend *newFd){
@@ -99,7 +97,6 @@ void readRequestFriend(char fileName[MAXLINE], listFriend **requestFd){
 	while(fscanf(fb,"%s", name) != EOF){
 		listFriend *new = createNewFriend(name);
 		countRequestFriend+=1;
-		printf("*****dang add : %s\n", new->myFriend.name );
 		addFriend(&new, requestFd);
 	}
 	fclose(fb);
@@ -108,9 +105,7 @@ void readRequestFriend(char fileName[MAXLINE], listFriend **requestFd){
 
 
 void acceptFriend(char name[MAXLINE], listFriend **requestFd, listFriend **listFd, char fileName[MAXLINE]){
-	printf("ok ne da ket ban \n");
 	if(strcmp((*requestFd)->myFriend.name,name) == 0){
-		printf("oyeah trung nhau ma cc \n");
 		addFriend(requestFd,listFd);
 		countFriend+=1;
 		countRequestFriend-=1;
@@ -122,16 +117,12 @@ void acceptFriend(char name[MAXLINE], listFriend **requestFd, listFriend **listF
 	printf("wtf : %s\n",tmp->myFriend.name);
 	listFriend *tmp2 = NULL;
 	while(tmp->next != NULL){
-		printf("lai toach o day cho ma coi \n");
-		printf("what your name %s\n",tmp->next->myFriend.name);
 		if(strcmp(tmp->next->myFriend.name, name) == 0 ){
-			printf("uay eo toach !\n");
 			tmp2 = tmp->next;
 			tmp->next = tmp->next->next;
 			addFriend(&tmp2,listFd);
 			countFriend+=1;
 			countRequestFriend-=1;
-			printf("se viet vao file %s\n", tmp2->myFriend.name );
 			writeToFriendFile(fileName,tmp2);
 			return;
 		}

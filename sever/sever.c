@@ -83,8 +83,6 @@ int main(int argc, char*argv[]){
         printf("bat dau ket noi !\n");
         char nameUser[256], password[30];       
         mess = RECEVE(newSocket);
-        printf("Thong tin mess nhan dc %s - %d\n",mess.mess, mess.code );
-
         switch(mess.code){
 
           /*
@@ -114,7 +112,7 @@ int main(int argc, char*argv[]){
           *REQUEST FRIEND
           */
           case YC_KET_BAN :
-            printf("dang xu li yc ket ban\n");
+            printf("dang xu li yeu cau ket ban\n");
             friend = searchUser(mess.mess);
             if(friend == NULL){
               printf("Khong tin thay ng nay \n");
@@ -146,7 +144,6 @@ int main(int argc, char*argv[]){
             for(i = 1; i<=count2; i++){
               strcpy(tmpName, tmp1->myFriend.name);
               SEND(newSocket,tmpName, YC_XEM_BAN_BE);
-              printf("kore kore\n");
               mess = RECEVE(newSocket);
               if(strcpy(mess.mess, notok)==0) {
                 printf("dang rejectFriend\n");
