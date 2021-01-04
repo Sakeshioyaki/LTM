@@ -1,8 +1,13 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include<ctype.h>
+// #include "unicode.c"
 // #include "question.c"
 #include "user.c"
 #include "game.c"
@@ -51,6 +56,17 @@ int isTrung(int mang[],int count, int k ){
 
 //   }
 // }
+char *strlwr(char *str)
+{
+  unsigned char *p = (unsigned char *)str;
+
+  while (*p) {
+     *p = tolower((unsigned char)*p);
+      p++;
+  }
+
+  return str;
+}
 void randomquestion(int mang[15]){
   int k;
   srand(time(NULL));
@@ -68,7 +84,9 @@ void sendQuestion(int newSocket,char solu[50], int random,int mang[15]){
   
   while(tmp != NULL){
     if(tmp->qs.id==mang[random]){
+      printf("question gui di la %s\n",tmp->qs.ques );
       SEND(newSocket,tmp->qs.ques,YC_CHOI_GAME);
+      // return tmp->qs.ques;
       strcpy(solu,tmp->qs.solustion);
       break;
     }
@@ -76,6 +94,30 @@ void sendQuestion(int newSocket,char solu[50], int random,int mang[15]){
   }
 
 }
+
+char* itoa(int value, char* result, int base) {
+        // check that the base if valid
+        if (base < 2 || base > 36) { *result = '\0'; return result; }
+
+        char* ptr = result, *ptr1 = result, tmp_char;
+        int tmp_value;
+
+        do {
+            tmp_value = value;
+            value /= base;
+            *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
+        } while ( value );
+
+        // Apply negative sign
+        if (tmp_value < 0) *ptr++ = '-';
+        *ptr-- = '\0';
+        while(ptr1 < ptr) {
+            tmp_char = *ptr;
+            *ptr--= *ptr1;
+            *ptr1++ = tmp_char;
+        }
+        return result;
+    }
 
 void playgame(int newSocket,char time[10]){
  MESSAGE mess;
@@ -85,38 +127,13 @@ void playgame(int newSocket,char time[10]){
  char result[100];
  randomquestion(mang);
  play:
- // if(doi>=1&&doi<=15){
- //  doi++;
- //  printf("mang doi tương ưng cau hoi la %d\n",mang[doi] );
- //   mess=RECEVE(newSocket);
- //    sendQuestion(newSocket,result,doi,mang);
- //     mess=RECEVE(newSocket);
- //     printf("doi day la %d\n", doi);
- //     format_time(time);
- //     if(strstr(result,mess.mess)!=NULL){
- //        char ph[20]="OK";
- //        diem++;
- //        printf("diem hien tai la %d\n",diem );
- //        SEND(newSocket,ph,YC_CHOI_GAME);
- //        goto play;
-              
- //      }
- //     else{
- //      char ph[50]="ban da thua";
- //      diem--;
- //       printf("diem hien tai la %d\n",diem );
- //      SEND(newSocket,ph,YC_CHOI_GAME);
- //      goto play;
- //     }
-
- // }
- // if(doi==0){
+ if(doi>=0&&doi<15){
       doi++;
-      printf("mang doi tương ưng cau hoi la %d\n",mang[doi] );
       sendQuestion(newSocket,result,doi,mang);
      mess=RECEVE(newSocket);
      format_time(time);
-     if(strstr(result,mess.mess)!=NULL){
+     
+     if(strstr(strlwr(result),strlwr(mess.mess))!=NULL){
         char ph[20]="OK";
         diem++;
         printf("diem hien tai la %d\n",diem );
@@ -135,7 +152,15 @@ void playgame(int newSocket,char time[10]){
         printf("mess nhan duoc la %s\n",mess.mess );
       goto play;
      }
- // }
+ }
+ else{
+     char end[100]="END score: ";
+     char a[5];
+     itoa(diem,a,10);
+     strcat(end,a);
+     SEND(newSocket,end,YC_CHOI_GAME);
+ }
+
 }
 int main(int argc, char*argv[]){
   readFile();

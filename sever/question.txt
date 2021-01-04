@@ -1,22 +1,20 @@
-0	kaka 	mama 
-1	con meo tieng anh la gi		cat
+0 	kaka 	mama 
+1	con meo tieng anh la gi 	cat
 2	1dm=?cm		10
-3 	Bỏ ngoài nướng trong, ăn ngoài bỏ trong là gì?		Nướng bắp ngô
+3 	Bỏ ngoài nướng trong, ăn ngoài bỏ trong là gì?	Nướng bắp ngô
 4	Bệnh gì bác siz bó tay?		gãy tay
 5 	Con gì ăn lửa với nước than? 	con tàu 
-6 	Có 1 đàn chim đậu trên cành, người thợ săn bắn cái rằm. Hỏi chết mấy con?	15 con
-7	Nắng ba năm tôi không bỏ bạn, mưa 1 ngày sao bạn lại bỏ tôi là cái gì?		cái bóng của mình
+6 	ngày của cặp tình nhân? 	ngày valen
+7	Nắng ba năm tôi không bỏ bạn, mưa 1 ngày sao bạn lại bỏ tôi là cái gì?	cái bóng của mình
 8 	Tay cầm cục thịt nắn nắn, tay vỗ mông là đang làm gì?	cho con bú
-9	Cái gì trong trắng ngoài xanh trồng đậu trồng hành rồi thả heo vào? 		bánh trưng 
-10 	Cắm vào run rẩy toàn thân, Rút ra nước chảy từ chân xuống sàn, Hỡi chàng công tử giàu sang, Cắm vào xin chớ vội vàng rút ra!là cái gì? 	tủ lạnh 
-11	Cái gì ở giữa bầu trời và trái đất?	và 
-12	Nơi nào có đường xá, nhưng không có xe cộ; có nhà ở, nhưng không có người; có siêu thị, công ty... nhưng không có hàng hóa... Đó là nơi nào vậy?	bản đồ
-13	Quần rộng nhất là quần gì?	quần đảo 
-14	Con trai có gì quý nhất?		ngọc trai 
-15	cái gì mà đi thì nằm, đứng cũng nằm, nhưng nằm lại đứng?	bàn chân 
-16	Con đường nào dài nhất?		đường đời 
-17	Một ly thủy tinh đựng đầy nước, làm thế nào để lấy nước dưới đáy ly mà không đổ nước ra ngoài?	dùng ống hút
-18	Càng chơi càng ra nước?		chơi cờ
-19	Lịch nào dài nhất?	lịch sử
-20	Cái gì dài như trái chuối, cầm 1 lúc thì nó chảy nước ra?	que kem 
+9	Cái gì trong trắng ngoài xanh trồng đậu trồng hành rồi thả heo vào? 	bánh trưng 
+10	Cái gì ở giữa bầu trời và trái đất?	và 
+11	Quần rộng nhất là quần gì?	quần đảo 
+12	Con trai có gì quý nhất?		ngọc trai 
+13	cái gì mà đi thì nằm, đứng cũng nằm, nhưng nằm lại đứng?	bàn chân 
+14	Con đường nào dài nhất?		đường đời 
+15	Càng chơi càng ra nước?		chơi cờ
+16	Lịch nào dài nhất?	lịch sử
+17	Cái gì dài như trái chuối, cầm 1 lúc thì nó chảy nước ra?	que kem 
+
 

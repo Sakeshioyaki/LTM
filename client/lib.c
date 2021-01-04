@@ -89,7 +89,7 @@ void taoMessage(char *mess, const char *code){
 	strcpy(mess, resurlt);
 }
 
-void SEND(int clientSockfd, char *mess, CODE code){
+void SEND(int clientSockfd, char mess[1024], CODE code){
 
 	switch(code){
 		case YC_KET_BAN:

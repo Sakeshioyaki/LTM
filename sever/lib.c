@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include "unicode.c"
 typedef enum {
 	YC_KET_BAN,
 	YC_CHOI_GAME,
@@ -82,7 +86,7 @@ void taoMessage(char *mess, const char *code){
 	strcpy(mess, resurlt);
 }
 
-int SEND(int clientSockfd, char *mess, CODE code){
+int SEND(int clientSockfd, char mess[1024], CODE code){
 
 	switch(code){
 		case YC_KET_BAN:

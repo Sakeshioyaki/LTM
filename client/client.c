@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <stdio_ext.h>
 #include "lib.c"
+// #include "unicode.c"
 
 #define PORT 8080
 #define MAXLINE 100
@@ -112,23 +113,32 @@ void requestFriend(int clientSocket){
 
 }
 
-void game(int clientSocket){
+int game(int clientSocket){
 	MESSAGE mess;
+	char end[10]="END";
 	char solution[40];
+	int qus=0; 
 	char u[20]="choi game";
 	SEND(clientSocket,u,YC_CHOI_GAME);
 	play:
+	qus++;
 	mess=RECEVE(clientSocket);
-	printf("Question: %s \n",mess.mess );
-	__fpurge(stdin);
-	fgets(solution,sizeof(solution),stdin);
-	solution[strlen(solution)-1]='\0';
-	SEND(clientSocket,solution,YC_CHOI_GAME);
-	mess=RECEVE(clientSocket);
-	printf("server: %s\n",mess.mess );
-	char request[10]="ok";
-	SEND(clientSocket,request,YC_CHOI_GAME);
-	goto play;
+	if(strstr(mess.mess,end)!=NULL){
+		printf("%s\n",mess.mess );
+		return 0;
+	}
+	else{
+		printf("Question %d : %s \n",qus,mess.mess );
+		__fpurge(stdin);
+		fgets(solution,sizeof(solution),stdin);
+		solution[strlen(solution)-1]='\0';
+		SEND(clientSocket,solution,YC_CHOI_GAME);
+		mess=RECEVE(clientSocket);
+		printf("server: %s\n",mess.mess );
+		char request[10]="ok";
+		SEND(clientSocket,request,YC_CHOI_GAME);
+		goto play;
+	}
 	
 	
 }
@@ -138,7 +148,7 @@ int main(int argc, char const *argv[]){
 	struct sockaddr_in serverAddr;
 	char buffer[1024];
 	char tmp[MAXLINE] = "hello";
-	
+	int k;
 	int statususer=0;
 			int statuspass=0;
 	char namesignin[100];
@@ -213,7 +223,10 @@ int main(int argc, char const *argv[]){
 		printf("%d\n",select );
 		switch(select){
 			case 1:
-				game(clientSocket);
+				 k=game(clientSocket);
+				if(k==0){
+					goto Layout2;
+				}
 				break;
 			case 2:
 				break;
