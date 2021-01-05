@@ -16,12 +16,6 @@ int main(int argc, char*argv[]){
   readFile();
   printListUser();
   MESSAGE mess;
-  userInfo *user;
-  userInfo *friend;
-  int count2;
-
-  listFriend *tmp1;
-
 
   char notok[MAXLINE] = "NOTOK";
   char ok[MAXLINE] = "OK";
@@ -32,10 +26,6 @@ int main(int argc, char*argv[]){
   int newSocket;
   struct sockaddr_in newAddr;
   socklen_t addr_size;
-
-  //bien tam
-  char fileName[MAXLINE];
-  char tmpName[MAXLINE];
 
   char buffer[1024];
   pid_t childpid;
@@ -80,6 +70,15 @@ int main(int argc, char*argv[]){
         int statuspass=0;
         char fileNameFriend[MAXLINE];
         char count[MAXLINE];
+        int count2;
+          //bien tam
+        char fileName[MAXLINE];
+        char tmpName[MAXLINE];
+
+        userInfo *user;
+        userInfo *friend;
+
+        listFriend *tmp1;
         printf("bat dau ket noi !\n");
         char nameUser[256], password[30];       
         mess = RECEVE(newSocket);
