@@ -120,8 +120,10 @@ int main(int argc, char const *argv[]){
 	char ok[MAXLINE] = "OK";
 	char notok[MAXLINE] = "NOT OK";
 	int statususer=0;
+	int check;
 	int statuspass=0;
 	char namesignin[100];
+	char friendName[MAXLINE];
 	account myUser;
 	myUser.status = 0;
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -195,6 +197,28 @@ int main(int argc, char const *argv[]){
 			case 2:
 				break;
 			case 3:
+				do{
+					printf("Nhap ten nguoi ban muon chat cung : ");
+					scanf("%s",friendName);
+					SEND(clientSocket, friendName, CHAT);
+					printf("da send : %s\n", friendName);
+					mess = RECEV E(clientSocket);
+					if(strcmp(mess.mess, notok) == 0){
+						printf("Khong ton tai nguoi nay torng he thong");
+						printf("1 :tiep tuc / 0 :dung\n");
+						scanf("%d", &check);
+					}
+					else if(strcmp(mess.mess, "NOT FRIEND")){
+						printf("Cac ban khong phai ban be !\n");
+						printf("1 :tiep tuc / 0 :dung\n");
+						scanf("%d", &check);					
+					}
+					else{
+						printf("Da san sang de chat \n");
+						check = 0;
+					}
+				}while(check == 1);
+				goto Layout2;
 				break;
 			case 4:
 				printf("Bat dau ket ban\n");

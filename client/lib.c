@@ -19,7 +19,10 @@ typedef enum {
 	SIGN_UP_PASSWORD,
 	SIGN_OUT,
 	YC_XEM_BAN_BE,
-	YC_XEM_DS_BAN_BE
+	YC_XEM_DS_BAN_BE,
+	CHAT,
+	PLAY_GAME_WITH_SEVER,
+	PLAY_GAME_WITH_FD
 }CODE;
 
 typedef struct MESSAGE{
@@ -68,6 +71,15 @@ MESSAGE tachChuoi(char message[MAXLINE]){
 	if(strcmp(token, "YC_XEM_DS_BAN_BE") == 0){
 		code = YC_XEM_BAN_BE;
 	}
+	if(strcmp(token, "CHAT") == 0){
+		code = CHAT;
+	}
+	if(strcmp(token, "PLAY_GAME_WITH_SEVER") == 0){
+		code = PLAY_GAME_WITH_SEVER;
+	}
+	if(strcmp(token, "PLAY_GAME_WITH_FD") == 0){
+		code = PLAY_GAME_WITH_FD;
+	}	
 	mess.code = code;
 	while(token != NULL){
 		strcpy(mess.mess, token);
@@ -124,6 +136,15 @@ void SEND(int clientSockfd, char *mess, CODE code){
 			break;
 		case YC_XEM_DS_BAN_BE:
 			taoMessage(mess,"YC_XEM_DS_BAN_BE");
+			break;
+		case CHAT:
+			taoMessage(mess,"CHAT");
+			break;
+		case PLAY_GAME_WITH_SEVER:
+			taoMessage(mess,"PLAY_GAME_WITH_SEVER");
+			break;
+		case PLAY_GAME_WITH_FD:
+			taoMessage(mess,"PLAY_GAME_WITH_FD");
 			break;
 		default:
 			printf("SAI MA CODE !");

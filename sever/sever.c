@@ -4,7 +4,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "question.c"
-#include "user.c"
 #include "userOnlineAndChatRoom.c"
 
 #define PORT 8080
@@ -15,7 +14,6 @@
 int main(int argc, char*argv[]){
   readFile();
   printListUser();
-  MESSAGE mess;
 
   char notok[MAXLINE] = "NOTOK";
   char ok[MAXLINE] = "OK";
@@ -74,6 +72,9 @@ int main(int argc, char*argv[]){
           //bien tam
         char fileName[MAXLINE];
         char tmpName[MAXLINE];
+        char tmp[MAXLINE];
+
+        MESSAGE mess;
 
         userInfo *user;
         userInfo *friend;
@@ -89,6 +90,16 @@ int main(int argc, char*argv[]){
           */
           case LOG_USERNAME:
           user=loginUser(mess,newSocket,statususer,statuspass);
+            if(user != NULL){
+            Client_t *cli = (Client_t *)malloc(sizeof(Client_t));
+            cli->address = newAddr;
+            cli->sockfd = newSocket;
+            cli->id = client_count+1;
+            strcpy(cli->name, user->acc.name);
+            // Add client to queue
+            add_client(cli);
+            user->status = 1;
+            }
             break;
 
           /*
@@ -104,6 +115,16 @@ int main(int argc, char*argv[]){
               continue;
             }else{
               user = singUp(mess, newSocket);
+              if(user != NULL){
+                Client_t *cli = (Client_t *)malloc(sizeof(Client_t));
+                cli->address = newAddr;
+                cli->sockfd = newSocket;
+                cli->id = client_count+1;
+                strcpy(cli->name, user->acc.name);
+                // Add client to queue
+                add_client(cli);
+                user->status = 1;
+              }
             } 
             break;
 
@@ -166,9 +187,36 @@ int main(int argc, char*argv[]){
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");
             readFriendFile(fileName, &(user->listFd));
-            sprintf(count,"%d",countFriend);            sprintf(count,"%d",countRequestFriend);            strcpy(fileNameFriend, user->acc.name);
+            sprintf(count,"%d",countFriend);            
+            sprintf(count,"%d",countRequestFriend);            
+            strcpy(fileNameFriend, user->acc.name);
             SEND(newSocket, count, YC_XEM_DS_BAN_BE);
+            break;
 
+          /*
+          * CHAT WITH FRIEND
+          */
+          case CHAT:
+            printf("so nguoi dang online :%d\n", client_count );
+            printf("yeu cau chat voi %s\n", mess.mess);
+            friend = searchUser(mess.mess);
+            if(friend != NULL){
+              if(friend->status == 1){
+                printf("User offline\n");
+
+              }else{
+                //kiem tra xem phai ban be k 
+                if(isFriend(mess.mess, &user) ==1){
+                  SEND(newSocket, ok, CHAT);
+                }else{
+                  printf("Khong phai ban be \n");
+                  strcpy(tmp,"NOT FRIEND");
+                  SEND(newSocket, notok, CHAT);
+                }
+              }
+            }else{
+              SEND(newSocket, notok, CHAT);
+            }
             break;
           default:
             break;

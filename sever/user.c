@@ -99,14 +99,11 @@ userInfo *singUp(MESSAGE mess,int newSocket){
   printf("pass :%s\n", messs.mess);
   strcpy(newAccount.name, mess.mess);
   printf("User name dang ki : %s\n",newAccount.name);
-  printf("what the name : %s-%s\n", newAccount.name,mess.mess );
   strcpy(newAccount.password, messs.mess);
   printf("%s-%s\n", newAccount.password, messs.mess);
   userInfo *user = createNewUser(newAccount);
-  printf("tai day : %s %s\n", newAccount.name, newAccount.password);
   addUser(user);
   WriteToFile(newAccount);
-  printf("ok \n");
   return user;
 }
 
@@ -136,4 +133,24 @@ userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
       return NULL;
     }
   }    
+}
+
+int isFriend(char name[MAXLINE], userInfo **user){
+  if((*user)->listFd == NULL){
+    char fileName[MAXLINE];
+    strcpy(fileName, (*user)->acc.name);
+        strcat(fileName,"BAN_BE.txt\0");
+        readFriendFile(fileName, &((*user)->listFd));
+        if((*user)->listFd == NULL){}
+          printf("khong co ban be\n");
+        return 0;
+  }
+  listFriend *friend = searchFriend(name, (*user)->listFd);
+  if(friend == NULL){
+    printf("Chua ket ban voi nguoi nay\n");
+    return 0;
+  }else{
+    return 1;
+  }
+    
 }
