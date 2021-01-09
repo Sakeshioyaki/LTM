@@ -109,3 +109,11 @@ int isOnline(char name[MAXLINE]){
 	}
     return 0;
 }
+
+void WriteToFile(Client_t newUser){
+  printf("dang viet vao %s %s\n",newAccount.name, newAccount.password );
+  FILE *fb = fopen("account.txt", "a+");
+  fprintf(fb, "\0");
+  fprintf(fb, "%s\t%s\t\n", newAccount.name, newAccount.password);
+  fclose(fb);
+}

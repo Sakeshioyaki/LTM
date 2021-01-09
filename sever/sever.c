@@ -86,6 +86,10 @@ int main(int argc, char*argv[]){
         printf("bat dau ket noi !\n");
         char nameUser[256], password[30];       
         mess = RECEVE(newSocket);
+
+        
+        printf("SO LUONG USER DANG ONLINE : %d\n", client_count);
+
         switch(mess.code){
 
           /*
@@ -194,7 +198,8 @@ int main(int argc, char*argv[]){
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");
             readFriendFile(fileName, &(user->listFd));
-            sprintf(count,"%d",countFriend);            
+            sprintf(count,"%d",countFriend);   
+            printf("so luong ban be la : %d\n",countFriend);         
             strcpy(fileNameFriend, user->acc.name);
             SEND(newSocket, count, YC_XEM_DS_BAN_BE);
             showListFriend(user, countFriend, newSocket);

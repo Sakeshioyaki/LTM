@@ -113,8 +113,10 @@ userInfo *singUp(MESSAGE mess,int newSocket){
 userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
   // MESSAGE mess = RECEVE(newSocket);
   MESSAGE mess2;
+  char pass[MAXLINE];
   userInfo* user = searchUser(mess.mess); 
   printf("da tim dc ng dung pass la : %s\n",user->acc.password );
+  strcpy(pass, user->acc.password );
   if (user == NULL){
     char result[6] = "NOT OK";
     SEND(newSocket,result,mess.code);
@@ -124,8 +126,9 @@ userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
     char result[6] = "OK";
     SEND(newSocket,result,LOG_USERNAME);
     mess2=RECEVE(newSocket);
-    printf("mess nhan dc la passs pass dung : %s\n", user->acc.password );
-    if(strcmp(mess2.mess,user->acc.password)==0){
+    printf("mess nhan dc la passs : %s\n", mess2.mess );
+    printf("pass cua user la :%s\n", pass);
+    if(strcmp(mess2.mess,pass)==0){
       char login[30]="login success";
       SEND(newSocket,login,LOG_PASSWORD);
       return user;
@@ -162,11 +165,11 @@ void showListFriend(userInfo *user, int countFriend, int newSocket){
   listFriend *tmp = user->listFd;
   char name[MAXLINE];
   int i;
-  if(tmp = NULL){
-    printf("Ban khong co nguoi ban nao\n", );
+  if(tmp == NULL){
+    printf("Ban khong co nguoi ban nao\n" );
   }else{
     for(i=1;i<=countFriend;i++){
-      printf("%d : %s\n",tmp->myFriend.name);
+      printf("%d : %s\n",i,tmp->myFriend.name);
       strcpy(name, tmp->myFriend.name);
       SEND(newSocket,name, YC_XEM_DS_BAN_BE);
       tmp = tmp->next;

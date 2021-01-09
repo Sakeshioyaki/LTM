@@ -63,6 +63,7 @@ listFriend *searchFriend(char name[MAXLINE], listFriend *listFd){
 }
 
 void readFriendFile(char fileName[MAXLINE], listFriend **listFd){
+	countFriend = 0;
 	char name[MAXLINE];
 	FILE *fb;
 	fb = fopen(fileName,"r");
@@ -71,9 +72,11 @@ void readFriendFile(char fileName[MAXLINE], listFriend **listFd){
 		return;
 	}
 	while(fscanf(fb,"%s", name) != EOF){
+		printf("%d\n",countFriend );
 		listFriend *new = createNewFriend(name);
 		countFriend++;
 		addFriend(&new, listFd);
+		printf("%d\n",countFriend );
 	}
 	fclose(fb);
 }

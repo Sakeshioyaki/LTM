@@ -29,6 +29,7 @@ account loginUser(int clientSocket,int statususer,int statuspass ){
 	while(1){
 		printf("User Name : ");
 		scanf("%s",userNameLogIn);
+		strcpy(user.name,userNameLogIn);
 		printf("da send %s\n", userNameLogIn);
 		SEND(clientSocket, userNameLogIn, LOG_USERNAME);
 		mess = RECEVE(clientSocket);
@@ -43,7 +44,6 @@ account loginUser(int clientSocket,int statususer,int statuspass ){
 			printf("server: %s\n", mess.mess);
 			if(strcmp(mess.mess,"login success")==0){
 				statuspass=1;
-				strcpy(user.name,userNameLogIn);
 				user.status = 1;
 				return user;
 			}
@@ -159,7 +159,8 @@ int main(int argc, char const *argv[]){
 		switch(select){
 			case 1 :
 				myUser = loginUser(clientSocket,statususer,statuspass);
-				goto Layout1;	
+				printf("userName : %s\n",myUser.name );
+				goto Layout2;	
 				break;
 			case 2 :
 				myUser = singUp(clientSocket);
@@ -255,10 +256,12 @@ int main(int argc, char const *argv[]){
 				SEND(clientSocket,tmp,YC_XEM_DS_BAN_BE);
 				mess = RECEVE(clientSocket);
 				countFriend = atoi(mess.mess);
-				printf("Banj hien co %d ban be", countFriend);
+				printf("Banj hien co %d ban be\n", countFriend);
 				for(i=1;i<=countFriend;i++){
-					
+					mess = RECEVE(clientSocket);
+					printf("%d: %s\n",i, mess.mess );
 				}
+				goto Layout2;
 				break;
 			case 6:
 				SEND(clientSocket,tmp,YC_XEM_BAN_BE);
