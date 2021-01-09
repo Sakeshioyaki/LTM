@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "lib.c"
+#include "userOnlineAndChatRoom.c"
 
 #define PORT 8080
 #define MAXLINE 100
@@ -48,10 +49,9 @@ account loginUser(int clientSocket,int statususer,int statuspass ){
 			}
 		}
 	}
-	
 }
 
-account sigUp(int clientSocket){
+account singUp(int clientSocket){
 	char name[MAXLINE];
 	char password[MAXLINE];
 	MESSAGE mess;
@@ -114,7 +114,6 @@ void requestFriend(int clientSocket){
 int main(int argc, char const *argv[]){
 	int clientSocket, ret, select, requestFd, i, tmp1;
 	struct sockaddr_in serverAddr;
-	char buffer[1024];
 	char tmp[MAXLINE] = "hello";
 	MESSAGE mess;
 	char ok[MAXLINE] = "OK";
@@ -124,6 +123,8 @@ int main(int argc, char const *argv[]){
 	int statuspass=0;
 	char namesignin[100];
 	char friendName[MAXLINE];
+	char buffer[BUFFER_SZ];
+	char message[BUFFER_SZ + NAME_LEN] = "";
 	account myUser;
 	myUser.status = 0;
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -147,8 +148,8 @@ int main(int argc, char const *argv[]){
 	while(1){
 		printf("---------------------------------------------\n");
 		printf("WELLCOME TO 'CHILL WITH YOU'\n");
-		printf("---------------------------------------------\n");
 		Layout1:
+		printf("---------------------------------------------\n");
 		printf("Login or sign up\n");
 		printf("1: Login\n");
 		printf("2: Sign up\n");
@@ -161,7 +162,7 @@ int main(int argc, char const *argv[]){
 				goto Layout1;	
 				break;
 			case 2 :
-				myUser = sigUp(clientSocket);
+				myUser = singUp(clientSocket);
 				if(myUser.status != 0){
 					printf("Da tao tai khoan thanh cong ! Ban dang dang nhap \n");
 				}else{
@@ -202,7 +203,7 @@ int main(int argc, char const *argv[]){
 					scanf("%s",friendName);
 					SEND(clientSocket, friendName, CHAT);
 					printf("da send : %s\n", friendName);
-					mess = RECEV E(clientSocket);
+					mess = RECEVE(clientSocket);
 					if(strcmp(mess.mess, notok) == 0){
 						printf("Khong ton tai nguoi nay torng he thong");
 						printf("1 :tiep tuc / 0 :dung\n");
@@ -218,6 +219,31 @@ int main(int argc, char const *argv[]){
 						check = 0;
 					}
 				}while(check == 1);
+				mess = RECEVE(clientSocket);
+				if(strcmp(mess.mess,notok)==0){
+					printf("Ban cua ban hien tai dang offline\n" );
+					printf("Tin nhan ban gui di se duoc cho vao trang thai cho !");
+					printf("Nhap tin nhan va nhap \'exit\' de thoat khoi chuong trinh \n");
+					while (1) {
+				        str_overwrite_stdout();
+				        fgets(buffer, BUFFER_SZ, stdin);
+				        str_trim_lf(buffer, BUFFER_SZ);
+
+				        if (strcmp(buffer, "exit") == 0)
+				        {
+				        	printf("\nBye\n");
+				            break;
+				        }
+				        else{
+				            sprintf(message, "%s: %s\n", myUser.name, buffer);
+				            send(clientSocket, message, strlen(message), 0);
+				        }
+				        bzero(buffer, BUFFER_SZ);
+				        bzero(message, BUFFER_SZ + NAME_LEN);
+					}
+				}else{
+					printf("Ban cua ban hien dang online!\n");
+				}
 				goto Layout2;
 				break;
 			case 4:
@@ -230,7 +256,6 @@ int main(int argc, char const *argv[]){
 			case 6:
 				SEND(clientSocket,tmp,YC_XEM_BAN_BE);
 				mess = RECEVE(clientSocket);
-				printf("so yeu cau ket ban la %s\n",mess.mess );
 				requestFd = atoi(mess.mess);
 				printf("so yeu cau ket ban la %d\n",requestFd );
 				for(i=1; i<=requestFd; i++){

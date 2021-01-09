@@ -10,8 +10,9 @@
 #include <signal.h>
 #include "user.c"
 
-#define BUFFER_SZ 2048
 #define MAX_CLIENTS 100
+#define BUFFER_SZ 2048
+#define NAME_LEN 32
 
 int client_count = 0;  // dem so client hien tai dang online
 
@@ -96,7 +97,15 @@ void send_message(char *msg, Client_t *from)
     }
 }
 
-void chat(){
-
+int isOnline(char name[MAXLINE]){
+	int i;
+	for(i=0;i<MAX_CLIENTS;i++){
+		if(clients[i]==NULL){
+			break;
+		} 
+		if(strcmp(clients[i]->name, name)==0){
+			return clients[i]->id;
+		}
+	}
+    return 0;
 }
-

@@ -25,7 +25,7 @@ int main(int argc, char*argv[]){
   struct sockaddr_in newAddr;
   socklen_t addr_size;
 
-  char buffer[1024];
+  char buffer[BUFFER_SZ];
   pid_t childpid;
 
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -73,6 +73,9 @@ int main(int argc, char*argv[]){
         char fileName[MAXLINE];
         char tmpName[MAXLINE];
         char tmp[MAXLINE];
+        int leave_flag;
+        int receive;
+        Client_t *cli = (Client_t *)malloc(sizeof(Client_t));
 
         MESSAGE mess;
 
@@ -89,9 +92,8 @@ int main(int argc, char*argv[]){
           *LOGIN
           */
           case LOG_USERNAME:
-          user=loginUser(mess,newSocket,statususer,statuspass);
+            user=loginUser(mess,newSocket,statususer,statuspass);
             if(user != NULL){
-            Client_t *cli = (Client_t *)malloc(sizeof(Client_t));
             cli->address = newAddr;
             cli->sockfd = newSocket;
             cli->id = client_count+1;
@@ -116,7 +118,6 @@ int main(int argc, char*argv[]){
             }else{
               user = singUp(mess, newSocket);
               if(user != NULL){
-                Client_t *cli = (Client_t *)malloc(sizeof(Client_t));
                 cli->address = newAddr;
                 cli->sockfd = newSocket;
                 cli->id = client_count+1;
@@ -132,7 +133,9 @@ int main(int argc, char*argv[]){
           *REQUEST FRIEND
           */
           case YC_KET_BAN :
+            cli->status = YC_KET_BAN;
             printf("dang xu li yeu cau ket ban\n");
+            printf("Dang yeu cau ket ban voi %s\n", mess.mess);
             friend = searchUser(mess.mess);
             if(friend == NULL){
               printf("Khong tin thay ng nay \n");
@@ -151,6 +154,7 @@ int main(int argc, char*argv[]){
            *XEM YEU CAU KET BAN
            */ 
           case YC_XEM_BAN_BE:
+            cli->status = YC_XEM_BAN_BE;
             printf("Client yeu cau xem yeu cau ket ban\n");
             readRequestFriend(fileNameFriend, &(user->requestFd));
             sprintf(count,"%d",countRequestFriend);            
@@ -162,6 +166,7 @@ int main(int argc, char*argv[]){
             tmp1 = user->requestFd;
             count2 = countRequestFriend;
             for(i = 1; i<=count2; i++){
+              printf("yeu cau ket ban tu : %s\n", tmp1->myFriend.name );
               strcpy(tmpName, tmp1->myFriend.name);
               SEND(newSocket,tmpName, YC_XEM_BAN_BE);
               mess = RECEVE(newSocket);
@@ -173,10 +178,11 @@ int main(int argc, char*argv[]){
               }
               else {
                 printf("dang accept friend %s\n", tmp1->myFriend.name);
-                acceptFriend(tmp1->myFriend.name,&(user->requestFd), &(user->listFd), fileName);
+                acceptFriend(tmp1->myFriend.name,&(user->requestFd), &(user->listFd), fileName, user->acc.name);
                 printf("so luong ban be la %d\n", countFriend );
                 printf("so luong request friend %d\n", countRequestFriend );
               }
+              tmp1= tmp1->next;
             }
             break;
 
@@ -184,6 +190,7 @@ int main(int argc, char*argv[]){
             *YEU CAU XEM DANH SACH BAN BE   
             */
           case YC_XEM_DS_BAN_BE:
+            cli->status = YC_XEM_DS_BAN_BE;
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");
             readFriendFile(fileName, &(user->listFd));
@@ -203,20 +210,47 @@ int main(int argc, char*argv[]){
             if(friend != NULL){
               if(friend->status == 1){
                 printf("User offline\n");
-
               }else{
                 //kiem tra xem phai ban be k 
                 if(isFriend(mess.mess, &user) ==1){
                   SEND(newSocket, ok, CHAT);
-                }else{
-                  printf("Khong phai ban be \n");
-                  strcpy(tmp,"NOT FRIEND");
-                  SEND(newSocket, notok, CHAT);
+                  cli->status = CHAT;
+                  //kiem tra xem co online ko
+                  if(isOnline(friend->acc.name) == 0){
+                    cli->fdId = isOnline(friend->acc.name);
+                    printf("user hien tai dang offline");
+                    SEND(newSocket,notok,CHAT);
+                    while(1){
+                      if (leave_flag)
+                          break;
+                      receive = recv(cli->sockfd, buffer, BUFFER_SZ, 0);
+                      if (receive > 0){
+                        send_message(buffer, cli);
+                        str_trim_lf(buffer, strlen(buffer));
+                        printf("%s\n", buffer);
+                      }
+                      else if (receive == 0 || strcmp(buffer, "exit") == 0){
+                        sprintf(buffer, "%s has left\n", cli->name);
+                        printf("%s", buffer);
+                        cli->fdId = 0;
+                        leave_flag = 1;
+                      }
+                      else{
+                          printf("ERROR: -1\n");
+                          leave_flag = 1;
+                      }
+                      bzero(buffer, BUFFER_SZ);
+                      }
+                    }
+                  }else{
+                    printf("Khong phai ban be \n");
+                    strcpy(tmp,"NOT FRIEND");
+                    SEND(newSocket, notok, CHAT);
+                  }
                 }
-              }
-            }else{
-              SEND(newSocket, notok, CHAT);
-            }
+              }else{
+                SEND(newSocket, notok, CHAT);
+                  }
             break;
           default:
             break;
@@ -225,8 +259,6 @@ int main(int argc, char*argv[]){
     }
   }
   close(newSocket);
-
-
   return 0;
   
 }

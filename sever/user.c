@@ -43,22 +43,6 @@ void addUser(userInfo* newUser){
   }
 }
 
-userInfo* searchUser(char nameUser[]){
-  if(root == NULL){
-    printf("List user is NULL !\n");
-    return NULL;
-  }
-  userInfo* tmp = root;
-  while(tmp != NULL){
-    if(strcmp(tmp->acc.name, nameUser) == 0 ){
-      return tmp;
-    }
-    tmp = tmp->next;
-  }
-  return NULL;
-}
-
-
 void printListUser(){
   userInfo* tmp = root;
   printf("Nguoi dung\n");
@@ -83,6 +67,23 @@ void readFile(){
 
 }
 
+userInfo* searchUser(char nameUser[]){
+  //can cap nhat lai danh sach user tu file
+  readFile();
+  if(root == NULL){
+    printf("List user is NULL !\n");
+    return NULL;
+  }
+  userInfo* tmp = root;
+  while(tmp != NULL){
+    if(strcmp(tmp->acc.name, nameUser) == 0 ){
+      return tmp;
+    }
+    tmp = tmp->next;
+  }
+  return NULL;
+}
+
 void WriteToFile(account newAccount){
   printf("dang viet vao %s %s\n",newAccount.name, newAccount.password );
   FILE *fb = fopen("account.txt", "a+");
@@ -104,6 +105,8 @@ userInfo *singUp(MESSAGE mess,int newSocket){
   userInfo *user = createNewUser(newAccount);
   addUser(user);
   WriteToFile(newAccount);
+  user = searchUser(newAccount.name);
+  printf("Da add = %s vo danh sach ng dung\n", user->acc.name);
   return user;
 }
 

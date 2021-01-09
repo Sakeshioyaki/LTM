@@ -104,12 +104,17 @@ void readRequestFriend(char fileName[MAXLINE], listFriend **requestFd){
 }
 
 
-void acceptFriend(char name[MAXLINE], listFriend **requestFd, listFriend **listFd, char fileName[MAXLINE]){
+void acceptFriend(char name[MAXLINE], listFriend **requestFd, listFriend **listFd, char fileName[MAXLINE], char userName[MAXLINE]){
+	char yourFriend[MAXLINE];
+	strcpy(yourFriend, name);
+    strcat(yourFriend,"BAN_BE.txt\0");
+    listFriend *currentUser = createNewFriend(userName);
 	if(strcmp((*requestFd)->myFriend.name,name) == 0){
 		addFriend(requestFd,listFd);
 		countFriend+=1;
 		countRequestFriend-=1;
 		writeToFriendFile(fileName,(*requestFd));
+		writeToFriendFile(yourFriend, currentUser);
 		(*requestFd) = NULL;
 		return;
 	}
@@ -124,6 +129,7 @@ void acceptFriend(char name[MAXLINE], listFriend **requestFd, listFriend **listF
 			countFriend+=1;
 			countRequestFriend-=1;
 			writeToFriendFile(fileName,tmp2);
+			writeToFriendFile(yourFriend, currentUser);
 			return;
 		}
 		tmp = tmp->next;
