@@ -195,9 +195,9 @@ int main(int argc, char*argv[]){
             strcat(fileName,"BAN_BE.txt\0");
             readFriendFile(fileName, &(user->listFd));
             sprintf(count,"%d",countFriend);            
-            sprintf(count,"%d",countRequestFriend);            
             strcpy(fileNameFriend, user->acc.name);
             SEND(newSocket, count, YC_XEM_DS_BAN_BE);
+            showListFriend(user, countFriend, newSocket);
             break;
 
           /*

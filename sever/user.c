@@ -157,3 +157,19 @@ int isFriend(char name[MAXLINE], userInfo **user){
   }
     
 }
+
+void showListFriend(userInfo *user, int countFriend, int newSocket){
+  listFriend *tmp = user->listFd;
+  char name[MAXLINE];
+  int i;
+  if(tmp = NULL){
+    printf("Ban khong co nguoi ban nao\n", );
+  }else{
+    for(i=1;i<=countFriend;i++){
+      printf("%d : %s\n",tmp->myFriend.name);
+      strcpy(name, tmp->myFriend.name);
+      SEND(newSocket,name, YC_XEM_DS_BAN_BE);
+      tmp = tmp->next;
+    }
+  }
+}

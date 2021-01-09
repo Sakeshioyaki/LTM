@@ -112,7 +112,7 @@ void requestFriend(int clientSocket){
 
 
 int main(int argc, char const *argv[]){
-	int clientSocket, ret, select, requestFd, i, tmp1;
+	int clientSocket, ret, select, requestFd, i, tmp1, countFriend;
 	struct sockaddr_in serverAddr;
 	char tmp[MAXLINE] = "hello";
 	MESSAGE mess;
@@ -252,6 +252,13 @@ int main(int argc, char const *argv[]){
 				goto Layout2;
 				break;
 			case 5:
+				SEND(clientSocket,tmp,YC_XEM_DS_BAN_BE);
+				mess = RECEVE(clientSocket);
+				countFriend = atoi(mess.mess);
+				printf("Banj hien co %d ban be", countFriend);
+				for(i=1;i<=countFriend;i++){
+					
+				}
 				break;
 			case 6:
 				SEND(clientSocket,tmp,YC_XEM_BAN_BE);
