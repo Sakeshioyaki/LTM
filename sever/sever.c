@@ -3,6 +3,10 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <pthread.h>
+#include <errno.h>
+#include <time.h>
+#include <sqlite3.h>
 #include "question.c"
 #include "userOnlineAndChatRoom.c"
 

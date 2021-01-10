@@ -110,10 +110,12 @@ int isOnline(char name[MAXLINE]){
     return 0;
 }
 
-void WriteToFile(Client_t newUser){
-  printf("dang viet vao %s %s\n",newAccount.name, newAccount.password );
-  FILE *fb = fopen("account.txt", "a+");
-  fprintf(fb, "\0");
-  fprintf(fb, "%s\t%s\t\n", newAccount.name, newAccount.password);
-  fclose(fb);
+void WriteToFile(char from[MAXLINE], char to[MAXLINE], char buffer[BUFFER_SZ]){
+    char fileName[MAXLINE];
+    strcpy(fileName,from);
+    strcat(fileName,"To");
+    strcat(fileName,to);
+    FILE *fb = fopen(fileName "a+");
+    fprintf(fb, "%s", buffer);
+    fclose(fb);
 }
