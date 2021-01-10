@@ -222,26 +222,8 @@ int main(int argc, char const *argv[]){
 				}while(check == 1);
 				mess = RECEVE(clientSocket);
 				if(strcmp(mess.mess,notok)==0){
-					printf("Ban cua ban hien tai dang offline\n" );
-					printf("Tin nhan ban gui di se duoc cho vao trang thai cho !");
-					printf("Nhap tin nhan va nhap \'exit\' de thoat khoi chuong trinh \n");
-					while (1) {
-				        str_overwrite_stdout();
-				        fgets(buffer, BUFFER_SZ, stdin);
-				        str_trim_lf(buffer, BUFFER_SZ);
-
-				        if (strcmp(buffer, "exit") == 0)
-				        {
-				        	printf("\nBye\n");
-				            break;
-				        }
-				        else{
-				            sprintf(message, "%s: %s\n", myUser.name, buffer);
-				            send(clientSocket, message, strlen(message), 0);
-				        }
-				        bzero(buffer, BUFFER_SZ);
-				        bzero(message, BUFFER_SZ + NAME_LEN);
-					}
+					printf("Ban cua ban hien offline. Vui long chuyen qua send message\n");
+					break;
 				}else{
 					printf("Ban cua ban hien dang online!\n");
 				}

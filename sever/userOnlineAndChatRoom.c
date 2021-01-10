@@ -15,10 +15,10 @@
 #define NAME_LEN 32
 
 int client_count = 0;  // dem so client hien tai dang online
+int id = 0 ;
 
 typedef struct
 {
-    struct sockaddr_in address;
     int id;
     /* Luu tru id cua nguoi ma nguoi nay dang chat cung, or choi game cung
     *  su dung bien status de xac dinh xem 2 nguoi nay dang chat hay choi game
@@ -104,18 +104,18 @@ int isOnline(char name[MAXLINE]){
 			break;
 		} 
 		if(strcmp(clients[i]->name, name)==0){
-			return clients[i]->id;
+			return clients[i]->fdId;
 		}
 	}
     return 0;
 }
 
-void WriteToFile(char from[MAXLINE], char to[MAXLINE], char buffer[BUFFER_SZ]){
-    char fileName[MAXLINE];
-    strcpy(fileName,from);
-    strcat(fileName,"To");
-    strcat(fileName,to);
-    FILE *fb = fopen(fileName "a+");
-    fprintf(fb, "%s", buffer);
-    fclose(fb);
-}
+// void WriteToFile(char from[MAXLINE], char to[MAXLINE], char buffer[BUFFER_SZ]){
+//     char fileName[MAXLINE];
+//     strcpy(fileName,from);
+//     strcat(fileName,"To");
+//     strcat(fileName,to);
+//     FILE *fb = fopen(fileName "a+");
+//     fprintf(fb, "%s", buffer);
+//     fclose(fb);
+// }
