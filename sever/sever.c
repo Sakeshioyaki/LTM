@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <string.h> // bzero()
-#include <ctype.h> // isdigit(), isalpha()
-#include <sys/socket.h> // listen(), accept()
+#include <string.h> 
+#include <ctype.h> 
+#include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h> // inet_ntoa(), inet_aton()
-#include <unistd.h> // close(sockfd), time_t
+#include <arpa/inet.h> 
+#include <unistd.h> 
 #include <pthread.h>
 #include <errno.h> 
-#include <time.h> // rand()
+#include <time.h> 
 #include "question.c"
 #include "userOnlineAndChatRoom.c"
 
@@ -90,12 +90,13 @@ int main(int argc, char*argv[]){
 void *MAIN(void *socketfd){
   int newSocket = *((int*)socketfd); 
       while(1){
-        char notok[MAXLINE] = "NOTOK";
+        char notok[MAXLINE] = "NOT OK";
         char ok[MAXLINE] = "OK";
         int statususer=0, i;
         int statuspass=0;
         char fileNameFriend[MAXLINE];
         char count[MAXLINE];
+        char fileNameMessReturn[100];
         int count2;
           //bien tam
         char fileName[MAXLINE];
@@ -197,27 +198,7 @@ void *MAIN(void *socketfd){
             SEND(newSocket, count, YC_XEM_BAN_BE);
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");            
-            tmp1 = user->requestFd;
-            count2 = countRequestFriend;
-            for(i = 1; i<=count2; i++){
-              printf("yeu cau ket ban tu : %s\n", tmp1->myFriend.name );
-              strcpy(tmpName, tmp1->myFriend.name);
-              SEND(newSocket,tmpName, YC_XEM_BAN_BE);
-              mess = RECEVE(newSocket);
-              if(strcpy(mess.mess, notok)==0) {
-                printf("dang rejectFriend\n");
-                // rejectFriend(tmp1->myFriend.name, &(user->requestFd));
-                printf("so luong ban be la %d\n", countFriend );
-                printf("so luong request friend %d\n", countRequestFriend );
-              }
-              else {
-                printf("dang accept friend %s\n", tmp1->myFriend.name);
-                // acceptFriend(tmp1->myFriend.name,&(user->requestFd), &(user->listFd), fileName, user->acc.name);
-                printf("so luong ban be la %d\n", countFriend );
-                printf("so luong request friend %d\n", countRequestFriend );
-              }
-              tmp1= tmp1->next;
-            }
+            xuLyYCKetBan(newSocket,&(user->requestFd), &(user->listFd), fileName, user->acc.name);
             break;
 
             /*
@@ -320,6 +301,60 @@ void *MAIN(void *socketfd){
               strcpy(messSend,"");
           }
             break;
+            case MESS:
+            printf("mess nhan duoc la %s\n",mess.mess );
+            printf("client yeu cau xem tin nhan \n");
+            FILE *f;
+            char messages[MAXLINE];
+            char messages1[MAXLINE];
+            char fileNameChat[100];
+            char fileNameChat1[100];
+            char phanhoi[100]="khong co tin nhan nao ";
+            strcpy(fileNameChat1,user->acc.name);
+            strcat(fileNameChat1,"CHAT.txt\0");
+            f=fopen(fileNameChat1,"r");
+            if(f==NULL){
+              printf("not exsits file\n");
+              goto tieptucchonban;
+            }
+            while(fgets(messages,1024,f)!=NULL){
+              printf("mess la %s\n", messages);
+              strcpy(messages1,messages);
+              SEND(newSocket,messages,PHAN_HOI_CHAT);
+              char *token=strtok(messages1,"->");
+              strcpy(fileNameMessReturn,token);
+              strcat(fileNameMessReturn,"CHAT.txt\0");
+              mess=RECEVE(newSocket);
+              writechatfile(fileNameMessReturn,user->acc.name,mess.mess);
+            }
+            remove(fileNameChat1);
+            tieptucchonban:
+            
+            SEND(newSocket,phanhoi,MESS);
+            printf("chuoi gui di la %s\n",phanhoi );
+            char namefriends[100];
+            mess=RECEVE(newSocket);
+            printf("nguoi muon chat cung nhan duoc ben server la %s\n",mess.mess );
+            strcpy(fileName,user->acc.name);
+            strcat(fileName,"BANBE.txt\0");
+            strcpy(namefriends,mess.mess);
+            // int k=readFriendFileSearchFri(fileName,mess.mess);
+            // if(k==0){
+            //   printf("khong la ban be\n");
+            //   SEND(newSocket,notok,MESS);
+            // }
+            // else{
+            //   printf("%s la ban be cua %s\n",mess.mess,user->acc.name );
+            //   SEND(newSocket,ok,MESS);
+            //   mess=RECEVE(newSocket);
+            //   strcpy(fileNameChat,namefriends);
+            //   strcat(fileNameChat,"CHAT.txt\0");
+            //   printf("%s -> %s\n",user->acc.name,mess.mess );
+            //   writechatfile(fileNameChat,user->acc.name,mess.mess);
+
+            // }
+            break;
+
           default:
             break;
         }

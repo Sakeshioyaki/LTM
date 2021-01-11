@@ -191,6 +191,7 @@ int main(int argc, char const *argv[]){
 		printf("5: Xem danh sach ban be\n");
 		printf("6: Xem yeu cau ket ban\n");
 		printf("7: Log Out\n");
+		printf("8: Gui tin nhan \n");
 		printf("Nhap vao select : \n");
 		scanf("%d",&select);
 		printf("%d\n",select );
@@ -313,6 +314,41 @@ int main(int argc, char const *argv[]){
 				strcpy(myUser.name,"\0");
 				printf("-------------Bye-------\n");
 				goto Layout1;
+			case 8:
+				SEND(clientSocket,tmp,MESS);
+				char messageFriend[MAXLINE];
+				chat:
+				mess=RECEVE(clientSocket);
+				char messreact[MAXLINE];
+				if(mess.code==PHAN_HOI_CHAT){
+					printf("Tin nhan la :%s\n", mess.mess);
+					fflush(stdin);
+					fgets(messreact,sizeof(messreact),stdin);
+					messreact[strlen(messreact)-1]='\0';
+					SEND(clientSocket,messreact,PHAN_HOI_CHAT);
+					goto chat;
+				}
+				else if(mess.code==MESS){
+					printf("mess nhan duoc la %s\n",mess.mess );
+					tieptuc:
+					printf("nhap nguoi ban muon chat: ");
+					scanf("%s",friendName);
+					SEND(clientSocket,friendName,MESS);
+					printf("da send : %s\n", friendName);
+					mess=RECEVE(clientSocket);
+					printf("mess.mess nhan duoc la %s\n",mess.mess );
+					if(strcmp(mess.mess,"NOT OK")==0){
+						printf("cacs ban khong phai ban be \n");
+					}else{
+						printf("da san sang de chat\n");
+						printf("friendName->nhap tin nhan: \n");
+						fflush(stdin);
+						fgets(messageFriend,sizeof(messageFriend),stdin);
+						messageFriend[strlen(messageFriend)-1]='\0';
+						SEND(clientSocket,messageFriend,MESS);
+					}
+				}
+				goto Layout2;
 				break;
 			default:
 				printf("nhap lua chon hop le !\n");

@@ -21,6 +21,8 @@ typedef enum {
 	YC_XEM_BAN_BE,
 	YC_XEM_DS_BAN_BE,
 	CHAT,
+	MESS,
+	PHAN_HOI_CHAT,
 	PLAY_GAME_WITH_SEVER,
 	PLAY_GAME_WITH_FD
 }CODE;
@@ -73,6 +75,12 @@ MESSAGE tachChuoi(char message[MAXLINE]){
 	}
 	if(strcmp(token, "CHAT") == 0){
 		code = CHAT;
+	}
+	if(strcmp(token,"MESS")==0){
+		code = MESS;
+	}
+	if(strcmp(token,"PHAN_HOI_CHAT")==0){
+		code = PHAN_HOI_CHAT;
 	}
 	if(strcmp(token, "PLAY_GAME_WITH_SEVER") == 0){
 		code = PLAY_GAME_WITH_SEVER;
@@ -142,6 +150,12 @@ void SEND(int clientSockfd, char *mess, CODE code){
 			break;
 		case CHAT:
 			taoMessage(mess,"CHAT");
+			break;
+		case MESS:
+			taoMessage(mess,"MESS");
+			break;
+		case PHAN_HOI_CHAT:
+			taoMessage(mess,"`PHAN_HOI_CHAT");
 			break;
 		case PLAY_GAME_WITH_SEVER:
 			taoMessage(mess,"PLAY_GAME_WITH_SEVER");

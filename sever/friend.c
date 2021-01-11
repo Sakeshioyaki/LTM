@@ -30,7 +30,6 @@ listFriend *createNewFriend(char name[MAXLINE]){
 }
 
 void addFriend(listFriend **newFd, listFriend **listFd){
-
 	if((*listFd) == NULL){
 		(*listFd) = (*newFd);
 	}else{
@@ -39,10 +38,10 @@ void addFriend(listFriend **newFd, listFriend **listFd){
 	}
 }
 
-void writeToFriendFile(char fileName[MAXLINE], listFriend *newFd){
+void writeToFriendFile(char fileName[MAXLINE],char userName[MAXLINE]){
 
 	FILE *fb = fopen(fileName,"a+");
-	fprintf(fb, "%s\n", (newFd)->myFriend.name);
+	fprintf(fb, "%s\n", userName);
 	fclose(fb);	
 
 }
@@ -107,6 +106,30 @@ void readRequestFriend(char fileName[MAXLINE], listFriend **requestFd){
 	remove(fileName);
 }
 
+void writechatfile(char fileName[MAXLINE],char name[100],char messs[MAXLINE]){
+	FILE *f=fopen(fileName,"a+");
+	fprintf(f, "%s -> %s\n",name,messs );
+	fclose(f);
+}
+
+// tim kiem file ban be
+// int readFriendFileSearchFri(char fileName[MAXLINE], char name[100]){
+// 	char name[MAXLINE];
+// 	FILE *fb;
+// 	fb=fopen(fileName,"r");
+// 	if(fb==NULL){
+// 		printf("khong co ban be\n");
+// 		return 0;
+// 	}
+// 	while(scanf(fb,"%s",name)!=EOF){
+// 		if(strcmp(nameFir,name)==0){
+// 			return 1;
+// 		}
+// 	}
+// 	fclose(fb);
+// 	return 0;
+// }
+
 
 void xuLyYCKetBan(int newSocket,listFriend **requestFd, listFriend **listFd, char fileName[MAXLINE], char userName[MAXLINE]){
 	listFriend *tmp = (*requestFd);
@@ -129,19 +152,21 @@ void xuLyYCKetBan(int newSocket,listFriend **requestFd, listFriend **listFd, cha
 	    (*requestFd) = tmp->next;
 	    tmp->next = NULL;
 	    tmp = (*requestFd);
-		countRequestFriend-=1;
+		countRequestFriend--;
 	    printf("so luong ban be la %d\n", countFriend );
 	    printf("so luong request friend %d\n", countRequestFriend );
 	  }
 	  else {
 	    printf("dang accept friend %s\n", tmp->myFriend.name);
-	    writeToFriendFile(fileName,tmp);
+	    writeToFriendFile(fileName,tmp->myFriend.name);
+	    printf("163>>>>>da viet vao file %s noi dung la : %s\n",fileName, tmp->myFriend.name );
 	    (*requestFd) = tmp->next;
 	    tmp->next = NULL;
 	    addFriend(&tmp,listFd);
 	    strcpy(fileName2,tmp->myFriend.name);
 	    strcpy(fileName2,"BAN_BE.txt");
-	    writeToFriendFile(fileName2, tmp);
+	    writeToFriendFile(fileName2, userName);
+	    printf("da viet vao file %s noi dung : %s\n", fileName2, userName );
 	    tmp = (*requestFd);
 		countFriend+=1;
 		countRequestFriend-=1;
