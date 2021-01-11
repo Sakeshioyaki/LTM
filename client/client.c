@@ -6,11 +6,12 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdio_ext.h>
 #include "lib.c"
 #include "userOnlineAndChatRoom.c"
 
 #define PORT 8080
-#define MAXLINE 100
+// #define MAXLINE 1000
 #define NOTOK "NOT OK"
 #define OK "OK"
 
@@ -120,6 +121,7 @@ int main(int argc, char const *argv[]){
 	char notok[MAXLINE] = "NOT OK";
 	int statususer=0;
 	int check;
+	char playgame[30]="play game";
 	int statuspass=0;
 	char namesignin[100];
 	char friendName[MAXLINE];
@@ -195,6 +197,32 @@ int main(int argc, char const *argv[]){
 		printf("%d\n",select );
 		switch(select){
 			case 1:
+				SEND(clientSocket,playgame,PLAY_GAME_WITH_SEVER);
+				mess=RECEVE(clientSocket);
+				char ss[10]="ok";
+
+				char answer[10];
+				char buff[MAXLINE];
+
+				tieptuc:
+					// mess=RECEVE(clientSocket);
+					SEND(clientSocket,ss,PLAY_GAME_WITH_SEVER);
+					recv(clientSocket,buff,MAXLINE,0);
+					printf("%s\n",buff );
+					// do{
+						__fpurge(stdin);
+						// scanf("%s",answer);
+						scanf(" %[^\n]", answer);
+						// SEND(clientSocket,answer,PLAY_GAME_WITH_SEVER);
+
+					// }while(strcmp(answer,"A")!=0||strcmp(answer,"B")!=0||strcmp(answer,"C")!=0||strcmp(answer,"D")!=0||strcmp(answer,"a")!=0||strcmp(answer,"b")!=0||strcmp(answer,"c")!=0||strcmp(answer,"d")!=0);
+						send(clientSocket,answer,strlen(answer),0);
+						printf("da send %s\n",answer );
+						mess=RECEVE(clientSocket);
+						// recv(clientSocket,buff,MAXLINE,0);
+						printf("%s\n",mess.mess );
+						goto tieptuc;
+				
 				break;
 			case 2:
 				break;
