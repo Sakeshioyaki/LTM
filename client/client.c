@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdio_ext.h>
 #include "lib.c"
 #include "userOnlineAndChatRoom.c"
 
@@ -198,19 +197,28 @@ int main(int argc, char const *argv[]){
 		switch(select){
 			case 1:
 				SEND(clientSocket,playgame,PLAY_GAME_WITH_SEVER);
-				mess=RECEVE(clientSocket);
+				// mess=RECEVE(clientSocket);
 				char ss[10]="ok";
 
 				char answer[10];
-				char buff[MAXLINE];
+				
+				int count=0;
 
-				tieptuc:
+				while(count<5){
+					char buff[MAXLINE]="";
 					// mess=RECEVE(clientSocket);
-					SEND(clientSocket,ss,PLAY_GAME_WITH_SEVER);
-					recv(clientSocket,buff,MAXLINE,0);
+					// SEND(clientSocket,ss,PLAY_GAME_WITH_SEVER);
+					printf("check 1");
+					int K = recv(clientSocket,buff,MAXLINE,0);
+					buff[K]='\0';
+					printf("check 2\n");
+					if(K<=0){
+						printf("loi khi nhan %d\n",K );
+						exit(1);
+					}
+					printf("strlen chuoi nhan  %ld la\n", strlen(buff));
 					printf("%s\n",buff );
 					// do{
-						__fpurge(stdin);
 						// scanf("%s",answer);
 						scanf(" %[^\n]", answer);
 						// SEND(clientSocket,answer,PLAY_GAME_WITH_SEVER);
@@ -218,11 +226,17 @@ int main(int argc, char const *argv[]){
 					// }while(strcmp(answer,"A")!=0||strcmp(answer,"B")!=0||strcmp(answer,"C")!=0||strcmp(answer,"D")!=0||strcmp(answer,"a")!=0||strcmp(answer,"b")!=0||strcmp(answer,"c")!=0||strcmp(answer,"d")!=0);
 						send(clientSocket,answer,strlen(answer),0);
 						printf("da send %s\n",answer );
-						mess=RECEVE(clientSocket);
+						// mess=RECEVE(clientSocket);
+						char cho[100];
+						recv(clientSocket,cho,100,0);
 						// recv(clientSocket,buff,MAXLINE,0);
-						printf("%s\n",mess.mess );
-						goto tieptuc;
-				
+						printf("%s\n",cho );
+						count++;
+						printf("234 : da den cau %d",count);
+						// strcpy(buff,"");
+
+					}
+				goto Layout2;
 				break;
 			case 2:
 				break;

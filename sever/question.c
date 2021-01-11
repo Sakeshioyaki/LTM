@@ -8,7 +8,7 @@
 #include <time.h>
 #define MAX_LEN 200
 #define MAX_LINE 500
-#define numberquestion 15
+#define numberquestion 5
 #define maxquestion 23
 struct question
 {
@@ -31,36 +31,27 @@ void readQuestion(){
   for(int i=0;i<maxquestion;i++){
     char question[MAX_LEN];
     if(fgets(question,sizeof(question),f)!=NULL){
-      char *offset = strstr(question, "\n");
-            if (offset != NULL) *offset = '\0';
       strcpy(Question[i].question,question);
     }
     char A[MAX_LEN];
     if(fgets(A,sizeof(A),f)!=NULL){
-      char *offset = strstr(A, "\n");
-            if (offset != NULL) *offset = '\0';
       strcpy(Question[i].A,A);
     }
     char B[MAX_LEN];
     if(fgets(B,sizeof(B),f)!=NULL){
-       char *offset = strstr(B, "\n");
-            if (offset != NULL) *offset = '\0';
       strcpy(Question[i].B,B);
     }
     char C[MAX_LEN];
     if(fgets(C,sizeof(C),f)!=NULL){
-       char *offset = strstr(C, "\n");
-            if (offset != NULL) *offset = '\0';
       strcpy(Question[i].C,C);
     }
     char D[MAX_LEN];
     if(fgets(D,sizeof(D),f)!=NULL){
-      char *offset = strstr(D, "\n");
-            if (offset != NULL) *offset = '\0';
       strcpy(Question[i].D,D);
     }
     char TrueAnswer[MAX_LEN];
     if(fgets(TrueAnswer,sizeof(TrueAnswer),f)!=NULL){
+      TrueAnswer[strlen(TrueAnswer)-1]='\0';
       strcpy(Question[i].TrueAnswer,TrueAnswer);
     }
 

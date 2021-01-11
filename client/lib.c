@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#define MAXLINE 100
+#define MAXLINE 1024
 
 
 typedef enum {
@@ -90,7 +90,10 @@ MESSAGE tachChuoi(char message[MAXLINE]){
 MESSAGE RECEVE(int newSocket){
 	MESSAGE mess;
 	char messClient[MAXLINE];
-	recv(newSocket,messClient,MAXLINE,0);
+	int k =recv(newSocket,messClient,MAXLINE,0);
+	if(k <=0){
+		printf("95 : loi khi nhan %d\n",k);
+	}
 	mess=tachChuoi(messClient);
 	return mess;
 

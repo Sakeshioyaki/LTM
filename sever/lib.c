@@ -21,7 +21,7 @@ typedef enum {
 
 typedef struct MESSAGE{
 	CODE code;
-	char mess[1042];
+	char mess[2048];
 }MESSAGE;
 
 
@@ -83,8 +83,12 @@ MESSAGE tachChuoi(char message[1024]){
 }
 MESSAGE RECEVE(int newSocket){
 	MESSAGE mess;
-	char messClient[1024];
-	recv(newSocket,messClient,1024,0);
+	char messClient[2048];
+	int k = recv(newSocket,messClient,2048,0);
+	if(k <=0){
+		printf("loi khi nhan %d\n",k);
+			exit(-1);
+	}
 	mess=tachChuoi(messClient);
 	return mess;
 
