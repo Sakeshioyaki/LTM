@@ -206,13 +206,13 @@ void *MAIN(void *socketfd){
               mess = RECEVE(newSocket);
               if(strcpy(mess.mess, notok)==0) {
                 printf("dang rejectFriend\n");
-                rejectFriend(tmp1->myFriend.name, &(user->requestFd));
+                // rejectFriend(tmp1->myFriend.name, &(user->requestFd));
                 printf("so luong ban be la %d\n", countFriend );
                 printf("so luong request friend %d\n", countRequestFriend );
               }
               else {
                 printf("dang accept friend %s\n", tmp1->myFriend.name);
-                acceptFriend(tmp1->myFriend.name,&(user->requestFd), &(user->listFd), fileName, user->acc.name);
+                // acceptFriend(tmp1->myFriend.name,&(user->requestFd), &(user->listFd), fileName, user->acc.name);
                 printf("so luong ban be la %d\n", countFriend );
                 printf("so luong request friend %d\n", countRequestFriend );
               }
@@ -279,9 +279,11 @@ void *MAIN(void *socketfd){
             for(int i=0;i<numberquestion;i++){
               mess=RECEVE(newSocket);
             int c=mang[i];
+           
+            // snprintf(messSend,sizeof(m,"Cau hoi %d: %s\nA. %s\nB. %s\n",i+1,Question[c].question,Question[c].A,Question[c].B);
+
             int k=snprintf(messSend,sizeof(messSend),"Cau hoi %d: %s\nA. %s\nB. %s\nC. %s\nD. %s\n ",i+1,Question[c].question,Question[c].A,Question[c].B,Question[c].C,Question[c].D);
             printf("messend: %s\n",messSend );
-            printf("gia tri cua k la %d\n",k );
             strcpy(messQues,messSend);
             printf(" messques: %s\n",messQues );
             if(send(newSocket,messQues,strlen(messQues)+1,0)<0){

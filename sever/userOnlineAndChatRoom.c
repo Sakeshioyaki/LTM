@@ -76,6 +76,7 @@ void remove_client(char name[MAXLINE])
         if (clients[i] != NULL && strcmp(clients[i]->name, name)==0)
         {
             clients[i] = NULL;
+            client_count--;
             break;
         }
     }
