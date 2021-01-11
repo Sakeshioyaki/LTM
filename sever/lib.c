@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
 typedef enum {
 	YC_KET_BAN,
 	YC_CHOI_GAME,
@@ -36,6 +37,7 @@ MESSAGE *createMessage(char buff[], CODE code){
 	strcpy(newMess->mess, buff);
 	return newMess;
 }
+
 MESSAGE tachChuoi(char message[1024]){
 	MESSAGE mess;
 	CODE code;
@@ -75,6 +77,7 @@ MESSAGE tachChuoi(char message[1024]){
 	}
 	if(strcmp(token,"PHAN_HOI_CHAT")==0){
 		code=PHAN_HOI_CHAT;
+	}
 	if(strcmp(token,"MESS")==0){
 		code=MESS;
 	}

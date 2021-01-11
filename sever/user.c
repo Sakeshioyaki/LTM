@@ -110,7 +110,7 @@ userInfo *singUp(MESSAGE mess,int newSocket){
 }
 // wire to user online file
 
-userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass, int sockfd){
+userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
   int countuser=0;
   int countpass=0;
   FILE *f;

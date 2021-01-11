@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdio_ext.h>
 #include <pthread.h>
 #include "lib.c"
 #include "userOnlineAndChatRoom.c"
@@ -24,7 +23,6 @@ typedef struct accout{
 
 
 account loginUser(int clientSocket,account user,int statususer,int statuspass ){
-
 	MESSAGE mess;
 	user.status=0;
 	char userNameLogIn[50];
@@ -151,53 +149,10 @@ void requestFriend(int clientSocket){
 
 }
 
-int game(int clientSocket){
-	MESSAGE mess;
-	char end[10]="END";
-	char solution[40];
-	int qus=0; 
-	
-	play:
-	qus++;
-	mess=RECEVE(clientSocket);
-	if(strstr(mess.mess,end)!=NULL){
-		printf("%s\n",mess.mess );
-		return 0;
-	}
-	else{
-		printf("Question %d : %s \n",qus,mess.mess );
-		__fpurge(stdin);
-		fgets(solution,sizeof(solution),stdin);
-		solution[strlen(solution)-1]='\0';
-		SEND(clientSocket,solution,YC_CHOI_GAME);
-		mess=RECEVE(clientSocket);
-		printf("server: %s\n",mess.mess );
-		char request[10]="ok";
-		SEND(clientSocket,request,YC_CHOI_GAME);
-		goto play;
-	}
-	
-	
-}
 
-void *msg_handler(int clientSocket){
-	char message[100]="";
-	while(1){
-		int receive=recv(clientSocket,message,100,0);
-		if(receive>0){
-			printf("mess nhan duoc la %s\n", message);
-			break;
-
-		}
-		printf("receive =0\n");
-		
-	}
-}
-
-int main(int argc, char const *argv[]){
+int main(){
 	int clientSocket, ret, select, requestFd, i, tmp1, countFriend;
 	struct sockaddr_in serverAddr;
-	char buffer[1024];
 	char nameuser[30];
 	char messreact[MAXLINE];
 	char namegame[MAXLINE];
@@ -394,21 +349,7 @@ int main(int argc, char const *argv[]){
 					}else{
 						SEND(clientSocket, notok,YC_XEM_BAN_BE);
 					}
-					else{
-						printf("%d: %s\n",i, mess.mess );
-						printf("1: dong y 0: tu choi\n");
-						scanf("%d",&tmp1);
-						if(tmp1 == 1){
-							SEND(clientSocket, ok, YC_XEM_BAN_BE);
-							goto xemban;
-						}else{
-							SEND(clientSocket, notok,YC_XEM_BAN_BE);
-							goto xemban;
-						}
-					}
-					
-				// }
-				printf("ra day chua\n");
+				}
 				goto Layout2;
 				break;
 			case 7 :

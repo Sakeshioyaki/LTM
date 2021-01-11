@@ -78,6 +78,7 @@ MESSAGE tachChuoi(char message[MAXLINE]){
 	}
 	if(strcmp(token,"PHAN_HOI_CHAT")==0){
 		code=PHAN_HOI_CHAT;
+	}
 	if(strcmp(token,"MESS")==0){
 		code=MESS;
 	}
@@ -155,6 +156,7 @@ void SEND(int clientSockfd, char *mess, CODE code){
 			break;
 		case PHAN_HOI_CHAT:
 			taoMessage(mess,"PHAN_HOI_CHAT");
+			break;
 		case MESS:
 			taoMessage(mess,"MESS");
 			break;
