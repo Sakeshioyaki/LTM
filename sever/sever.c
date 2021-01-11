@@ -205,6 +205,7 @@ void *MAIN(void *socketfd){
             *YEU CAU XEM DANH SACH BAN BE   
             */
           case YC_XEM_DS_BAN_BE:
+            printf("Dang xem danh sách bạn bè \n");
             cli->status = YC_XEM_DS_BAN_BE;
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");
@@ -213,7 +214,7 @@ void *MAIN(void *socketfd){
             printf("so luong ban be la : %d\n",countFriend);         
             strcpy(fileNameFriend, user->acc.name);
             SEND(newSocket, count, YC_XEM_DS_BAN_BE);
-            showListFriend(user, countFriend, newSocket);
+            showListFriend(user, newSocket);
             break;
 
           /*

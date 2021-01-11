@@ -241,6 +241,10 @@ int main(int argc, char const *argv[]){
 				break;
 			case 2:
 				break;
+
+			/*
+			* CHAT WITH FRIEND
+			*/
 			case 3:
 				do{
 					printf("Nhap ten nguoi ban muon chat cung : ");
@@ -272,22 +276,36 @@ int main(int argc, char const *argv[]){
 				}
 				goto Layout2;
 				break;
+
+			/*
+			* KET BAN
+			*/
 			case 4:
 				printf("Bat dau ket ban\n");
 				requestFriend(clientSocket);
 				goto Layout2;
 				break;
+
+			/*
+			* XEM DANH SACH BA BE
+			*/
 			case 5:
+				printf("dang muon xem danh sach ban be \n");
 				SEND(clientSocket,tmp,YC_XEM_DS_BAN_BE);
+				printf("DA GUI DI %s", tmp);
 				mess = RECEVE(clientSocket);
 				countFriend = atoi(mess.mess);
-				printf("Banj hien co %d ban be\n", countFriend);
+				printf("Ban hien co %d ban be\n", countFriend);
 				for(i=1;i<=countFriend;i++){
 					mess = RECEVE(clientSocket);
 					printf("%d: %s\n",i, mess.mess );
 				}
 				goto Layout2;
 				break;
+
+			/*
+			* XEM YEU CAU KET BAN
+			*/
 			case 6:
 				SEND(clientSocket,tmp,YC_XEM_BAN_BE);
 				mess = RECEVE(clientSocket);
@@ -308,12 +326,20 @@ int main(int argc, char const *argv[]){
 				}
 				goto Layout2;
 				break;
+
+			/*
+			* LOGOUT
+			*/
 			case 7:
 				myUser.status = 0;
 				SEND(clientSocket,tmp,SIGN_OUT);
 				strcpy(myUser.name,"\0");
 				printf("-------------Bye-------\n");
 				goto Layout1;
+
+			/*
+			*GUI TIN NHAN
+			*/	
 			case 8:
 				SEND(clientSocket,tmp,MESS);
 				char messageFriend[MAXLINE];

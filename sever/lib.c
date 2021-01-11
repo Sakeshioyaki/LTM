@@ -65,7 +65,7 @@ MESSAGE tachChuoi(char message[1024]){
 		code = YC_XEM_BAN_BE;
 	}
 	if(strcmp(token, "YC_XEM_DS_BAN_BE") == 0){
-		code = YC_XEM_BAN_BE;
+		code = YC_XEM_DS_BAN_BE;
 	}
 	if(strcmp(token, "CHAT") == 0){
 		code = CHAT;

@@ -16,3 +16,14 @@ ai	i
 hi	hi	
 pun	p	
 tg	g	
+QƯ	QƯ	
+a	a	
+b	b	
+s	s	
+n	n	
+as	sa	
+sa	sd	
+ui	iu	
+bo	bo	
+ngan	ngan	
+ngong	ngong	

@@ -160,7 +160,7 @@ int isFriend(char name[MAXLINE], userInfo **user){
     
 }
 
-void showListFriend(userInfo *user, int countFriend, int newSocket){
+void showListFriend(userInfo *user, int newSocket){
   listFriend *tmp = user->listFd;
   char name[MAXLINE];
   int i;

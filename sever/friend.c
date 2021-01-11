@@ -76,7 +76,7 @@ void readFriendFile(char fileName[MAXLINE], listFriend **listFd){
 		listFriend *new = createNewFriend(name);
 		countFriend++;
 		addFriend(&new, listFd);
-		printf("%d\n",countFriend );
+		printf("SO BAN BE HIEN TAI : %d\n",countFriend );
 	}
 	fclose(fb);
 }
