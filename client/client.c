@@ -289,15 +289,14 @@ int main(int argc, char const *argv[]){
 		printf("4: Ket ban\n");
 		printf("5: Xem danh sach ban be\n");
 		printf("6: Xem yeu cau ket ban\n");
-		printf("7: Log Out\n");
-		printf("8: test\n");
+		printf("7: Gui tin nhan \n");
+		printf("8: Log Out\n");
 		printf("Nhap vao select : \n");
 		scanf("%d",&select);
 		printf("%d\n",select );
 		switch(select){
 			case 1:
 				SEND(clientSocket,playgame,PLAY_GAME_WITH_SEVER);
-				// mess=RECEVE(clientSocket);
 				char ss[10]="ok";
 
 				char answer[10];
@@ -306,39 +305,30 @@ int main(int argc, char const *argv[]){
 
 				while(count<5){
 					char buff[MAXLINE]="";
-					// mess=RECEVE(clientSocket);
-					// SEND(clientSocket,ss,PLAY_GAME_WITH_SEVER);
-					printf("check 1");
-					int K = recv(clientSocket,buff,MAXLINE,0);
-					buff[K]='\0';
-					printf("check 2\n");
-					if(K<=0){
-						printf("loi khi nhan %d\n",K );
+					int k = recv(clientSocket,buff,MAXLINE,0);
+					buff[k]='\0';
+					if(k<=0){
+						printf("loi khi nhan %d\n",k );
 						exit(1);
 					}
-					printf("strlen chuoi nhan  %ld la\n", strlen(buff));
 					printf("%s\n",buff );
-					// do{
-						// scanf("%s",answer);
-						scanf(" %[^\n]", answer);
-						// SEND(clientSocket,answer,PLAY_GAME_WITH_SEVER);
-
-					// }while(strcmp(answer,"A")!=0||strcmp(answer,"B")!=0||strcmp(answer,"C")!=0||strcmp(answer,"D")!=0||strcmp(answer,"a")!=0||strcmp(answer,"b")!=0||strcmp(answer,"c")!=0||strcmp(answer,"d")!=0);
+					
+					scanf(" %[^\n]", answer);
 						send(clientSocket,answer,strlen(answer),0);
 						printf("da send %s\n",answer );
 						// mess=RECEVE(clientSocket);
 						char cho[100];
 						recv(clientSocket,cho,100,0);
-						// recv(clientSocket,buff,MAXLINE,0);
 						printf("%s\n",cho );
 						count++;
-						printf("234 : da den cau %d",count);
 						// strcpy(buff,"");
 
 					}
 				goto Layout2;
 				break;
 			case 2:
+				SEND(clientSocket,tmp,PLAY_GAME_WITH_FD);
+				break;
 				break;
 			case 3:
 				do{
@@ -421,7 +411,9 @@ int main(int argc, char const *argv[]){
 				printf("ra day chua\n");
 				goto Layout2;
 				break;
-			case 7:
+			case 7 :
+				break;
+			case 8:
 				SEND(clientSocket,logout,SIGN_OUT);
 				myUser.status = 0;
 				SEND(clientSocket,tmp,SIGN_OUT);
@@ -429,16 +421,6 @@ int main(int argc, char const *argv[]){
 				printf("-------------Bye-------\n");
 				goto Layout1;
 				break;
-			case 8: 
-				printf("Nhap ten username can gui mess: ");
-				scanf("%s",nameuser);
-				SEND(clientSocket,nameuser,PLAY_GAME_WITH_FD);
-				if(pthread_create(&msg,NULL,msg_handler(clientSocket),NULL)!=0){
-					printf("error\n");
-					exit(1);
-				}
-
-
 			default:
 				printf("nhap lua chon hop le !\n");
 				goto Layout2;

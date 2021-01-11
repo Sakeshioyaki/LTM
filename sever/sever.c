@@ -1,16 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <string.h> // bzero()
-#include <ctype.h> // isdigit(), isalpha()
-#include <sys/socket.h> // listen(), accept()
+#include <string.h> 
+#include <ctype.h> 
+#include <sys/socket.h> 
 #include <netinet/in.h>
-#include <arpa/inet.h> // inet_ntoa(), inet_aton()
-#include <unistd.h> // close(sockfd), time_t
+#include <arpa/inet.h> 
+#include <unistd.h> 
 #include <pthread.h>
 #include <errno.h> 
-#include <time.h> // rand()
-
+#include <time.h> 
 #include "question.c"
 #include "userOnlineAndChatRoom.c"
 #include "game.c"
@@ -520,51 +519,34 @@ void *MAIN(void *socketfd){
             printf("dang choi game vs may\n");
             cli->status = YC_XEM_DS_BAN_BE;
              int mang[numberquestion];
-             // char bd[100]="san sang chua";
-             // SEND(newSocket,bd,PLAY_GAME_WITH_SEVER);
             readQuestion();
             randomquestion(mang);
-            // printfquestion();
             char solution[10];
             char messSend[MAX];
             char messQues[MAXLINE+1];
             int trueQuestion=0;
-            printf("208>>numberquestion la %d\n",numberquestion );
             for(int i=0;i<numberquestion;i++){
-              printf("282>>>.>>>mess send la %s\n", messSend);
               int c=mang[i];
-             printf("284>>>>gia tri cua c la %d\n",c );
-              printf(">>>>>>>>Cau hoi %d: %s\nA. %s\nB. %s\nC. %s\nD. %s\n ",i+1,Question[c].question,Question[c].A,Question[c].B,Question[c].C,Question[c].D);
               int k=snprintf(messSend,sizeof(messSend),"Cau hoi %d: %s\nA. %s\nB. %s\nC. %s\nD. %s\n ",i+1,Question[c].question,Question[c].A,Question[c].B,Question[c].C,Question[c].D);
-              // printf("messend: %s\n",messSend );
-              printf("strlen chuoi gui  %ldla\n", strlen(messSend));
+              printf("%s\n",messSend );
               int mama;
-              // messSend[strlen(messSend)-1]='\0';
               mama=send(newSocket,messSend,strlen(messSend),0);
-              printf("294 :BO MAY DA SEND : %s\n", messSend);
               if(mama<=0){
                 printf("send error %d\n",mama);
                 printf("send lai");
                 send(newSocket,messSend,strlen(messSend),0);
                 exit(-1);
               }
-              // mess=RECEVE(newSocket);
               recv(newSocket,solution,10,0);
 
               if(strcmp(Question[c].TrueAnswer,solution)==0){
                 char trueqs[50]="ban tra loi dung";
-                // sprintf(messSend,"ban tra loi dung");
                 trueQuestion++;
-                // SEND(newSocket,trueqs,PLAY_GAME_WITH_SEVER);
                 send(newSocket,trueqs,strlen(trueqs)+1,0);
               }
               else{
                 char falsequs[50]="tra loi sai!Dap an dung la ";
-                // char falsequs[100];
-                // sprintf(falsequs,"tra loi sai Dap an dung la %s",Question[c].TrueAnswer);
                 strcat(falsequs,Question[c].TrueAnswer);
-                // sprintf(messSend,"tra loi sai!Dap an dung la %s ",Question[i].TrueAnswer);
-                // SEND(newSocket,falsequs,PLAY_GAME_WITH_SEVER);
                 send(newSocket,falsequs,strlen(falsequs),0);
 
 
@@ -572,6 +554,9 @@ void *MAIN(void *socketfd){
               strcpy(messSend,"");
           }
             break;
+            case PLAY_GAME_WITH_FD:
+            break;
+
           default:
             break;
         }
