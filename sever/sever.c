@@ -1,23 +1,162 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "question.c"
+#include<ctype.h>
+// #include <thread.h>
 #include "userOnlineAndChatRoom.c"
-
+#include "game.c"
 #define PORT 8080
-#define NOTOK "NOT OK"
-#define OK "OK"
+// #define NOTOK "NOT OK"
+// #define OK "OK"
 #define MAX 50 //max friend
 
+int isTrung(int mang[],int count, int k ){
+  for (int i=0;i<count;i++){
+    if(k==mang[i]){
+      return 1;
+    }
+  }
+  return 0;
+}
+
+char *strlwr(char *str)
+{
+  unsigned char *p = (unsigned char *)str;
+
+  while (*p) {
+     *p = tolower((unsigned char)*p);
+      p++;
+  }
+
+  return str;
+}
+void randomquestion(int mang[15]){
+  int k;
+  srand(time(NULL));
+  for(int i=0;i<15;i++){
+    do{
+      k=rand()%15;
+    }while(isTrung(mang,i+1,k)==1);
+    mang[i]=k;
+    
+  }
+  for(int i=0;i<15;i++){
+    printf("%d  ",mang[i] );
+  }
+  
+}
+void sendQuestion(int newSocket,char solu[50], int random,int mang[15]){
+  QuestionList* tmp = ques;
+  
+  while(tmp != NULL){
+    if(tmp->qs.id==mang[random]){
+      printf("question gui di la %s\n",tmp->qs.ques );
+      SEND(newSocket,tmp->qs.ques,YC_CHOI_GAME);
+      // return tmp->qs.ques;
+      strcpy(solu,tmp->qs.solustion);
+      break;
+    }
+    tmp = tmp->next;
+  }
+
+}
+
+
+char* itoa(int value, char* result, int base) {
+        // check that the base if valid
+        if (base < 2 || base > 36) { *result = '\0'; return result; }
+
+        char* ptr = result, *ptr1 = result, tmp_char;
+        int tmp_value;
+
+        do {
+            tmp_value = value;
+            value /= base;
+            *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
+        } while ( value );
+
+        // Apply negative sign
+        if (tmp_value < 0) *ptr++ = '-';
+        *ptr-- = '\0';
+        while(ptr1 < ptr) {
+            tmp_char = *ptr;
+            *ptr--= *ptr1;
+            *ptr1++ = tmp_char;
+        }
+        return result;
+    }
+
+void playgame(int newSocket,char time[10]){
+ MESSAGE mess;
+ int diem=0;
+ int doi=0;
+ clock_t start,end;
+ double time_used;
+ int mang[15];
+ char result[100];
+ randomquestion(mang);
+ play:
+ if(doi>=0&&doi<15){
+      start=clock();
+      sendQuestion(newSocket,result,doi,mang);
+      doi++;
+     mess=RECEVE(newSocket);
+     end=clock();
+     time_used=((double)(end-start))/CLOCKS_PER_SEC;
+     printf("thoi gian su duong de tra loi la %f\n", time_used);
+     // format_time(time);
+     
+     if(strstr(strlwr(result),strlwr(mess.mess))!=NULL){
+        char ph[20]="OK";
+        diem++;
+        printf("diem hien tai la %d\n",diem );
+        SEND(newSocket,ph,YC_CHOI_GAME);
+        mess=RECEVE(newSocket);
+        printf("mess nhan duoc la %s\n",mess.mess );
+        goto play;
+              
+      }
+     else{
+      char ph[50]="ban da thua";
+      diem--;
+       printf("diem hien tai la %d\n",diem );
+      SEND(newSocket,ph,YC_CHOI_GAME);
+      mess=RECEVE(newSocket);
+        printf("mess nhan duoc la %s\n",mess.mess );
+      goto play;
+     }
+ }
+ else{
+     char end[100]="END score: ";
+     char a[5];
+     itoa(diem,a,10);
+     strcat(end,a);
+     SEND(newSocket,end,YC_CHOI_GAME);
+ }
+
+}
+// void createfilegame()
+
+ 
 int main(int argc, char*argv[]){
   readFile();
   printListUser();
-
-  char notok[MAXLINE] = "NOTOK";
+  pthread_t msg;
+  MESSAGE mess;
+  char time[10];
+  int ko;
+  userInfo *user;
+  userInfo *friend;
+  // char fileNameChat
+  listFriend *tmp1;
+  char notok[MAXLINE] = "NOT OK";
   char ok[MAXLINE] = "OK";
-
+  int countuse=0;
   //KHOI TAO SEVER
   int sockfd, ret, i;
   struct sockaddr_in serverAddr;
@@ -67,29 +206,31 @@ int main(int argc, char*argv[]){
         int statususer=0;
         int statuspass=0;
         char fileNameFriend[MAXLINE];
+        char fileNameChat[100];
+        char fileNameMess[100];
+        char fileNameMessReturn[100];
         char count[MAXLINE];
         int count2;
+        char fileNamegame[100];
           //bien tam
         char fileName[MAXLINE];
         char tmpName[MAXLINE];
         char tmp[MAXLINE];
-
-        MESSAGE mess;
-
-        userInfo *user;
-        userInfo *friend;
-
-        listFriend *tmp1;
         printf("bat dau ket noi !\n");
-        char nameUser[256], password[30];       
+         
+        char nameUser[256], password[30]; 
+        bd:
         mess = RECEVE(newSocket);
+        printf("phan dau vao case la %d\n",mess.code );
+        readFile();
         switch(mess.code){
 
           /*
           *LOGIN
           */
           case LOG_USERNAME:
-          user=loginUser(mess,newSocket,statususer,statuspass);
+          SEND(newSocket,ok,LOG_USERNAME);
+          user=loginUser(mess,newSocket,statususer,statuspass,sockfd);
             if(user != NULL){
             Client_t *cli = (Client_t *)malloc(sizeof(Client_t));
             cli->address = newAddr;
@@ -99,6 +240,10 @@ int main(int argc, char*argv[]){
             // Add client to queue
             add_client(cli);
             user->status = 1;
+
+            }
+            else{
+              printf("khong duoc them vaof haha\n");
             }
             break;
 
@@ -106,9 +251,16 @@ int main(int argc, char*argv[]){
           *SIGN UP
           */
           case SIGN_UP_USERNAME:
+          
             printf("Dang tao tai khoan\n");
             user = searchUser(mess.mess);
             if(user != NULL){
+              countuse++;
+              if(countuse>=3){
+                char tmp1[10]="NHAP QUA";
+                SEND(newSocket, tmp1, SIGN_UP_USERNAME);
+                goto bd;
+              }
               printf("Da ton tai ng nay trong he thong\n");
               char tmp[10] = "NOT OK";
               SEND(newSocket, tmp, SIGN_UP_USERNAME);
@@ -125,18 +277,33 @@ int main(int argc, char*argv[]){
                 add_client(cli);
                 user->status = 1;
               }
+              
             } 
             break;
+
+            /* GAME VOI MAY*/
+            case YC_CHOI_GAME:
+            readfileGame();
+            playgame(newSocket,time);
+            break;
+            // case PLAY_GAME_WITH_FD:
+            // strcpy(fileNamegame,mess.mess);
+            // strcat(fileNamegame,".txt");
+            // break;
+
+
+
 
           /*
           *REQUEST FRIEND
           */
           case YC_KET_BAN :
             printf("dang xu li yeu cau ket ban\n");
+            printf("ten nguoi dung muon ket ban la %s\n", mess.mess);
             friend = searchUser(mess.mess);
             if(friend == NULL){
               printf("Khong tin thay ng nay \n");
-              SEND(newSocket, notok, YC_KET_BAN);
+              SEND(newSocket,notok,YC_KET_BAN);
             }else{
               printf("Da tim thay nguoi dung!\n");
               strcpy(fileName, friend->acc.name);
@@ -151,21 +318,30 @@ int main(int argc, char*argv[]){
            *XEM YEU CAU KET BAN
            */ 
           case YC_XEM_BAN_BE:
-            printf("Client yeu cau xem yeu cau ket ban\n");
-            readRequestFriend(fileNameFriend, &(user->requestFd));
-            sprintf(count,"%d",countRequestFriend);            
+            printf("Client yeu cau xem yeu cau ket ban\n");        
             strcpy(fileNameFriend, user->acc.name);
             strcat(fileNameFriend,"YC_KET_BAN.txt\0");
+            readRequestFriend(fileNameFriend, &(user->requestFd));
+            sprintf(count,"%d",countRequestFriend);    
             SEND(newSocket, count, YC_XEM_BAN_BE);
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");
             tmp1 = user->requestFd;
             count2 = countRequestFriend;
-            for(i = 1; i<=count2; i++){
+            mess=RECEVE(newSocket);
+            // for(i = 1; i<=count2; i++){
+            // int counttmp=0;
+              // strcpy(tmpName, tmp1->myFriend.name);
+            while(tmp1!=NULL){
+              // counttmp++;
+              // printf("counttmp co gia tri la %d\n",counttmp );
               strcpy(tmpName, tmp1->myFriend.name);
+              printf("chuoi ten gui di la %s\n",tmpName );
               SEND(newSocket,tmpName, YC_XEM_BAN_BE);
               mess = RECEVE(newSocket);
-              if(strcpy(mess.mess, notok)==0) {
+              printf("tmp1->myFriend.name o day la %s\n", tmp1->myFriend.name);
+              printf("mess.mess o day ok hay khong la %s\n", mess.mess);
+              if(strcmp(mess.mess, notok)==0) {
                 printf("dang rejectFriend\n");
                 rejectFriend(tmp1->myFriend.name, &(user->requestFd));
                 printf("so luong ban be la %d\n", countFriend );
@@ -177,9 +353,69 @@ int main(int argc, char*argv[]){
                 printf("so luong ban be la %d\n", countFriend );
                 printf("so luong request friend %d\n", countRequestFriend );
               }
+              tmp1=tmp1->next;
             }
+            char endfriend[10]="END";
+            SEND(newSocket,endfriend,YC_XEM_BAN_BE);
             break;
 
+            case CHAT:
+            printf("mess.mess nhan duoc la %s\n",mess.mess );
+            printf("client yeu cau xem tin nhan \n");
+            FILE *f;
+            char messages[MAXLINE];
+            char messages1[MAXLINE];
+            char fileNameChat1[100];
+            strcpy(fileNameChat1,user->acc.name);
+            strcat(fileNameChat1,"CHAT.txt\0");
+            f=fopen(fileNameChat1,"r");
+            if(f==NULL){
+              printf("khong co file nhes\n");
+              // fclose(f);
+              printf("ra day de goto chuwa \n");
+              goto tieptucchonban;
+            }
+            printf("lai ra day af\n");
+            while(fgets(messages,1024,f)!=NULL){
+              printf("mess la %s\n",messages );
+              strcpy(messages1,messages);
+              SEND(newSocket,messages,PHAN_HOI_CHAT);
+              char *token=strtok(messages1,"->");
+              strcpy(fileNameMessReturn,token);
+              strcat(fileNameMessReturn,"CHAT.txt\0");
+              mess= RECEVE(newSocket);
+              writechatfile(fileNameMessReturn,user->acc.name,mess.mess);
+            }
+            remove(fileNameChat1);
+            fclose(f);
+            
+            tieptucchonban:
+            printf("nhay xuong day roi \n");
+            char phanhoi[100]="khong co tin nhan nao";
+            SEND(newSocket,phanhoi,CHAT);
+            printf("chuoi gui di la %s\n",phanhoi );
+            char namefriends[100];
+            mess=RECEVE(newSocket);
+            printf("nguoi muon chat cung nhan duoc ben server ;a %s\n",mess.mess );
+            strcpy(fileName, user->acc.name);
+            strcat(fileName,"BAN_BE.txt\0");
+            strcpy(namefriends,mess.mess);
+            int k=readFriendFilesearchFri(fileName,mess.mess);
+            if(k==0){
+              
+              printf(" khong la ban be dau nhes\n");
+              SEND(newSocket,notok,CHAT);
+            }
+            else{
+              printf("%s la ban be cua %s\n",mess.mess,user->acc.name );
+              SEND(newSocket,ok,CHAT);
+              mess=RECEVE(newSocket);
+              strcpy(fileNameChat, namefriends);
+              strcat(fileNameChat,"CHAT.txt\0");
+              printf("%s -> %s\n",user->acc.name,mess.mess );
+              writechatfile(fileNameChat,user->acc.name,mess.mess);
+            }
+            break;
             /*
             *YEU CAU XEM DANH SACH BAN BE   
             */
@@ -192,32 +428,56 @@ int main(int argc, char*argv[]){
             strcpy(fileNameFriend, user->acc.name);
             SEND(newSocket, count, YC_XEM_DS_BAN_BE);
             break;
+          case SIGN_OUT:
+          printf("chuoi nhan duoc la %s\n", mess.mess);
+            // removeUserOnline(user->acc.name);
+            break;
+          case PLAY_GAME_WITH_FD:
+
+          mess=RECEVE(newSocket);
+         ko= isOnline(mess.mess);
+         int online;
+         online=readFileonline();
+         printf("so nguoi onl trong file la %d\n",online );
+         printf("so user onl hien tai %d\n", client_count);
+         char on[10]="online";
+         if(ko!=0){
+          printf("usser online\n");
+          int wrt_status=write(ko,on,strlen(on));
+         }
+         else{
+          printf("sai\n");
+         }
+         break;
+
+
+
 
           /*
           * CHAT WITH FRIEND
           */
-          case CHAT:
-            printf("so nguoi dang online :%d\n", client_count );
-            printf("yeu cau chat voi %s\n", mess.mess);
-            friend = searchUser(mess.mess);
-            if(friend != NULL){
-              if(friend->status == 1){
-                printf("User offline\n");
+          // case CHAT:
+          //   printf("so nguoi dang online :%d\n", client_count );
+          //   printf("yeu cau chat voi %s\n", mess.mess);
+          //   friend = searchUser(mess.mess);
+          //   if(friend != NULL){
+          //     if(friend->status == 1){
+          //       printf("User offline\n");
 
-              }else{
+          //     }else{
                 //kiem tra xem phai ban be k 
-                if(isFriend(mess.mess, &user) ==1){
-                  SEND(newSocket, ok, CHAT);
-                }else{
-                  printf("Khong phai ban be \n");
-                  strcpy(tmp,"NOT FRIEND");
-                  SEND(newSocket, notok, CHAT);
-                }
-              }
-            }else{
-              SEND(newSocket, notok, CHAT);
-            }
-            break;
+            //     if(isFriend(mess.mess, &user) ==1){
+            //       SEND(newSocket, ok, CHAT);
+            //     }else{
+            //       printf("Khong phai ban be \n");
+            //       strcpy(tmp,"NOT FRIEND");
+            //       SEND(newSocket, notok, CHAT);
+            //     }
+            //   }
+            // }else{
+            //   SEND(newSocket, notok, CHAT);
+            // }
+            // break;
           default:
             break;
         }

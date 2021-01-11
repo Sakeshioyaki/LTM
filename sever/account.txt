@@ -16,9 +16,6 @@ yu	yu
 yt	yt	
 gu	gu	
 lt	lt	
-we	we	
-ty	ty	
-SIGN_UP_USERNAME	ÿÿÿÿÿÿÿÿÿÿ	
-ru	ru	
-UI	UI	
-re	re	
+
+haha	haha	
+jiji	jiji	

@@ -12,8 +12,8 @@
 
 #define BUFFER_SZ 2048
 #define MAX_CLIENTS 100
+int client_count;  // dem so client hien tai dang online
 
-int client_count = 0;  // dem so client hien tai dang online
 
 typedef struct
 {
@@ -33,9 +33,65 @@ typedef struct
     char name[MAXLINE];
 } Client_t;
 
+void add_client(Client_t *cl);
+void Writeuseronline(Client_t *cl);
 //
-
+int readFileonline(){
+  client_count=0;
+  FILE *f;
+  f=fopen("useronline.txt","r");
+  Client_t *newcl;
+  while(fscanf(f,"%s %d",newcl->name,&newcl->sockfd)!=EOF){
+    add_client(newcl);
+    client_count++;
+  }
+  return client_count;
+  fclose(f);
+}
 Client_t *clients[MAX_CLIENTS];
+void add_client(Client_t *cl)
+{
+   int client_count=readFileonline();
+    for (int i = 0; i < MAX_CLIENTS; i++)
+    {
+        if (clients[i] == NULL)
+        {
+            clients[i] = cl;
+            client_count++;
+            printf("49. client_count la %d\n",client_count );
+            Writeuseronline(cl);
+            break;
+        }
+    }
+}
+void Writeuseronline(Client_t *cl){
+  FILE *f;
+  f=fopen("useronline.txt","a+");
+  fprintf(f, "%s %d\n",cl->name,cl->sockfd );
+  fclose(f);
+}
+
+
+
+void removeUserOnline(char name[100]){
+  FILE *f;
+  char nameonl[100];
+  int so;
+  f=fopen("useronline.txt","a+");
+  while(fscanf(f,"%s %d",nameonl,&so)!=EOF){
+    if(strcmp(nameonl, name)==0){
+      // printf("name remove la %s\n",nameonl );
+      // strcpy(nameonl,"haha");
+      // so=0;
+      // strcpy(fprintf(f, "%s %d\n",nameonl,so ),NULL);
+      // fprintf(f, "%s %d\n",nameonl,so )= NULL;
+      fclose(f);
+      return;
+    }
+  }
+}
+
+
 
 void str_overwrite_stdout()
 {
@@ -55,18 +111,7 @@ void str_trim_lf(char *arr, int len)
     }
 }
 
-void add_client(Client_t *cl)
-{
-    for (int i = 0; i < MAX_CLIENTS; i++)
-    {
-        if (clients[i] == NULL)
-        {
-            clients[i] = cl;
-            client_count++;
-            break;
-        }
-    }
-}
+
 
 void remove_client(char name[MAXLINE])
 {
@@ -96,7 +141,16 @@ void send_message(char *msg, Client_t *from)
     }
 }
 
-void chat(){
-
+int isOnline(char name[MAXLINE]){
+    int i;
+    for (i=0;i<MAX_CLIENTS;i++){
+        if(clients[i]==NULL){
+            break;
+        }
+        if(strcmp(clients[i]->name,name)==0){
+            printf("socketfd la %d\n",clients[i]->sockfd );
+            return clients[i]->sockfd;
+        }
+    }
+    return 0;
 }
-

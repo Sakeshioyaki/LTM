@@ -1,0 +1,24 @@
+0 	kaka 	mama 
+1	con meo tieng anh la gi? 	cat
+2	1dm=?cm		10
+3 	Bo ngoai nuong trong, nuowng trong bo ngoai la gi?	Nuong bap ngo 
+4	Benh gi bac si bo tay?		gay tay
+5 	Con gi an lua, nuoc voi than? 	con tau 
+6 	ngay cua cac cap tinh nhan? 	ngày valen
+7	Nang 3 nam toi khong bo ban,mua 1 ngay banj laij bo toi la cai gi?	cai bong cua minh 
+8 	Tay cam cuc thit nam nam, tay vo mong la dang lam gi?	cho con bú
+9	Cai gi trong trang ngoai xanh, trong dau trong hanh roi tha heo vao? 	banh trung 
+10	Cai gi o giua bau troi va trai dat?	va
+11	Quan rong nhat la quan gi?	quan dao 
+12	Con trai co gi quy nhat?	ngoc trai
+13	Cai gi ma di thi nam, dung cung nam nhuwng nam lai dung?	ban chan 
+14	Con duong nao dai nhat?		duong doi  
+15	Cang choi cang ra nuoc?		choi co
+16	Lich nao dai nhat?	lich su
+17	Cai gi ma dai nhu trai chuoi, cam 1 luc thi no chay nuoc ra?	que kem 
+18 	chuot nao di bang 2 chan? 	chuot Mickey 
+19	Noi nao co duong xa, nhung khong co xe co, co nha o, nhung khong co nguoi, sieu thi, cong ty, nhung khong co hang hoa, do la noi nao? ban do
+20	ben trai duong co mot can nha xanh, ben phai duong co mot can nha do. Vay nha trang o dau? 	o My
+21	Xa nao dong nhat?	Xa hoi
+22	Con gi khong gay o o o ma nguoi ta van goij la ga? 	ga mai va ga con
+23	Lam sao de cai can co the tu can chinh no? 	lat nguoc cai can 
