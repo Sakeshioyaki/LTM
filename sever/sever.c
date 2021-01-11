@@ -193,27 +193,8 @@ void *MAIN(void *socketfd){
             SEND(newSocket, count, YC_XEM_BAN_BE);
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");            
-            tmp1 = user->requestFd;
-            count2 = countRequestFriend;
-            for(i = 1; i<=count2; i++){
-              printf("yeu cau ket ban tu : %s\n", tmp1->myFriend.name );
-              strcpy(tmpName, tmp1->myFriend.name);
-              SEND(newSocket,tmpName, YC_XEM_BAN_BE);
-              mess = RECEVE(newSocket);
-              if(strcpy(mess.mess, notok)==0) {
-                printf("dang rejectFriend\n");
-                rejectFriend(tmp1->myFriend.name, &(user->requestFd));
-                printf("so luong ban be la %d\n", countFriend );
-                printf("so luong request friend %d\n", countRequestFriend );
-              }
-              else {
-                printf("dang accept friend %s\n", tmp1->myFriend.name);
-                acceptFriend(tmp1->myFriend.name,&(user->requestFd), &(user->listFd), fileName, user->acc.name);
-                printf("so luong ban be la %d\n", countFriend );
-                printf("so luong request friend %d\n", countRequestFriend );
-              }
-              tmp1= tmp1->next;
-            }
+            xuLyYCKetBan(newSocket,&(user->requestFd), &(user->listFd), fileName, user->acc.name);
+
             break;
 
             /*
@@ -258,6 +239,11 @@ void *MAIN(void *socketfd){
               }else{
                 SEND(newSocket, notok, CHAT);
                   }
+            break;
+          case SIGN_OUT:
+            printf("User log_out\n");
+            remove_client(user->acc.name);
+            user = NULL;
             break;
           default:
             break;

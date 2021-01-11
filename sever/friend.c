@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "lib.c"
+
 
 #define MAXLINE 100
 
@@ -40,7 +42,6 @@ void addFriend(listFriend **newFd, listFriend **listFd){
 void writeToFriendFile(char fileName[MAXLINE], listFriend *newFd){
 
 	FILE *fb = fopen(fileName,"a+");
-	fprintf(fb, "\0");
 	fprintf(fb, "%s\n", (newFd)->myFriend.name);
 	fclose(fb);	
 
@@ -107,55 +108,46 @@ void readRequestFriend(char fileName[MAXLINE], listFriend **requestFd){
 }
 
 
-void acceptFriend(char name[MAXLINE], listFriend **requestFd, listFriend **listFd, char fileName[MAXLINE], char userName[MAXLINE]){
-	char yourFriend[MAXLINE];
-	strcpy(yourFriend, name);
-    strcat(yourFriend,"BAN_BE.txt\0");
-    listFriend *currentUser = createNewFriend(userName);
-	if(strcmp((*requestFd)->myFriend.name,name) == 0){
-		addFriend(requestFd,listFd);
+void xuLyYCKetBan(int newSocket,listFriend **requestFd, listFriend **listFd, char fileName[MAXLINE], char userName[MAXLINE]){
+	listFriend *tmp = (*requestFd);
+	listFriend *tmp2;
+
+	char tmpName[MAXLINE];
+	char fileName2[MAXLINE];
+	char notok[MAXLINE] = "NOT OK";
+	char ok[MAXLINE] = "OK";
+	MESSAGE mess;
+
+	while(tmp!=NULL){
+	  printf("yeu cau ket ban tu : %s\n", tmp->myFriend.name );
+	  strcpy(tmpName, tmp->myFriend.name);
+	  SEND(newSocket,tmpName, YC_XEM_BAN_BE);
+	  printf("da sen : %s\n",tmpName);
+	  mess = RECEVE(newSocket);
+	  if(strcpy(mess.mess, notok)==0) {
+	    printf("dang rejectFriend\n");
+	    (*requestFd) = tmp->next;
+	    tmp->next = NULL;
+	    tmp = (*requestFd);
+		countRequestFriend-=1;
+	    printf("so luong ban be la %d\n", countFriend );
+	    printf("so luong request friend %d\n", countRequestFriend );
+	  }
+	  else {
+	    printf("dang accept friend %s\n", tmp->myFriend.name);
+	    writeToFriendFile(fileName,tmp);
+	    (*requestFd) = tmp->next;
+	    tmp->next = NULL;
+	    addFriend(&tmp,listFd);
+	    strcpy(fileName2,tmp->myFriend.name);
+	    strcpy(fileName2,"BAN_BE.txt");
+	    writeToFriendFile(fileName2, tmp);
+	    tmp = (*requestFd);
 		countFriend+=1;
 		countRequestFriend-=1;
-		writeToFriendFile(fileName,(*requestFd));
-		writeToFriendFile(yourFriend, currentUser);
-		(*requestFd) = NULL;
-		return;
-	}
-	listFriend *tmp = *requestFd;
-	printf("wtf : %s\n",tmp->myFriend.name);
-	listFriend *tmp2 = NULL;
-	while(tmp->next != NULL){
-		if(strcmp(tmp->next->myFriend.name, name) == 0 ){
-			tmp2 = tmp->next;
-			tmp->next = tmp->next->next;
-			addFriend(&tmp2,listFd);
-			countFriend+=1;
-			countRequestFriend-=1;
-			writeToFriendFile(fileName,tmp2);
-			writeToFriendFile(yourFriend, currentUser);
-			return;
-		}
-		tmp = tmp->next;
-	}
-
-	return;
-}
-
-void rejectFriend(char name[MAXLINE], listFriend **requestFd){
-	if(*requestFd == NULL){
-		printf("ko co yc ket ban nay \n");
-	}
-	listFriend *tmp = *requestFd;
-	listFriend *tmp2 = NULL;
-	while(tmp != NULL){
-		if(strcmp(tmp->next->myFriend.name, name) == 0 ){
-			tmp2 = tmp->next;
-			tmp->next = tmp->next->next;
-			countRequestFriend--;
-			free(tmp2);
-			return;
-		}
-		tmp = tmp->next;
+	    printf("so luong ban be la %d\n", countFriend );
+	    printf("so luong request friend %d\n", countRequestFriend );
+	  }
 	}
 }
 

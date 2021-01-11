@@ -251,7 +251,9 @@ int main(int argc, char const *argv[]){
 				requestFd = atoi(mess.mess);
 				printf("so yeu cau ket ban la %d\n",requestFd );
 				for(i=1; i<=requestFd; i++){
+					printf("254: bat dau in \n");
 					mess = RECEVE(clientSocket);
+					printf("256: da nhan dc la : %s\n", mess.mess);
 					printf("%d: %s\n",i, mess.mess );
 					printf("1: dong y 0: tu choi\n");
 					scanf("%d",&tmp1);
@@ -265,7 +267,9 @@ int main(int argc, char const *argv[]){
 				break;
 			case 7:
 				myUser.status = 0;
+				SEND(clientSocket,tmp,SIGN_OUT);
 				strcpy(myUser.name,"\0");
+				printf("-------------Bye-------\n");
 				goto Layout1;
 				break;
 			default:
