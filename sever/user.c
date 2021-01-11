@@ -86,7 +86,7 @@ userInfo* searchUser(char nameUser[]){
 void WriteToFile(account newAccount){
   printf("dang viet vao %s %s\n",newAccount.name, newAccount.password );
   FILE *fb = fopen("account.txt", "a+");
-  fprintf(fb, "\0");
+  // fprintf(fb, " ");
   fprintf(fb, "%s\t%s\t\n", newAccount.name, newAccount.password);
   fclose(fb);
 }
@@ -108,38 +108,58 @@ userInfo *singUp(MESSAGE mess,int newSocket){
   printf("Da add = %s vo danh sach ng dung\n", user->acc.name);
   return user;
 }
+// wire to user online file
 
-userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass){
-  // MESSAGE mess = RECEVE(newSocket);
-  MESSAGE mess2;
-  char pass[MAXLINE];
-  userInfo* user = searchUser(mess.mess); 
-  printf("da tim dc ng dung pass la : %s\n",user->acc.password );
-  strcpy(pass, user->acc.password );
-  if (user == NULL){
-    char result[6] = "NOT OK";
-    SEND(newSocket,result,mess.code);
-    return NULL;
-  }else{
-    statususer=1;
-    char result[6] = "OK";
-    SEND(newSocket,result,LOG_USERNAME);
-    mess2=RECEVE(newSocket);
-    printf("mess nhan dc la passs : %s\n", mess2.mess );
-    printf("pass cua user la :%s\n", pass);
-    if(strcmp(mess2.mess,pass)==0){
-      char login[30]="login success";
-      SEND(newSocket,login,LOG_PASSWORD);
-      return user;
+userInfo* loginUser(MESSAGE mess, int newSocket,int statususer,int statuspass, int sockfd){
+  int countuser=0;
+  int countpass=0;
+  FILE *f;
+  userInfo* user;
+  char name[100]; 
+ while(statususer==0){
+    MESSAGE mess = RECEVE(newSocket);
+    countuser++;
+    printf("countuser o day la %d\n",countuser );
+    strcpy(name,mess.mess);
+    user = searchUser(mess.mess); 
+    if (user == NULL){
+      if(countuser>=3){
+        char result1[30] = "NHAP QUA SO LAN";
+        SEND(newSocket,result1,mess.code);
+        return user;
+      }
+      else{
+        char result[6] = "NOT OK";
+        SEND(newSocket,result,mess.code);
+      }
+    }else{
+      statususer=1;
+      char result[6] = "OK";
+      SEND(newSocket,result,LOG_USERNAME);
+      while(statuspass==0){
+        mess=RECEVE(newSocket);
+        countpass++;
+        if(strcmp(mess.mess,user->acc.password)==0){
+          char login[30]="login success";
+          SEND(newSocket,login,LOG_PASSWORD);
+          statuspass=1;
+        }
+        else{
+          char login[30]="LOG_PASSWORD NOT OK";
+          if(countpass>=3){
+            char result1[30] = "NHAP QUA SO LAN";
+            SEND(newSocket,result1,mess.code);
+            user=NULL;
+            return user;
+          }
+          SEND(newSocket,login,LOG_PASSWORD);
+          
+        }
+      }
     }
-    else{
-      char login[30]="LOG_PASSWORD NOT OK";
-      SEND(newSocket,login,LOG_PASSWORD);
-      return NULL;
-    }
-  }    
+  }
+  return user;    
 }
-
 int isFriend(char name[MAXLINE], userInfo **user){
   if((*user)->listFd == NULL){
     char fileName[MAXLINE];
