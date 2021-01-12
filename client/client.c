@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdio_ext.h>
 #include "lib.c"
 #include "userOnlineAndChatRoom.c"
 
@@ -329,11 +328,10 @@ int main(int argc, char const *argv[]){
 				SEND(clientSocket,tmp,YC_XEM_BAN_BE);
 				mess = RECEVE(clientSocket);
 				requestFd = atoi(mess.mess);
-				printf("so yeu cau ket ban la %d\n",requestFd );
+				printf("So yeu cau ket ban la %d\n",requestFd );
 				for(i=1; i<=requestFd; i++){
 					printf("254: bat dau in \n");
 					mess = RECEVE(clientSocket);
-					printf("256: da nhan dc la : %s\n", mess.mess);
 					printf("%d: %s\n",i, mess.mess );
 					printf("1: dong y 0: tu choi\n");
 					scanf("%d",&tmp1);
@@ -367,7 +365,7 @@ int main(int argc, char const *argv[]){
 				char messreact[MAXLINE];
 				if(mess.code==PHAN_HOI_CHAT){
 					printf("Tin nhan la :%s\n", mess.mess);
-					__fpurge(stdin);
+					fflush(stdin);
 					fgets(messreact,sizeof(messreact),stdin);
 					messreact[strlen(messreact)-1]='\0';
 					SEND(clientSocket,messreact,PHAN_HOI_CHAT);
@@ -388,7 +386,7 @@ int main(int argc, char const *argv[]){
 					}else{
 						printf("da san sang de chat\n");
 						printf("%s-> \n",namefri);
-						__fpurge(stdin);
+						fflush(stdin);
 						fgets(messageFriend,sizeof(messageFriend),stdin);
 						messageFriend[strlen(messageFriend)-1]='\0';
 						SEND(clientSocket,messageFriend,MESS);

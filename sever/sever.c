@@ -299,36 +299,37 @@ void *MAIN(void *socketfd){
               strcpy(messSend,"");
             }
             break;
-            case MESS:
-              cli->status = MESS;
-              printf("mess nhan duoc la %s\n",mess.mess );
-              printf("client yeu cau xem tin nhan \n");
-              FILE *f;
-              char messages[MAXLINE];
-              char messages1[MAXLINE];
-              char fileNameChat[100];
-              char fileNameChat1[100];
-              char phanhoi[100]="khong co tin nhan nao ";
-              strcpy(fileNameChat1,user->acc.name);
-              strcat(fileNameChat1,"CHAT.txt");
-              printf("ten file chat de doc la %s\n",fileNameChat1 );
-              f=fopen(fileNameChat1,"r");
-              if(f==NULL){
-                printf("not exsits file\n");
-                goto tieptucchonban;
-              }
-              while(fgets(messages,1024,f)!=NULL){
-                printf("mess la %s\n", messages);
-                strcpy(messages1,messages);
-                SEND(newSocket,messages,PHAN_HOI_CHAT);
-                char *token=strtok(messages1,"->");
-                strcpy(fileNameMessReturn,token);
-                strcat(fileNameMessReturn,"CHAT.txt");
-                mess=RECEVE(newSocket);
-                writechatfile(fileNameMessReturn,user->acc.name,mess.mess);
-              }
-            break;
           case MESS:
+            cli->status = MESS;
+            printf("mess nhan duoc la %s\n",mess.mess );
+            printf("client yeu cau xem tin nhan \n");
+            FILE *f;
+            char messages[MAXLINE];
+            char messages1[MAXLINE];
+            char fileNameChat[100];
+            char fileNameChat1[100];
+            char phanhoi[100]="khong co tin nhan nao ";
+            strcpy(fileNameChat1,user->acc.name);
+            strcat(fileNameChat1,"CHAT.txt");
+            printf("ten file chat de doc la %s\n",fileNameChat1 );
+            f=fopen(fileNameChat1,"r");
+            if(f==NULL){
+              printf("not exsits file\n");
+              goto tieptucchonban;
+            }
+            while(fgets(messages,1024,f)!=NULL){
+              printf("mess la %s\n", messages);
+              strcpy(messages1,messages);
+              SEND(newSocket,messages,PHAN_HOI_CHAT);
+              char *token=strtok(messages1,"->");
+              strcpy(fileNameMessReturn,token);
+              strcat(fileNameMessReturn,"CHAT.txt");
+              mess=RECEVE(newSocket);
+              writechatfile(fileNameMessReturn,user->acc.name,mess.mess);
+            }
+            remove(fileNameChat1);
+            tieptucchonban:
+            
             SEND(newSocket,phanhoi,MESS);
             printf("chuoi gui di la %s\n",phanhoi );
             char namefriends[100];
@@ -352,7 +353,10 @@ void *MAIN(void *socketfd){
               printf("file fileNameChat la %s\n",fileNameChat );
               printf("%s -> %s\n",user->acc.name,mess.mess );
               writechatfile(fileNameChat,user->acc.name,mess.mess);
-          break;
+
+            }
+            break;
+
 
           /*
           * LOGOUT

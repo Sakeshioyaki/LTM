@@ -139,6 +139,7 @@ void xuLyYCKetBan(int newSocket,listFriend **requestFd, listFriend **listFd, cha
 	char notok[MAXLINE] = "NOT OK";
 	char ok[MAXLINE] = "OK";
 	MESSAGE mess;
+	char nameTMP[MAXLINE];
 
 	while(tmp!=NULL){
 	  printf("yeu cau ket ban tu : %s\n", tmp->myFriend.name );
@@ -159,13 +160,13 @@ void xuLyYCKetBan(int newSocket,listFriend **requestFd, listFriend **listFd, cha
 	    printf("dang accept friend %s\n", tmp->myFriend.name);
 	    writeToFriendFile(fileName,tmp->myFriend.name);
 	    printf("163>>>>>da viet vao file %s noi dung la : %s\n",fileName, tmp->myFriend.name );
+	    snprintf(fileName2,sizeof(fileName2),"%sBAN_BE.txt",tmp->myFriend.name);
+	    printf("164 : fileName : %s\n",fileName2);
+	    writeToFriendFile(fileName2, userName);
+	    printf("169: da viet vao file %s noi dung : %s\n", fileName2, userName );
 	    (*requestFd) = tmp->next;
 	    tmp->next = NULL;
 	    addFriend(&tmp,listFd);
-	    strcpy(fileName2,tmp->myFriend.name);
-	    strcpy(fileName2,"BAN_BE.txt");
-	    writeToFriendFile(fileName2, userName);
-	    printf("169: da viet vao file %s noi dung : %s\n", fileName2, userName );
 	    tmp = (*requestFd);
 		countFriend+=1;
 		countRequestFriend-=1;
