@@ -130,7 +130,6 @@ void *MAIN(void *socketfd){
           SEND(newSocket,ok,LOG_USERNAME);
             user=loginUser(newSocket,statususer,statuspass);
             if(user != NULL){
-            printf("126: user name : %s\n", user->acc.name);
             strcpy(cli->name, user->acc.name);
             cli->sockfd = newSocket;
             cli->id = ++id;
@@ -287,26 +286,39 @@ void *MAIN(void *socketfd){
               recv(newSocket,solution,10,0);
               time_t t1 = time(NULL);
               struct tm tm1 = *localtime(&t1);
-              double ku2=(double)tm.tm_sec/60;
+              double ku2=(double)tm1.tm_sec/60;
               double ku=ku2-ku1;
+              if(ku<0){
+                ku=1+ku;
+              }
               double timesolution=ku*60;
-
+              printf("timesolution la %f\n",timesolution );
+              char u[10]="";
+              gcvt(timesolution,5,u);
               if(strcmp(Question[c].TrueAnswer,solution)==0){
-                // char u[]
+
                 char trueqs[50]="ban tra loi dung. Times: ";
-                // strcat(trueqs,(char)timesolution);
+                strcat(trueqs,u);
                 trueQuestion++;
                 send(newSocket,trueqs,strlen(trueqs)+1,0);
               }
               else{
                 char falsequs[50]="tra loi sai!Dap an dung la ";
                 strcat(falsequs,Question[c].TrueAnswer);
+                strcat(falsequs," Times: ");
+                strcat(falsequs,u);
                 send(newSocket,falsequs,strlen(falsequs),0);
 
 
               }
               strcpy(messSend,"");
             }
+              char kiki[2]="";
+             //  char kq[20]="";
+             // recv(newSocket,kq,20,0);
+              itoa(trueQuestion,kiki,10);
+
+              send(newSocket,kiki,strlen(kiki),0);
             break;
           case MESS:
             cli->status = MESS;
