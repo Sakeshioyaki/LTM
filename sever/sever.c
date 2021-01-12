@@ -252,17 +252,18 @@ void *MAIN(void *socketfd){
             cli->status = YC_XEM_DS_BAN_BE;
              int mang[numberquestion];
             readQuestion();
+             char kiki[2];
+              char kq[20];
             randomquestion(mang);
+            char trueanswer[2];
             char solution[10];
             char messSend[MAX];
             char messQues[MAXLINE+1];
             int trueQuestion=0;
-            printf("208>>numberquestion la %d\n",numberquestion );
             for(int i=0;i<numberquestion;i++){
               int c=mang[i];
               printf(">>>>>>>>Cau hoi %d: %s\nA. %s\nB. %s\nC. %s\nD. %s\n ",i+1,Question[c].question,Question[c].A,Question[c].B,Question[c].C,Question[c].D);
               int k=snprintf(messSend,sizeof(messSend),"Cau hoi %d: %s\nA. %s\nB. %s\nC. %s\nD. %s\n ",i+1,Question[c].question,Question[c].A,Question[c].B,Question[c].C,Question[c].D);
-              printf("strlen chuoi gui  %ldla\n", strlen(messSend));
               int mama; 
                time_t t = time(NULL);
               struct tm tm = *localtime(&t);
@@ -274,29 +275,44 @@ void *MAIN(void *socketfd){
                 send(newSocket,messSend,strlen(messSend),0);
                 exit(-1);
               }
+              strcpy(trueanswer,Question[c].TrueAnswer);
               recv(newSocket,solution,10,0);
               time_t t1 = time(NULL);
               struct tm tm1 = *localtime(&t1);
-              double ku2=(double)tm.tm_sec/60;
+              double ku2=(double)tm1.tm_sec/60;
               double ku=ku2-ku1;
+              if(ku<0){
+                ku=1+ku;
+              }
               double timesolution=ku*60;
-
               if(strcmp(Question[c].TrueAnswer,solution)==0){
-                // char u[]
-                char trueqs[50]="ban tra loi dung. Times: ";
-                // strcat(trueqs,(char)timesolution);
-                trueQuestion++;
-                send(newSocket,trueqs,strlen(trueqs)+1,0);
+                char u[34];
+                // char trueqs[50]="ban tra loi dung. Times: ";
+                char bo[50];
+                sprintf(bo,"ban tra loi dung. Times: %f>10s, khong tinh",timesolution);
+                if(timesolution>10){
+                    send(newSocket,bo,strlen(bo),0);
+                   
+                }
+                else{
+                  sprintf(u,"ban tra loi dung. Times: %f",timesolution);
+                  printf("u ben nay la %s\n",u );
+                  trueQuestion++;
+                  send(newSocket,u,strlen(u)+1,0);
+                }
               }
               else{
-                char falsequs[50]="tra loi sai!Dap an dung la ";
-                strcat(falsequs,Question[c].TrueAnswer);
+                char falsequs[46];
+                sprintf(falsequs,"tra loi sai!Dap an dung la %s . Times: %f",trueanswer,timesolution);
                 send(newSocket,falsequs,strlen(falsequs),0);
-
-
               }
               strcpy(messSend,"");
           }
+             
+              recv(newSocket,kq,20,0);
+              itoa(trueQuestion,kiki,10);
+
+              send(newSocket,kiki,strlen(kiki),0);
             break;
             case MESS:
             cli->status = MESS;

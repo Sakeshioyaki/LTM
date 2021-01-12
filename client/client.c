@@ -217,45 +217,36 @@ int main(int argc, char const *argv[]){
 		switch(select){
 			case 1:
 				SEND(clientSocket,playgame,PLAY_GAME_WITH_SEVER);
-				// mess=RECEVE(clientSocket);
 				char ss[10]="ok";
-
 				char answer[10];
-				
 				int count=0;
 
 				while(count<5){
 					char buff[MAXLINE]="";
-					// mess=RECEVE(clientSocket);
-					// SEND(clientSocket,ss,PLAY_GAME_WITH_SEVER);
-					printf("check 1");
 					int K = recv(clientSocket,buff,MAXLINE,0);
 					buff[K]='\0';
-					printf("check 2\n");
 					if(K<=0){
 						printf("loi khi nhan %d\n",K );
 						exit(1);
 					}
-					printf("strlen chuoi nhan  %ld la\n", strlen(buff));
 					printf("%s\n",buff );
-					// do{
-						// scanf("%s",answer);
-						scanf(" %[^\n]", answer);
-						// SEND(clientSocket,answer,PLAY_GAME_WITH_SEVER);
-
-					// }while(strcmp(answer,"A")!=0||strcmp(answer,"B")!=0||strcmp(answer,"C")!=0||strcmp(answer,"D")!=0||strcmp(answer,"a")!=0||strcmp(answer,"b")!=0||strcmp(answer,"c")!=0||strcmp(answer,"d")!=0);
+					do{
+						printf("Tra loi: \n");
+						scanf("%s",answer);
+					}while(strcmp(answer,"A")!=0&&strcmp(answer,"B")!=0&&strcmp(answer,"C")!=0&&strcmp(answer,"D")!=0&&strcmp(answer,"a")!=0&&strcmp(answer,"b")!=0&&strcmp(answer,"c")!=0&&strcmp(answer,"d")!=0);
 						send(clientSocket,answer,strlen(answer),0);
-						printf("da send %s\n",answer );
-						// mess=RECEVE(clientSocket);
 						char cho[100];
-						recv(clientSocket,cho,100,0);
-						// recv(clientSocket,buff,MAXLINE,0);
+						recv(clientSocket,cho,46,0);
 						printf("%s\n",cho );
 						count++;
-						printf("234 : da den cau %d",count);
-						// strcpy(buff,"");
 
 					}
+					char kq[19]="so cau tra loi dung";
+					send(clientSocket,kq,strlen(kq)+1,0);
+					char kiki[2]="";
+					recv(clientSocket,kiki,2,0);
+					printf("kiki la %s\n",kiki );
+					printf("so cau tra loi dung la %s\n", kiki);
 				goto Layout2;
 				break;
 			case 2:
