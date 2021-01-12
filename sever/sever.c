@@ -133,7 +133,7 @@ void *MAIN(void *socketfd){
             printf("126: user name : %s\n", user->acc.name);
             strcpy(cli->name, user->acc.name);
             cli->sockfd = newSocket;
-            cli->id = id++;
+            cli->id = ++id;
             add_client(cli);
 
             // Add client to queue
