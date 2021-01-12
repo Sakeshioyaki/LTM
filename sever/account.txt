@@ -27,3 +27,5 @@ ui	iu
 bo	bo	
 ngan	ngan	
 ngong	ngong	
+ahaha	ahaha	
+cho	cho	

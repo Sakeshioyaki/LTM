@@ -26,7 +26,7 @@ account loginUser(int clientSocket,int statususer,int statuspass ){
 	char pass[20];
 	MESSAGE mess;
 	account user;
-	while(1){
+	while(statususer==0){
 		printf("User Name : ");
 		scanf("%s",userNameLogIn);
 		strcpy(user.name,userNameLogIn);
@@ -47,9 +47,14 @@ account loginUser(int clientSocket,int statususer,int statuspass ){
 				user.status = 1;
 				return user;
 			}
+			return user;
 		}
+		return user;
 	}
+	return user;
 }
+
+
 
 account singUp(int clientSocket){
 	char name[MAXLINE];
@@ -159,9 +164,15 @@ int main(int argc, char const *argv[]){
 		printf("%d\n",select );
 		switch(select){
 			case 1 :
-				myUser = loginUser(clientSocket,statususer,statuspass);
-				printf("userName : %s\n",myUser.name );
-				goto Layout2;	
+			printf("vao login\n");
+			SEND(clientSocket,tmp,LOG_USERNAME);
+			mess=RECEVE(clientSocket);
+			myUser=	loginUser(clientSocket,statususer,statuspass);
+			if(myUser.status==1)
+				// printf("userName : %s\n",myUser.name );
+				goto Layout2;
+			else 
+			goto Layout1;	
 				break;
 			case 2 :
 				myUser = singUp(clientSocket);

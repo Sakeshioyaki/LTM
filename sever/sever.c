@@ -126,7 +126,8 @@ void *MAIN(void *socketfd){
           *LOGIN
           */
           case LOG_USERNAME:
-            user=loginUser(mess,newSocket,statususer,statuspass);
+          SEND(newSocket,ok,LOG_USERNAME);
+            user=loginUser(newSocket,statususer,statuspass);
             if(user != NULL){
             printf("126: user name : %s\n", user->acc.name);
             strcpy(cli->name, user->acc.name);
@@ -339,6 +340,21 @@ void *MAIN(void *socketfd){
             strcpy(fileName,user->acc.name);
             strcat(fileName,"BANBE.txt\0");
             strcpy(namefriends,mess.mess);
+            int cho=isFriend(mess.mess,&user);
+            if(cho==0){
+              printf("khong la ban be\n");
+              SEND(newSocket,notok,MESS);
+
+            }
+            else{
+              printf("%s la ban be cua %s\n",mess.mess,user->acc.name );
+              SEND(newSocket,ok,MESS);
+              mess=RECEVE(newSocket);
+              strcpy(fileNameChat,namefriends);
+              strcat(fileNameChat,"CHAT.txt\0");
+              printf("%s -> %s\n",user->acc.name,mess.mess );
+
+            }
             // int k=readFriendFileSearchFri(fileName,mess.mess);
             // if(k==0){
             //   printf("khong la ban be\n");
