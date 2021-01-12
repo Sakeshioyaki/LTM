@@ -4,3 +4,12 @@ go	o
 gu	h	
 y	j	
 o	o	
+q	q	
+w	w	
+e	e	
+r	r	
+s	s	
+a	a	
+z	z	
+x	x	
+c	c	

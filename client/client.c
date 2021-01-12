@@ -309,8 +309,8 @@ int main(int argc, char const *argv[]){
 			*/
 			case 5:
 				printf("dang muon xem danh sach ban be \n");
+				strcpy(tmp, "");
 				SEND(clientSocket,tmp,YC_XEM_DS_BAN_BE);
-				printf("DA GUI DI %s", tmp);
 				mess = RECEVE(clientSocket);
 				countFriend = atoi(mess.mess);
 				printf("Ban hien co %d ban be\n", countFriend);
