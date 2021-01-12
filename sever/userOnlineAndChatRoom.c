@@ -111,6 +111,15 @@ int isOnline(char name[MAXLINE]){
     return 0;
 }
 
+void printListUserOnline(){
+    int i;
+    printf("-----------List user online------\n");
+    for(i=0;i<client_count;i++){
+        printf("%d : %s ", i, clients[i]->name);
+    }
+    printf("---------------------------------\n");
+}
+
 // void WriteToFile(char from[MAXLINE], char to[MAXLINE], char buffer[BUFFER_SZ]){
 //     char fileName[MAXLINE];
 //     strcpy(fileName,from);

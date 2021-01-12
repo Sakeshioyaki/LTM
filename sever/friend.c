@@ -165,7 +165,7 @@ void xuLyYCKetBan(int newSocket,listFriend **requestFd, listFriend **listFd, cha
 	    strcpy(fileName2,tmp->myFriend.name);
 	    strcpy(fileName2,"BAN_BE.txt");
 	    writeToFriendFile(fileName2, userName);
-	    printf("da viet vao file %s noi dung : %s\n", fileName2, userName );
+	    printf("169: da viet vao file %s noi dung : %s\n", fileName2, userName );
 	    tmp = (*requestFd);
 		countFriend+=1;
 		countRequestFriend-=1;

@@ -119,6 +119,7 @@ void *MAIN(void *socketfd){
 
         
         printf("SO LUONG USER DANG ONLINE : %d\n", client_count);
+        printListUserOnline();
 
         switch(mess.code){
 
@@ -247,7 +248,7 @@ void *MAIN(void *socketfd){
                   }
             break;
 
-            case PLAY_GAME_WITH_SEVER:
+          case PLAY_GAME_WITH_SEVER:
             printf("dang choi game vs may\n");
             cli->status = YC_XEM_DS_BAN_BE;
              int mang[numberquestion];
@@ -296,6 +297,7 @@ void *MAIN(void *socketfd){
 
               }
               strcpy(messSend,"");
+<<<<<<< Updated upstream
           }
             break;
             case MESS:
@@ -325,10 +327,40 @@ void *MAIN(void *socketfd){
               strcat(fileNameMessReturn,"CHAT.txt");
               mess=RECEVE(newSocket);
               writechatfile(fileNameMessReturn,user->acc.name,mess.mess);
+=======
+>>>>>>> Stashed changes
             }
-            remove(fileNameChat1);
-            tieptucchonban:
+          break;
+          case MESS:
+            // printf("mess nhan duoc la %s\n",mess.mess );
+            // printf("client yeu cau xem tin nhan \n");
+            // FILE *f;
+            // char messages[MAXLINE];
+            // char messages1[MAXLINE];
+            // char fileNameChat[100];
+            // char fileNameChat1[100];
+            // char phanhoi[100]="khong co tin nhan nao ";
+            // strcpy(fileNameChat1,user->acc.name);
+            // strcat(fileNameChat1,"CHAT.txt\0");
+            // f=fopen(fileNameChat1,"r");
+            // if(f==NULL){
+            //   printf("not exsits file\n");
+            //   goto tieptucchonban;
+            // }
+            // while(fgets(messages,1024,f)!=NULL){
+            //   printf("mess la %s\n", messages);
+            //   strcpy(messages1,messages);
+            //   SEND(newSocket,messages,PHAN_HOI_CHAT);
+            //   char *token=strtok(messages1,"->");
+            //   strcpy(fileNameMessReturn,token);
+            //   strcat(fileNameMessReturn,"CHAT.txt\0");
+            //   mess=RECEVE(newSocket);
+            //   writechatfile(fileNameMessReturn,user->acc.name,mess.mess);
+            // }
+            // remove(fileNameChat1);
+            // tieptucchonban:
             
+<<<<<<< Updated upstream
             SEND(newSocket,phanhoi,MESS);
             printf("chuoi gui di la %s\n",phanhoi );
             char namefriends[100];
@@ -352,8 +384,31 @@ void *MAIN(void *socketfd){
               printf("file fileNameChat la %s\n",fileNameChat );
               printf("%s -> %s\n",user->acc.name,mess.mess );
               writechatfile(fileNameChat,user->acc.name,mess.mess);
+=======
+            // SEND(newSocket,phanhoi,MESS);
+            // printf("chuoi gui di la %s\n",phanhoi );
+            // char namefriends[100];
+            // mess=RECEVE(newSocket);
+            // printf("nguoi muon chat cung nhan duoc ben server la %s\n",mess.mess );
+            // strcpy(fileName,user->acc.name);
+            // strcat(fileName,"BANBE.txt\0");
+            // strcpy(namefriends,mess.mess);
+            // int cho=isFriend(mess.mess,&user);
+            // if(cho==0){
+            //   printf("khong la ban be\n");
+            //   SEND(newSocket,notok,MESS);
 
-            }
+            // }
+            // else{
+            //   printf("%s la ban be cua %s\n",mess.mess,user->acc.name );
+            //   SEND(newSocket,ok,MESS);
+            //   mess=RECEVE(newSocket);
+            //   strcpy(fileNameChat,namefriends);
+            //   strcat(fileNameChat,"CHAT.txt\0");
+            //   printf("%s -> %s\n",user->acc.name,mess.mess );
+>>>>>>> Stashed changes
+
+            // }
             // int k=readFriendFileSearchFri(fileName,mess.mess);
             // if(k==0){
             //   printf("khong la ban be\n");
@@ -369,6 +424,16 @@ void *MAIN(void *socketfd){
             //   writechatfile(fileNameChat,user->acc.name,mess.mess);
 
             // }
+          break;
+
+          /*
+          * LOGOUT
+          */
+          case SIGN_OUT:
+            printf(" User %s exit.....!!\n", user->acc.name);
+            user = NULL;
+            remove_client(cli->name);
+            printf("So user dang online hien tai %d\n", client_count);
             break;
 
           default:
