@@ -280,18 +280,17 @@ int main(int argc, char const *argv[]){
 						printf("1 :tiep tuc / 0 :dung\n");
 						scanf("%d", &check);					
 					}
-					else{
-						printf("Da san sang de chat \n");
+					else if(strcmp(mess.mess, "OFFLINE") == 0){
+						printf("Ban cua ban hien dang offline! \n");
+					}
+					else if(strcmp(mess.mess,"BAN CUA BAN CHUA SAN SANG")){
+						printf("Ban cua ban chua san sang de chat! Vui long cho  \n");
+						check = 0;
+					}else if(strcmp(mess.mess, "SANSANG")== 0){
+						printf("Da san sang de chat\n");
 						check = 0;
 					}
 				}while(check == 1);
-				mess = RECEVE(clientSocket);
-				if(strcmp(mess.mess,notok)==0){
-					printf("Ban cua ban hien offline. Vui long chuyen qua send message\n");
-					break;
-				}else{
-					printf("Ban cua ban hien dang online!\n");
-				}
 				goto Layout2;
 				break;
 

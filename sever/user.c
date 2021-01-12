@@ -229,6 +229,7 @@ int isFriend(char name[MAXLINE], userInfo **user){
     printf("Chua ket ban voi nguoi nay\n");
     return 0;
   }else{
+    printf("232: tra ve 1 ma troi \n");
     return 1;
   }
     

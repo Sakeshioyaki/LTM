@@ -70,7 +70,7 @@ int main(int argc, char*argv[]){
   /*
   *Bat dau ket noi
   */
-  char tmp[1024];
+  char tmp[MAXLINE];
 
   while(1){
     newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
@@ -223,29 +223,38 @@ void *MAIN(void *socketfd){
           * CHAT WITH FRIEND
           */
           case CHAT:
-            cli->status = CHAT;
-            printf("so nguoi dang online :%d\n", client_count );
             printf("yeu cau chat voi %s\n", mess.mess);
             friend = searchUser(mess.mess);
+            char offline[MAXLINE] = "OFFLINE";
             if(friend != NULL){
                 //kiem tra xem phai ban be k 
-              if(isFriend(mess.mess, &user) ==1){
-                SEND(newSocket, ok, CHAT);
+              if(isFriend(mess.mess, &user) == 1){
                 cli->status = CHAT;
+                bzero(tmp, MAXLINE);
+                printf("234 : user nay da la ban \n");
                 //kiem tra xem co online ko
                 if(isOnline(friend->acc.name) == 0){
-                  cli->fdId = isOnline(friend->acc.name);
                   printf("user hien tai dang offline");
-                  SEND(newSocket,notok,CHAT);
+                  SEND(newSocket,offline,CHAT);
+                  }else{
+                    cli->fdId = isOnline(friend->acc.name);
+                    if(kiemTraSanSang(cli->fdId,cli->id)==0){
+                      strcpy(tmp, "BAN CUA BAN CHUA SAN SANG");
+                      SEND(newSocket,tmp,CHAT);
+
+                    }else{
+                      strcpy(tmp,"SANSANG");
+                      SEND(newSocket,tmp,CHAT);
+                    }
                   }
                 }else{
                   printf("Khong phai ban be \n");
                   strcpy(tmp,"NOT FRIEND");
-                  SEND(newSocket, notok, CHAT);
+                  SEND(newSocket, tmp, CHAT);
                 }
               }else{
                 SEND(newSocket, notok, CHAT);
-                  }
+              }
             break;
 
           case PLAY_GAME_WITH_SEVER:
@@ -364,8 +373,8 @@ void *MAIN(void *socketfd){
           case SIGN_OUT:
             printf(" User %s exit.....!!\n", user->acc.name);
             user = NULL;
-            remove_client(cli->name);
-            printf("So user dang online hien tai %d\n", client_count);
+            remove_client(cli->id);
+            printf("368 : So user dang online hien tai %d\n", client_count);
             break;
 
           default:

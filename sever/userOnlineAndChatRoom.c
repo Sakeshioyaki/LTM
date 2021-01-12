@@ -69,14 +69,13 @@ void add_client(Client_t *cl)
     }
 }
 
-void remove_client(char name[MAXLINE])
+void remove_client(int uid)
 {
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
-        if (clients[i] != NULL && strcmp(clients[i]->name, name)==0)
+        if (clients[i] != NULL && clients[i]->id == uid)
         {
             clients[i] = NULL;
-            client_count--;
             break;
         }
     }
@@ -105,7 +104,7 @@ int isOnline(char name[MAXLINE]){
 			break;
 		} 
 		if(strcmp(clients[i]->name, name)==0){
-			return clients[i]->fdId;
+			return clients[i]->id;
 		}
 	}
     return 0;
@@ -115,9 +114,58 @@ void printListUserOnline(){
     int i;
     printf("-----------List user online------\n");
     for(i=0;i<client_count;i++){
-        printf("%d : %s \n", i, clients[i]->name);
+        printf("%d : %s - id : %d\n", i, clients[i]->name, clients[i]->id);
     }
     printf("---------------------------------\n");
+}
+
+int kiemTraSanSang(int idOfFriend, int myId){
+    int i;
+    for (int i = 0; i < MAX_CLIENTS; i++)
+    {
+        if (clients[i] != NULL && clients[i]->id == idOfFriend)
+        {
+            if(clients[i]->fdId == myId){
+                return 1;
+                break;
+            }
+            return 0;
+            break;
+        }
+    }
+}
+
+void chat(Client_t *cli){
+    int leave_flag=0;
+    char buffer[BUFFER_SZ];
+    while (1)
+    {
+        if (leave_flag)
+            break;
+
+        int receive = recv(cli->sockfd, buffer, BUFFER_SZ, 0);
+        if (receive > 0)
+        {
+            send_message(buffer, cli);
+            str_trim_lf(buffer, strlen(buffer));
+            printf("%s\n", buffer);
+        }
+        else if (receive == 0 || strcmp(buffer, "exit") == 0)
+        {
+            sprintf(buffer, "%s has left\n", cli->name);
+            printf("%s", buffer);
+            send_message(buffer, cli);
+            leave_flag = 1;
+        }
+        else
+        {
+            printf("ERROR: -1\n");
+            leave_flag = 1;
+        }
+        bzero(buffer, BUFFER_SZ);
+    }
+    cli->fdId = 0;
+    return;
 }
 
 // void WriteToFile(char from[MAXLINE], char to[MAXLINE], char buffer[BUFFER_SZ]){
