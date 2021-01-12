@@ -115,7 +115,7 @@ void printListUserOnline(){
     int i;
     printf("-----------List user online------\n");
     for(i=0;i<client_count;i++){
-        printf("%d : %s ", i, clients[i]->name);
+        printf("%d : %s \n", i, clients[i]->name);
     }
     printf("---------------------------------\n");
 }
