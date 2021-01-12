@@ -1,163 +1,77 @@
 #include <stdio.h>
 #include<string.h>
-typedef enum {
-	YC_KET_BAN,
-	YC_CHOI_GAME,
-	CHOI_DO_VUI,
-	LOG_USERNAME,
-	LOG_PASSWORD,
-	SIGN_UP_USERNAME,
-	SIGN_UP_PASSWORD
-}CODE;
 
-typedef struct MESSAGE{
-	CODE code;
-	char mess[1042];
-}MESSAGE;
-int convert(char a[100]){
-	if(strcmp(a,"YC_KET_BAN")==0){
-		return 1;
-	}
-	else if(strcmp(a,"YC_CHOI_GAME")==0){
-		return 2;
-	}
-	else if(strcmp(a,"CHOI_DO_VUI")==0){
-		return 3;
-	}
-	else if(strcmp(a,"LOG_USERNAME")==0){
-		return 4;
-	}
-	else if(strcmp(a,"LOG_PASSWORD")==0){
-		return 5;
-	}
-	else if(strcmp(a,"SIGN_UP_USERNAME")==0){
-		return 6;
-	}
-	else if(strcmp(a,"SIGN_UP_PASSWORD")==0){
-		return 7;
-	}
-	else 
-		return 0;
-
-
-
-}
-MESSAGE tachChuoi(char message[1024]){
-	MESSAGE mess;
-	char mama[100];
-	char *token;
-	token = strtok(message,"/");
-	// int k=convert(token);
-	// mess.code=k;
-	printf("gia tri mess.code la %s\n",token );
-	
-	while(token != NULL){
-		k++;
-		// printf("gia tri cua token la %s\n",token );
-		strcpy(mess.mess, token);
-
-		token=strtok(NULL,"/");
-		
-	}
-
-	// printf("token mess.mess la %s\n",mess.mess );
-	
-	return mess;
-}
-MESSAGE RECEVE( char messClient[1024]){
-	MESSAGE mess;
-	// recv(newSocket,messClient,1024,0);
-	mess=tachChuoi(messClient);
-	return mess;
-
-}
 int main(){
-	char messClient[1024]="LOG_USERNAME/haha";
-	MESSAGE mess=tachChuoi(messClient);
-	printf("%s\n",mess.mess );
-	printf("%d\n",mess.code );
+	double k;
+	k=(double)18/60-12/60;
+	printf("%f\n",k );
 
 }
 
 
 
+printf("dang choi game vs may\n");
+            cli->status = YC_XEM_DS_BAN_BE;
+             int mang[numberquestion];
+            readQuestion();
+            randomquestion(mang);
+            char solution[10];
+            char messSend[MAX];
+            char messQues[MAXLINE+1];
+            int trueQuestion=0;
+            printf("208>>numberquestion la %d\n",numberquestion );
+            for(int i=0;i<numberquestion;i++){
+              int c=mang[i];
+              printf(">>>>>>>>Cau hoi %d: %s\nA. %s\nB. %s\nC. %s\nD. %s\n ",i+1,Question[c].question,Question[c].A,Question[c].B,Question[c].C,Question[c].D);
+              int k=snprintf(messSend,sizeof(messSend),"Cau hoi %d: %s\nA. %s\nB. %s\nC. %s\nD. %s\n ",i+1,Question[c].question,Question[c].A,Question[c].B,Question[c].C,Question[c].D);
+              printf("strlen chuoi gui  %ldla\n", strlen(messSend));
+              int mama; 
+               time_t t = time(NULL);
+              struct tm tm = *localtime(&t);
+              printf("thoi gian luc gui la %02d\n",tm.tm_sec );
+              double ku1=(double)tm.tm_sec/60;
+              printf("ku1 la %f\n",ku1 );
+              mama=send(newSocket,messSend,strlen(messSend),0);
+              if(mama<=0){
+                printf("send error %d\n",mama);
+                printf("send lai");
+                send(newSocket,messSend,strlen(messSend),0);
+                exit(-1);
+              }
+              recv(newSocket,solution,10,0);
+              time_t t1 = time(NULL);
+              struct tm tm1 = *localtime(&t1);
+              double ku2=(double)tm1.tm_sec/60;
+              printf("ku2 la %f\n",ku2);
+              printf("thoi gian luc nhaan la %02d\n",tm1.tm_sec );
+              // double ku=(tm1.tm_sec/60)-(tm.tm_sec/60);
+              double ku=ku2-ku1;
+              if(ku<0){
+                ku=1+ku;
+                printf("gia tri cua ku la %f moi vao day\n", ku);
+              }
+              double timesolution=ku*60;
+              printf("thoi gian tra loi la %f\n",timesolution );
+              if(strcmp(Question[c].TrueAnswer,solution)==0){
+                char trueqs[50]="ban tra loi dung";
+                char thongbao[MAXLINE];
+                if(timesolution>10){
+                  sprintf(thongbao,"ban tra loi dung. Thoi gian tra loi %f >10s.khong duoc chap nhan",timesolution);
+                  send(newSocket,thongbao,strlen(thongbao)+1,0);
+                }
+                sprintf(thongbao,"ban tra loij dung!!Times: %f",timesolution);
+                trueQuestion++;
+                send(newSocket,thongbao,strlen(thongbao)+1,0);
+              }
+              else{
+                char falsequs[50]="tra loi sai!Dap an dung la ";
+                strcat(falsequs,Question[c].TrueAnswer);
+                send(newSocket,falsequs,strlen(falsequs),0);
 
 
-
-
-
-
-void loginUser(int newSocket){
-  int statususer=0;
-  int statuspass=0;
-  while (statususer==0)
-  {
-    MESSAGE mess= RECEVE(newSocket);
-    printf("nhan xong r nhe\n");
-    userInfo* user =  searchUser(mess.mess);
-    if(user == NULL){
-         SEND(newSocket,"LOG_USERNAME NOT OK",mess.code);
-     }
-     else{
-       statususer=1;
-       SEND(newSocket,"LOG_USERNAME OK",mess.code);
-       while(statuspass==0){
-         MESSAGE messpass= RECEVE(newSocket);
-          if(strcmp(messpass.mess,user->acc.password)==0){
-              SEND(newSocket,"login access",messpass.code);
-              statuspass=1;
+              }
+              strcpy(messSend,"");
           }
-          else{
-            SEND(newSocket,"LOG_PASSWORD NOT OK",messpass.code);
-          }
-       }
-     }
-     
-  }
-  
-  
-}
 
 
 
-
-
-
-
-
-client
-
-
-void loginUser(int clientSocket){
-	int statususer=0;
-	int statuspass=0;
-	while(statususer==0){
-		char userNameLogIn[30];
-		char passLogin[20]; 
-		printf("User Name : ");
-		__fpurge(stdin);
-		fgets(userNameLogIn,sizeof(userNameLogIn),stdin);
-		userNameLogIn[strlen(userNameLogIn)-1]='\0';
-		SEND(clientSocket, userNameLogIn, LOG_USERNAME);
-		MESSAGE mess=RECEVE(clientSocket);
-		printf("day la %s",mess.mess);
-		if(strcmp(mess.mess,"LOG_USERNAME OK")==0){
-			statususer=1;
-			while(statuspass==0){
-				printf("User pass : ");
-				// __fpuge(stdin);
-				scanf("%s",passLogin);
-				// fgets(passLogin,sizeof(passLogin),stdin);
-				SEND(clientSocket, passLogin, LOG_PASSWORD);
-				MESSAGE messpass=RECEVE(clientSocket);
-				printf("%s",messpass.mess);
-				if(strcmp(messpass.mess,"login access")==0){
-					statuspass=1;
-					printf("%s",messpass.mess);
-				}
-			}
-			
-		}
-		
-	}
-}

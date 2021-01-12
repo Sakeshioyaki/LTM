@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdio_ext.h>
 #include "lib.c"
 #include "userOnlineAndChatRoom.c"
 
@@ -21,39 +22,47 @@ typedef struct accout{
 }account;
 
 
-account loginUser(int clientSocket,int statususer,int statuspass ){
+account loginUser(int clientSocket,account user,int statususer,int statuspass ){
+
+	MESSAGE mess;
+	user.status=0;
 	char userNameLogIn[50];
 	char pass[20];
-	MESSAGE mess;
-	account user;
 	while(statususer==0){
+		system("clear");
 		printf("User Name : ");
 		scanf("%s",userNameLogIn);
-		strcpy(user.name,userNameLogIn);
-		printf("da send %s\n", userNameLogIn);
+
 		SEND(clientSocket, userNameLogIn, LOG_USERNAME);
 		mess = RECEVE(clientSocket);
 		printf("=>sever :%s\n", mess.mess);
 		if(strcmp(mess.mess,"OK")==0){
 			statususer=1;
-			printf("User pass:  ");
-			scanf("%s",pass);
-			SEND(clientSocket,pass,LOG_PASSWORD);
-			printf("pass: %s\n", pass);
-			mess=RECEVE(clientSocket);
-			printf("server: %s\n", mess.mess);
-			if(strcmp(mess.mess,"login success")==0){
-				statuspass=1;
-				user.status = 1;
-				return user;
+			while(statuspass==0){
+				printf("User pass:  ");
+				scanf("%s",pass);
+				SEND(clientSocket,pass,LOG_PASSWORD);
+				mess=RECEVE(clientSocket);
+				printf("server: %s\n", mess.mess);
+				if(strcmp(mess.mess,"NHAP QUA SO LAN")==0){
+						printf("user.name o day la %s\n", user.name);
+						return user;
+				}
+				
+				else if(strcmp(mess.mess,"login success")==0){
+						statuspass=1;
+						strcpy(user.name,userNameLogIn);
+						user.status = 1;
+						return user;
+					}
 			}
+		}
+		else if(strcmp(mess.mess,"NHAP QUA SO LAN")==0){
 			return user;
 		}
-		return user;
 	}
-	return user;
+	
 }
-
 
 
 account singUp(int clientSocket){
@@ -167,9 +176,8 @@ int main(int argc, char const *argv[]){
 			printf("vao login\n");
 			SEND(clientSocket,tmp,LOG_USERNAME);
 			mess=RECEVE(clientSocket);
-			myUser=	loginUser(clientSocket,statususer,statuspass);
+			myUser=	loginUser(clientSocket,myUser, statususer,statuspass);
 			if(myUser.status==1)
-				// printf("userName : %s\n",myUser.name );
 				goto Layout2;
 			else 
 			goto Layout1;	
@@ -359,7 +367,7 @@ int main(int argc, char const *argv[]){
 				char messreact[MAXLINE];
 				if(mess.code==PHAN_HOI_CHAT){
 					printf("Tin nhan la :%s\n", mess.mess);
-					fflush(stdin);
+					__fpurge(stdin);
 					fgets(messreact,sizeof(messreact),stdin);
 					messreact[strlen(messreact)-1]='\0';
 					SEND(clientSocket,messreact,PHAN_HOI_CHAT);
@@ -367,19 +375,20 @@ int main(int argc, char const *argv[]){
 				}
 				else if(mess.code==MESS){
 					printf("mess nhan duoc la %s\n",mess.mess );
+					char namefri[100];
 					tieptuc:
 					printf("nhap nguoi ban muon chat: ");
 					scanf("%s",friendName);
+					strcpy(namefri,friendName);
 					SEND(clientSocket,friendName,MESS);
-					printf("da send : %s\n", friendName);
 					mess=RECEVE(clientSocket);
 					printf("mess.mess nhan duoc la %s\n",mess.mess );
 					if(strcmp(mess.mess,"NOT OK")==0){
 						printf("cacs ban khong phai ban be \n");
 					}else{
 						printf("da san sang de chat\n");
-						printf("friendName->nhap tin nhan: \n");
-						fflush(stdin);
+						printf("%s-> \n",namefri);
+						__fpurge(stdin);
 						fgets(messageFriend,sizeof(messageFriend),stdin);
 						messageFriend[strlen(messageFriend)-1]='\0';
 						SEND(clientSocket,messageFriend,MESS);

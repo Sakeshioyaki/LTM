@@ -84,7 +84,6 @@ void readFriendFile(char fileName[MAXLINE], listFriend **listFd){
 void requestFriend(char name[MAXLINE], char fileName[MAXLINE]){
 	FILE *fb;
 	fb = fopen(fileName, "a+");
-	fprintf(fb, "\0");
 	fprintf(fb, "%s\n", name);
 	fclose(fb);
 }
