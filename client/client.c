@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <ctype.h>
+#include <stdio_ext.h>
 #include "lib.c"
 #include "userOnlineAndChatRoom.c"
 
@@ -76,13 +79,12 @@ account singUp(int clientSocket){
 		strcpy(user.name,name);
 		SEND(clientSocket, name, SIGN_UP_USERNAME);
 		mess = RECEVE(clientSocket);
-		printf("sever : %s\n",mess.mess );
+		printf("%s\n",mess.mess );
 		if(strcmp(mess.mess, NOTOK) == 0){
 			printf("Ten tai khoan da ton tai ! Vui long chon ten khac\n");
 			check = 0;
 			strcpy(user.name,"\0");
 		}else{
-			printf("user name %s %s\n", user.name, name);
 			printf("Nhap mat khau: \n");
 			scanf("%s",password);
 			SEND(clientSocket,password,SIGN_UP_PASSWORD);
@@ -93,6 +95,7 @@ account singUp(int clientSocket){
 	}while(check == 0);
 	return user;
 }
+
 
 void requestFriend(int clientSocket){
 	char name[MAXLINE];
@@ -125,7 +128,8 @@ void requestFriend(int clientSocket){
 
 
 int main(int argc, char const *argv[]){
-	int clientSocket, ret, select, requestFd, i, tmp1, countFriend;
+	int clientSocket, select, ret, requestFd, i, tmp1, countFriend;
+	char select1[MAXLINE];
 	struct sockaddr_in serverAddr;
 	char tmp[MAXLINE] = "hello";
 	MESSAGE mess;
@@ -168,8 +172,10 @@ int main(int argc, char const *argv[]){
 		printf("1: Login\n");
 		printf("2: Sign up\n");
 		printf("Nhap vao select : \n");
-		scanf("%d",&select);
-		printf("%d\n",select );
+		scanf("%s",select1);
+		if(strlen(select1)!=1|| !isdigit(select1[0])) break;
+		select=atoi(select1);
+
 		switch(select){
 			case 1 :
 			printf("vao login\n");
@@ -216,7 +222,6 @@ int main(int argc, char const *argv[]){
 		switch(select){
 			case 1:
 				SEND(clientSocket,playgame,PLAY_GAME_WITH_SEVER);
-				// mess=RECEVE(clientSocket);
 				char ss[10]="ok";
 
 				char answer[10];
@@ -225,36 +230,30 @@ int main(int argc, char const *argv[]){
 
 				while(count<5){
 					char buff[MAXLINE]="";
-					// mess=RECEVE(clientSocket);
-					// SEND(clientSocket,ss,PLAY_GAME_WITH_SEVER);
-					printf("check 1");
 					int K = recv(clientSocket,buff,MAXLINE,0);
 					buff[K]='\0';
-					printf("check 2\n");
 					if(K<=0){
 						printf("loi khi nhan %d\n",K );
 						exit(1);
 					}
-					printf("strlen chuoi nhan  %ld la\n", strlen(buff));
+					printf("\n");
 					printf("%s\n",buff );
-					// do{
-						// scanf("%s",answer);
-						scanf(" %[^\n]", answer);
-						// SEND(clientSocket,answer,PLAY_GAME_WITH_SEVER);
-
-					// }while(strcmp(answer,"A")!=0||strcmp(answer,"B")!=0||strcmp(answer,"C")!=0||strcmp(answer,"D")!=0||strcmp(answer,"a")!=0||strcmp(answer,"b")!=0||strcmp(answer,"c")!=0||strcmp(answer,"d")!=0);
+					do{
+						printf("Tra loi: \n");
+						scanf("%s",answer);
+					}while(strcmp(answer,"A")!=0&&strcmp(answer,"B")!=0&&strcmp(answer,"C")!=0&&strcmp(answer,"D")!=0);
 						send(clientSocket,answer,strlen(answer),0);
-						printf("da send %s\n",answer );
-						// mess=RECEVE(clientSocket);
 						char cho[100];
 						recv(clientSocket,cho,100,0);
-						// recv(clientSocket,buff,MAXLINE,0);
-						printf("%s\n",cho );
+						printf("%ss\n",cho );
 						count++;
-						printf("234 : da den cau %d",count);
-						// strcpy(buff,"");
 
 					}
+					// char kq[19]="so cau tra loi dung";
+					// send(clientSocket,kq,strlen(kq)+1,0);
+					char kiki[2]="";
+					recv(clientSocket,kiki,2,0);
+					printf("so cau tra loi dung la %s\n", kiki);
 				goto Layout2;
 				break;
 			case 2:
@@ -329,7 +328,6 @@ int main(int argc, char const *argv[]){
 				requestFd = atoi(mess.mess);
 				printf("So yeu cau ket ban la %d\n",requestFd );
 				for(i=1; i<=requestFd; i++){
-					printf("254: bat dau in \n");
 					mess = RECEVE(clientSocket);
 					printf("%d: %s\n",i, mess.mess );
 					printf("1: dong y 0: tu choi\n");
@@ -364,7 +362,7 @@ int main(int argc, char const *argv[]){
 				char messreact[MAXLINE];
 				if(mess.code==PHAN_HOI_CHAT){
 					printf("Tin nhan la :%s\n", mess.mess);
-					fflush(stdin);
+					__fpurge(stdin);
 					fgets(messreact,sizeof(messreact),stdin);
 					messreact[strlen(messreact)-1]='\0';
 					SEND(clientSocket,messreact,PHAN_HOI_CHAT);
@@ -385,7 +383,7 @@ int main(int argc, char const *argv[]){
 					}else{
 						printf("da san sang de chat\n");
 						printf("%s-> \n",namefri);
-						fflush(stdin);
+						__fpurge(stdin);
 						fgets(messageFriend,sizeof(messageFriend),stdin);
 						messageFriend[strlen(messageFriend)-1]='\0';
 						SEND(clientSocket,messageFriend,MESS);

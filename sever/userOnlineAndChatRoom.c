@@ -20,21 +20,11 @@ int id = 0 ;
 typedef struct
 {
     int id;
-    /* Luu tru id cua nguoi ma nguoi nay dang chat cung, or choi game cung
-    *  su dung bien status de xac dinh xem 2 nguoi nay dang chat hay choi game
-    * Neu status = 0 ; Nguoi nay dang thuc hien nhung tac vu khac
-    */
     int fdId;
     int sockfd;
-    /*
-    *Luu tru diem cua nguoi choi nay khi ho choi game
-    */
-    int score;
     CODE status;
     char name[MAXLINE];
 } Client_t;
-
-//
 
 Client_t *clients[MAX_CLIENTS];
 
@@ -112,11 +102,9 @@ int isOnline(char name[MAXLINE]){
 
 void printListUserOnline(){
     int i;
-    printf("-----------List user online------\n");
     for(i=0;i<client_count;i++){
         printf("%d : %s - id : %d\n", i, clients[i]->name, clients[i]->id);
     }
-    printf("---------------------------------\n");
 }
 
 int kiemTraSanSang(int idOfFriend, int myId){

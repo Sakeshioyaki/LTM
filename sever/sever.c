@@ -130,7 +130,6 @@ void *MAIN(void *socketfd){
           SEND(newSocket,ok,LOG_USERNAME);
             user=loginUser(newSocket,statususer,statuspass);
             if(user != NULL){
-            printf("126: user name : %s\n", user->acc.name);
             strcpy(cli->name, user->acc.name);
             cli->sockfd = newSocket;
             cli->id = ++id;
@@ -175,7 +174,7 @@ void *MAIN(void *socketfd){
             printf("Dang yeu cau ket ban voi %s\n", mess.mess);
             friend = searchUser(mess.mess);
             if(friend == NULL){
-              printf("Khong tin thay ng nay \n");
+              printf("Khong tin thay ng dung \n");
               SEND(newSocket, notok, YC_KET_BAN);
             }else{
               printf("Da tim thay nguoi dung!\n");
@@ -207,7 +206,7 @@ void *MAIN(void *socketfd){
             *YEU CAU XEM DANH SACH BAN BE   
             */
           case YC_XEM_DS_BAN_BE:
-            printf("Dang xem danh sách bạn bè \n");
+            printf("Dang xem danh sach ban be \n");
             cli->status = YC_XEM_DS_BAN_BE;
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");
@@ -231,7 +230,6 @@ void *MAIN(void *socketfd){
               if(isFriend(mess.mess, &user) == 1){
                 cli->status = CHAT;
                 bzero(tmp, MAXLINE);
-                printf("234 : user nay da la ban \n");
                 //kiem tra xem co online ko
                 if(isOnline(friend->acc.name) == 0){
                   printf("user hien tai dang offline");
@@ -287,26 +285,39 @@ void *MAIN(void *socketfd){
               recv(newSocket,solution,10,0);
               time_t t1 = time(NULL);
               struct tm tm1 = *localtime(&t1);
-              double ku2=(double)tm.tm_sec/60;
+              double ku2=(double)tm1.tm_sec/60;
               double ku=ku2-ku1;
+              if(ku<0){
+                ku=1+ku;
+              }
               double timesolution=ku*60;
-
+              printf("timesolution la %f\n",timesolution );
+              char u[10]="";
+              gcvt(timesolution,5,u);
               if(strcmp(Question[c].TrueAnswer,solution)==0){
-                // char u[]
+
                 char trueqs[50]="ban tra loi dung. Times: ";
-                // strcat(trueqs,(char)timesolution);
+                strcat(trueqs,u);
                 trueQuestion++;
                 send(newSocket,trueqs,strlen(trueqs)+1,0);
               }
               else{
                 char falsequs[50]="tra loi sai!Dap an dung la ";
                 strcat(falsequs,Question[c].TrueAnswer);
+                strcat(falsequs," Times: ");
+                strcat(falsequs,u);
                 send(newSocket,falsequs,strlen(falsequs),0);
 
 
               }
               strcpy(messSend,"");
             }
+              char kiki[2]="";
+             //  char kq[20]="";
+             // recv(newSocket,kq,20,0);
+              itoa(trueQuestion,kiki,10);
+
+              send(newSocket,kiki,strlen(kiki),0);
             break;
           case MESS:
             cli->status = MESS;
