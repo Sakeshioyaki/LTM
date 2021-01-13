@@ -174,7 +174,7 @@ void *MAIN(void *socketfd){
             printf("Dang yeu cau ket ban voi %s\n", mess.mess);
             friend = searchUser(mess.mess);
             if(friend == NULL){
-              printf("Khong tin thay ng nay \n");
+              printf("Khong tin thay ng dung \n");
               SEND(newSocket, notok, YC_KET_BAN);
             }else{
               printf("Da tim thay nguoi dung!\n");
@@ -206,7 +206,7 @@ void *MAIN(void *socketfd){
             *YEU CAU XEM DANH SACH BAN BE   
             */
           case YC_XEM_DS_BAN_BE:
-            printf("Dang xem danh sách bạn bè \n");
+            printf("Dang xem danh sach ban be \n");
             cli->status = YC_XEM_DS_BAN_BE;
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");
@@ -230,7 +230,6 @@ void *MAIN(void *socketfd){
               if(isFriend(mess.mess, &user) == 1){
                 cli->status = CHAT;
                 bzero(tmp, MAXLINE);
-                printf("234 : user nay da la ban \n");
                 //kiem tra xem co online ko
                 if(isOnline(friend->acc.name) == 0){
                   printf("user hien tai dang offline");
