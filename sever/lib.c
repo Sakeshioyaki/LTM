@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include <unistd.h>
 
 typedef enum {
 	YC_KET_BAN,
@@ -15,12 +13,19 @@ typedef enum {
 	LOG_PASSWORD,
 	SIGN_UP_USERNAME,
 	SIGN_UP_PASSWORD,
-	SIGN_OUT
+	SIGN_OUT,
+	YC_XEM_BAN_BE,
+	YC_XEM_DS_BAN_BE,
+	CHAT,
+	MESS,
+	PHAN_HOI_CHAT,
+	PLAY_GAME_WITH_SEVER,
+	PLAY_GAME_WITH_FD
 }CODE;
 
 typedef struct MESSAGE{
 	CODE code;
-	char mess[1042];
+	char mess[2048];
 }MESSAGE;
 
 
@@ -58,6 +63,27 @@ MESSAGE tachChuoi(char message[1024]){
 	if(strcmp(token, "SIGN_OUT") == 0){
 		code = SIGN_OUT;
 	}
+	if(strcmp(token, "YC_XEM_BAN_BE") == 0){
+		code = YC_XEM_BAN_BE;
+	}
+	if(strcmp(token, "YC_XEM_DS_BAN_BE") == 0){
+		code = YC_XEM_DS_BAN_BE;
+	}
+	if(strcmp(token, "CHAT") == 0){
+		code = CHAT;
+	}
+	if(strcmp(token, "PHAN_HOI_CHAT") == 0){
+		code = PHAN_HOI_CHAT;
+	}
+	if(strcmp(token,"MESS")==0){
+		code = MESS;
+	}
+	if(strcmp(token, "PLAY_GAME_WITH_SEVER") == 0){
+		code = PLAY_GAME_WITH_SEVER;
+	}
+	if(strcmp(token, "PLAY_GAME_WITH_FD") == 0){
+		code = PLAY_GAME_WITH_FD;
+	}
 	mess.code = code;
 	while(token != NULL){
 		strcpy(mess.mess, token);
@@ -67,8 +93,12 @@ MESSAGE tachChuoi(char message[1024]){
 }
 MESSAGE RECEVE(int newSocket){
 	MESSAGE mess;
-	char messClient[1024];
-	recv(newSocket,messClient,1024,0);
+	char messClient[2048];
+	int k = recv(newSocket,messClient,2048,0);
+	if(k <=0){
+		printf("loi khi nhan %d\n",k);
+			exit(-1);
+	}
 	mess=tachChuoi(messClient);
 	return mess;
 
@@ -106,6 +136,30 @@ int SEND(int clientSockfd, char *mess, CODE code){
 		case SIGN_UP_PASSWORD:
 			taoMessage(mess,"SIGN_UP_PASSWORD");
 			break;
+		case YC_XEM_BAN_BE:
+			taoMessage(mess,"YC_XEM_BAN_BE");
+			break;
+		case YC_XEM_DS_BAN_BE:
+			taoMessage(mess,"YC_XEM_DS_BAN_BE");
+			break;
+		case CHAT:
+			taoMessage(mess,"CHAT");
+			break;
+		case MESS:
+			taoMessage(mess,"MESS");
+			break;
+		case PHAN_HOI_CHAT:
+			taoMessage(mess,"PHAN_HOI_CHAT");
+			break;
+		case PLAY_GAME_WITH_SEVER:
+			taoMessage(mess,"PLAY_GAME_WITH_SEVER");
+			break;
+		case PLAY_GAME_WITH_FD:
+			taoMessage(mess,"PLAY_GAME_WITH_FD");
+			break;
+		case SIGN_OUT:
+			taoMessage(mess,"SIGN_OUT");
+			break;
 		default:
 			printf("SAI MA CODE !");
 	}
@@ -113,5 +167,8 @@ int SEND(int clientSockfd, char *mess, CODE code){
 
 	// MESSAGE *newMess = createMessage(mess, code);
 	int k=send(clientSockfd, mess, strlen(mess)+1, 0);
+	if(k <=0){
+		printf("SEND loi\n");
+	}
 	return k;
 }
