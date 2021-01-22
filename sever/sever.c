@@ -33,7 +33,6 @@ int main(int argc, char*argv[]){
   socklen_t addr_size;
 
   pthread_t tid;
-  pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
 
   void *MAIN(void *socketfd);
 
@@ -79,15 +78,16 @@ int main(int argc, char*argv[]){
       continue;
     }
     printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
-      pthread_mutex_lock(&clients_mutex);
+      // pthread_mutex_lock(&clients_mutex);
       pthread_create(&tid,NULL, &MAIN, &newSocket);
-      pthread_mutex_unlock(&clients_mutex);
+      // pthread_mutex_unlock(&clients_mutex);
     }
     close(newSocket);
     return 0;
   }
 
 void *MAIN(void *socketfd){
+  pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
   int newSocket = *((int*)socketfd); 
       while(1){
         char notok[MAXLINE] = "NOT OK";
@@ -105,6 +105,12 @@ void *MAIN(void *socketfd){
         char tmp[MAXLINE];
         int leave_flag;
         int receive;
+
+        char offline[MAXLINE]= "offline";
+        char notfriend[MAXLINE]="NOT FRIEND"; 
+        char notUser[MAXLINE]="NOT USER";
+        char sansang[MAXLINE]="SAN SANG";
+        char notsansang[MAXLINE]="NOT SAN SANG";
 
         MESSAGE mess;
 
@@ -130,10 +136,12 @@ void *MAIN(void *socketfd){
           SEND(newSocket,ok,LOG_USERNAME);
             user=loginUser(newSocket,statususer,statuspass);
             if(user != NULL){
+            printf("126: user name : %s\n", user->acc.name);
             strcpy(cli->name, user->acc.name);
             cli->sockfd = newSocket;
             cli->id = ++id;
-            add_client(cli);
+            cli->fdId = -1;
+            add_client(cli, clients_mutex);
 
             // Add client to queue
             user->status = 1;
@@ -156,8 +164,9 @@ void *MAIN(void *socketfd){
               if(user != NULL){
                 strcpy(cli->name, user->acc.name);
                 cli->sockfd = newSocket;
-                cli->id = id++;
-                add_client(cli);
+                cli->id = client_count+1;
+                cli->fdId = -1;
+                add_client(cli, clients_mutex);
 
                 // Add client to queue
                 user->status = 1;
@@ -170,19 +179,26 @@ void *MAIN(void *socketfd){
           */
           case YC_KET_BAN :
             cli->status = YC_KET_BAN;
-            printf("dang xu li yeu cau ket ban\n");
+            char banbe[MAXLINE] = "Da la ban be";
+            printf("Dang xu li yeu cau ket ban\n");
             printf("Dang yeu cau ket ban voi %s\n", mess.mess);
             friend = searchUser(mess.mess);
             if(friend == NULL){
-              printf("Khong tin thay ng dung \n");
+              printf("Khong tin thay ng nay \n");
               SEND(newSocket, notok, YC_KET_BAN);
             }else{
               printf("Da tim thay nguoi dung!\n");
-              strcpy(fileName, friend->acc.name);
+              if(isFriend(friend->acc.name,&user)==1){
+                printf("Da la ban be\n");
+                SEND(newSocket, banbe, YC_KET_BAN);
+              }else{
+                strcpy(fileName, friend->acc.name);
               strcat(fileName,"YC_KET_BAN.txt\0");
               requestFriend(user->acc.name,fileName);
               SEND(newSocket, ok, YC_KET_BAN);
-              printf("da send : %s\n", ok );
+              }
+
+              // printf("da send : %s\n", ok );
             }
             break;
 
@@ -202,11 +218,11 @@ void *MAIN(void *socketfd){
             xuLyYCKetBan(newSocket,&(user->requestFd), &(user->listFd), fileName, user->acc.name);
             break;
 
-            /*
-            *YEU CAU XEM DANH SACH BAN BE   
-            */
+          /*
+          *YEU CAU XEM DANH SACH BAN BE   
+          */
           case YC_XEM_DS_BAN_BE:
-            printf("Dang xem danh sach ban be \n");
+            printf("Dang xem danh sách bạn bè \n");
             cli->status = YC_XEM_DS_BAN_BE;
             strcpy(fileName, user->acc.name);
             strcat(fileName,"BAN_BE.txt\0");
@@ -222,41 +238,109 @@ void *MAIN(void *socketfd){
           * CHAT WITH FRIEND
           */
           case CHAT:
-            printf("yeu cau chat voi %s\n", mess.mess);
-            friend = searchUser(mess.mess);
-            char offline[MAXLINE] = "OFFLINE";
-            if(friend != NULL){
-                //kiem tra xem phai ban be k 
-              if(isFriend(mess.mess, &user) == 1){
-                cli->status = CHAT;
-                bzero(tmp, MAXLINE);
-                //kiem tra xem co online ko
-                if(isOnline(friend->acc.name) == 0){
-                  printf("user hien tai dang offline");
-                  SEND(newSocket,offline,CHAT);
-                  }else{
-                    cli->fdId = isOnline(friend->acc.name);
-                    if(kiemTraSanSang(cli->fdId,cli->id)==0){
-                      strcpy(tmp, "BAN CUA BAN CHUA SAN SANG");
-                      SEND(newSocket,tmp,CHAT);
-
-                    }else{
-                      strcpy(tmp,"SANSANG");
-                      SEND(newSocket,tmp,CHAT);
-                    }
-                  }
+            printf("Danh sach nguoi online hien tai\n");
+            printf("Yeu cau chat với : %s\n", mess.mess );
+            friend= searchUser(mess.mess);
+            if(friend==NULL){
+              printf("1>>>check ton tai !\n");
+              send(newSocket, notUser, strlen(notUser)+1, 0);
+              break;
+            } else if(isFriend(mess.mess, &user) == 0){
+              printf("2>>>>>check ban be vs %s \n", mess.mess);
+              printf("ket qua isFriend : %d\n",isFriend(mess.mess,&user) );
+              send(newSocket, notfriend, strlen(notfriend)+1, 0);
+              break;
+            }else if(isOnline(friend->acc.name) == -1){
+              printf("3>>>>>check online : %s \n", friend->acc.name );
+              send(newSocket, offline, strlen(offline)+1, 0);
+              break;
+            } else{
+              printf("Du dk de chat\n");
+              printListUserOnline();
+              cli->fdId = isOnline(friend->acc.name);
+              printf("cli->fdId : %d\n",cli->fdId );
+              if(kiemTraSanSang(cli->fdId,cli->id)==0){
+                printf("User chua san sang de chat\n");
+                send(newSocket,notsansang,strlen(notsansang)+1,0);
+                bzero(buffer, BUFFER_SZ);
+                receive = recv(cli->sockfd, buffer, BUFFER_SZ, 0);
+                if(strcmp(buffer,"KHONG DOI")==0){
+                  printf("Client khong muon cho ! OK\n");
+                  break;
                 }else{
-                  printf("Khong phai ban be \n");
-                  strcpy(tmp,"NOT FRIEND");
-                  SEND(newSocket, tmp, CHAT);
+                  printf("Client muon cho\n");
+                  cli->status = CHAT;
+                  while(kiemTraSanSang(cli->fdId,cli->id)==0){
+                    printf("Infor of me : myID: %d -  FiendId : %d \n", cli->id, cli->fdId );
+                    printf("...........>>>\n");
+                    sleep(10);
+                  }
+                  send(newSocket,sansang,strlen(sansang)+1,0);
+                  printf("Bat dau chat\n");
+                  chat(cli, clients_mutex);
                 }
               }else{
-                SEND(newSocket, notok, CHAT);
+                send(newSocket,"San sang !!",strlen(notsansang)+1,0);
+
               }
+            }
+            // printf("yeu cau chat voi %s\n", mess.mess);
+            // friend = searchUser(mess.mess);
+            // char offline[MAXLINE] = "OFFLINE";
+            // int out=0;
+            // if(friend != NULL){
+
+            //     //kiem tra xem phai ban be k 
+            //   if(isFriend(mess.mess, &user) == 1){
+            //     cli->status = CHAT;
+
+            //     bzero(tmp, MAXLINE);
+            //     printf("234 : user nay da la ban \n");
+            //     //kiem tra xem co online ko
+
+            //     if(isOnline(friend->acc.name) == 0){
+            //       printf("user hien tai dang offline");
+            //       SEND(newSocket,offline,CHAT);
+            //       }else{
+            //         printf("241: User hien tai dang online maaaaaaa\n");
+            //         cli->fdId = isOnline(friend->acc.name);
+            //          printf("id cua your friend la : %d\n", cli->fdId);
+
+            //         do{
+            //           if(kiemTraSanSang(cli->fdId,cli->id)==0){
+            //             strcpy(tmp, "BAN CUA BAN CHUA SAN SANG");
+            //             printf("CHUA SAN SANG \n");
+            //             SEND(newSocket,tmp,CHAT);
+
+            //           }else{
+            //             strcpy(tmp,"SANSANG");
+            //             printf("SAN SANGGGGGG");
+            //             SEND(newSocket,tmp,CHAT);
+            //             chat(cli);
+            //             break;
+            //           }
+            //           mess = RECEVE(newSocket);
+            //           if(strcmp(mess.mess,"check lai")==0) out=0;
+            //           else out = 1;
+            //         }while(out == 0);
+
+            //       }
+
+            //     }else{
+            //       printf("Khong phai ban be \n");
+            //       strcpy(tmp,"NOT FRIEND");
+            //       SEND(newSocket, tmp, CHAT);
+            //     }
+            //   }else{
+            //     SEND(newSocket, notok, CHAT);
+            //   }
             break;
 
+            /*
+            *CHOI GAME VS MAY
+            */
           case PLAY_GAME_WITH_SEVER:
-            printf("dang choi game vs may\n");
+            printf("Dang choi game vs may\n");
             cli->status = YC_XEM_DS_BAN_BE;
              int mang[numberquestion];
             readQuestion();
@@ -265,7 +349,7 @@ void *MAIN(void *socketfd){
             char messSend[MAX];
             char messQues[MAXLINE+1];
             int trueQuestion=0;
-            printf("208>>numberquestion la %d\n",numberquestion );
+            // printf("208>>numberquestion la %d\n",numberquestion );
             for(int i=0;i<numberquestion;i++){
               int c=mang[i];
               printf(">>>>>>>>Cau hoi %d: %s\nA. %s\nB. %s\nC. %s\nD. %s\n ",i+1,Question[c].question,Question[c].A,Question[c].B,Question[c].C,Question[c].D);
@@ -278,7 +362,7 @@ void *MAIN(void *socketfd){
               mama=send(newSocket,messSend,strlen(messSend),0);
               if(mama<=0){
                 printf("send error %d\n",mama);
-                printf("send lai");
+                // printf("send lai");
                 send(newSocket,messSend,strlen(messSend),0);
                 exit(-1);
               }
@@ -291,11 +375,12 @@ void *MAIN(void *socketfd){
                 ku=1+ku;
               }
               double timesolution=ku*60;
-              printf("timesolution la %f\n",timesolution );
+              printf("timesolution la %f\n",timesolution);
               char u[10]="";
-              gcvt(timesolution,5,u);
+              // gctv(timesolution,10,u);
+              itoa(timesolution,u,10);
               if(strcmp(Question[c].TrueAnswer,solution)==0){
-
+                // char u[]
                 char trueqs[50]="ban tra loi dung. Times: ";
                 strcat(trueqs,u);
                 trueQuestion++;
@@ -304,7 +389,7 @@ void *MAIN(void *socketfd){
               else{
                 char falsequs[50]="tra loi sai!Dap an dung la ";
                 strcat(falsequs,Question[c].TrueAnswer);
-                strcat(falsequs," Times: ");
+                strcat(falsequs," Times :");
                 strcat(falsequs,u);
                 send(newSocket,falsequs,strlen(falsequs),0);
 
@@ -312,13 +397,14 @@ void *MAIN(void *socketfd){
               }
               strcpy(messSend,"");
             }
-              char kiki[2]="";
-             //  char kq[20]="";
-             // recv(newSocket,kq,20,0);
-              itoa(trueQuestion,kiki,10);
-
-              send(newSocket,kiki,strlen(kiki),0);
+            char kiki[2]="";
+            itoa(trueQuestion,kiki,10);
+            send(newSocket,kiki,strlen(kiki),0);
             break;
+
+            /*
+            *GUI TIN NHAN 
+            */
           case MESS:
             cli->status = MESS;
             printf("mess nhan duoc la %s\n",mess.mess );
@@ -328,10 +414,10 @@ void *MAIN(void *socketfd){
             char messages1[MAXLINE];
             char fileNameChat[100];
             char fileNameChat1[100];
-            char phanhoi[100]="khong co tin nhan nao ";
+            char phanhoi[100]="khong con tin nhan nao chua tra loi";
             strcpy(fileNameChat1,user->acc.name);
             strcat(fileNameChat1,"CHAT.txt");
-            printf("ten file chat de doc la %s\n",fileNameChat1 );
+            // printf("ten file chat de doc la %s\n",fileNameChat1 );
             f=fopen(fileNameChat1,"r");
             if(f==NULL){
               printf("not exsits file\n");
@@ -354,7 +440,6 @@ void *MAIN(void *socketfd){
             printf("chuoi gui di la %s\n",phanhoi );
             char namefriends[100];
             mess=RECEVE(newSocket);
-            printf("nguoi muon chat cung nhan duoc ben server la %s\n",mess.mess );
             // strcpy(fileName,user->acc.name);
             // strcat(fileName,"BANBE.txt\0");
             strcpy(namefriends,mess.mess);
@@ -384,7 +469,7 @@ void *MAIN(void *socketfd){
           case SIGN_OUT:
             printf(" User %s exit.....!!\n", user->acc.name);
             user = NULL;
-            remove_client(cli->id);
+            remove_client(cli->id, clients_mutex);
             printf("368 : So user dang online hien tai %d\n", client_count);
             break;
 

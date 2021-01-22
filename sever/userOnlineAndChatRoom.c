@@ -20,11 +20,21 @@ int id = 0 ;
 typedef struct
 {
     int id;
+    /* Luu tru id cua nguoi ma nguoi nay dang chat cung, or choi game cung
+    *  su dung bien status de xac dinh xem 2 nguoi nay dang chat hay choi game
+    * Neu status = 0 ; Nguoi nay dang thuc hien nhung tac vu khac
+    */
     int fdId;
     int sockfd;
+    /*
+    *Luu tru diem cua nguoi choi nay khi ho choi game
+    */
+    int score;
     CODE status;
     char name[MAXLINE];
 } Client_t;
+
+//
 
 Client_t *clients[MAX_CLIENTS];
 
@@ -46,8 +56,9 @@ void str_trim_lf(char *arr, int len)
     }
 }
 
-void add_client(Client_t *cl)
+void add_client(Client_t *cl, pthread_mutex_t clients_mutex)
 {
+    pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (clients[i] == NULL)
@@ -57,10 +68,12 @@ void add_client(Client_t *cl)
             break;
         }
     }
+    pthread_mutex_unlock(&clients_mutex);
 }
 
-void remove_client(int uid)
+void remove_client(int uid, pthread_mutex_t clients_mutex)
 {
+    pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (clients[i] != NULL && clients[i]->id == uid)
@@ -69,10 +82,12 @@ void remove_client(int uid)
             break;
         }
     }
+    pthread_mutex_unlock(&clients_mutex);
 }
 
-void send_message(char *msg, Client_t *from)
+void send_message(char *msg, Client_t *from, pthread_mutex_t clients_mutex)
 {
+    pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (clients[i] != NULL && clients[i]->id == from->fdId)
@@ -85,6 +100,7 @@ void send_message(char *msg, Client_t *from)
             }
         }
     }
+    pthread_mutex_unlock(&clients_mutex);
 }
 
 int isOnline(char name[MAXLINE]){
@@ -97,33 +113,39 @@ int isOnline(char name[MAXLINE]){
 			return clients[i]->id;
 		}
 	}
-    return 0;
+    return -1;
 }
 
 void printListUserOnline(){
     int i;
+    printf("-----------List user online------\n");
     for(i=0;i<client_count;i++){
-        printf("%d : %s - id : %d\n", i, clients[i]->name, clients[i]->id);
+        printf("%d : %s - id : %d\n", clients[i]->id, clients[i]->name, clients[i]->id);
     }
+    printf("---------------------------------\n");
 }
 
 int kiemTraSanSang(int idOfFriend, int myId){
     int i;
+    printf("ID cua ban kia : %d\n", idOfFriend);
+    printf("My id : %d\n", myId);
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (clients[i] != NULL && clients[i]->id == idOfFriend)
         {
+            printf("My Friend : ID : %d - FDiD : %", clients[i]->id, clients[i]->fdId);
             if(clients[i]->fdId == myId){
+                printf("usser san sang ra : 1\n");
                 return 1;
                 break;
             }
-            return 0;
-            break;
         }
     }
+    printf("usser san sang ra : 0\n");
+    return 0;
 }
 
-void chat(Client_t *cli){
+void chat(Client_t *cli, pthread_mutex_t clients_mutex){
     int leave_flag=0;
     char buffer[BUFFER_SZ];
     while (1)
@@ -134,7 +156,7 @@ void chat(Client_t *cli){
         int receive = recv(cli->sockfd, buffer, BUFFER_SZ, 0);
         if (receive > 0)
         {
-            send_message(buffer, cli);
+            send_message(buffer, cli, clients_mutex);
             str_trim_lf(buffer, strlen(buffer));
             printf("%s\n", buffer);
         }
@@ -142,7 +164,7 @@ void chat(Client_t *cli){
         {
             sprintf(buffer, "%s has left\n", cli->name);
             printf("%s", buffer);
-            send_message(buffer, cli);
+            send_message(buffer, cli, clients_mutex);
             leave_flag = 1;
         }
         else
@@ -152,9 +174,10 @@ void chat(Client_t *cli){
         }
         bzero(buffer, BUFFER_SZ);
     }
-    cli->fdId = 0;
+    cli->fdId = -1;
     return;
 }
+
 
 // void WriteToFile(char from[MAXLINE], char to[MAXLINE], char buffer[BUFFER_SZ]){
 //     char fileName[MAXLINE];

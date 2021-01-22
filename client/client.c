@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 #include <ctype.h>
-#include <stdio_ext.h>
 #include "lib.c"
 #include "userOnlineAndChatRoom.c"
 
@@ -79,12 +78,13 @@ account singUp(int clientSocket){
 		strcpy(user.name,name);
 		SEND(clientSocket, name, SIGN_UP_USERNAME);
 		mess = RECEVE(clientSocket);
-		printf("%s\n",mess.mess );
+		printf("sever : %s\n",mess.mess );
 		if(strcmp(mess.mess, NOTOK) == 0){
 			printf("Ten tai khoan da ton tai ! Vui long chon ten khac\n");
 			check = 0;
 			strcpy(user.name,"\0");
 		}else{
+			printf("user name %s %s\n", user.name, name);
 			printf("Nhap mat khau: \n");
 			scanf("%s",password);
 			SEND(clientSocket,password,SIGN_UP_PASSWORD);
@@ -96,8 +96,7 @@ account singUp(int clientSocket){
 	return user;
 }
 
-
-void requestFriend(int clientSocket){
+void requestFriend(int clientSocket, char nameUser[MAXLINE]){
 	char name[MAXLINE];
 	MESSAGE mess;
 	int check = 0;
@@ -106,21 +105,32 @@ void requestFriend(int clientSocket){
 		printf("Nhap ten nguoi ban muon ket ban : ");
 		scanf("%s",name);
 		printf(" name : %s\n", name);
-		SEND(clientSocket, name,YC_KET_BAN);
-		mess = RECEVE(clientSocket);
-		if(strcmp(mess.mess, NOTOK) == 0){
-			printf("Khong ton tai nguoi dung trong he thong !\n");
-			printf("Vui long nhap ten hop le\n");
-			printf("<<Nhan 1 de ket thuc / 0 de tiep tuc>>\n");
-			scanf("%d",&check);
+		if(strcmp(name, nameUser)==0){
+			printf("Vui long ket ban voi mot nguoi khac! Khong phai ban\n");
+			check = 0;
 		}else{
-			printf(" mess nhan dc %s\n", mess.mess);
-			if(strcmp(mess.mess, ok) == 0){
-				printf("Yeu cau cua ban da duoc gui!\n");
-				printf("Vui long cho xac nhan \n");
+			SEND(clientSocket, name,YC_KET_BAN);
+			mess = RECEVE(clientSocket);
+			if(strcmp(mess.mess, NOTOK) == 0){
+				printf("Khong ton tai nguoi dung trong he thong !\n");
+				printf("Vui long nhap ten hop le\n");
+				printf("<<Nhan 1 de ket thuc / 0 de tiep tuc>>\n");
+				scanf("%d",&check);
+			}else if(strcmp(mess.mess,"Da la ban be")==0){
+				printf("Cac ban da la ban be\n");
+				printf("<<Nhan 1 de ket thuc / 0 de tiep tuc>>\n");
+				scanf("%d",&check);
 			}
-			return;
+			else{
+				printf(" mess nhan dc %s\n", mess.mess);
+				if(strcmp(mess.mess, ok) == 0){
+					printf("Yeu cau cua ban da duoc gui!\n");
+					printf("Vui long cho xac nhan \n");
+				}
+				return;
+			}
 		}
+
 	}while(check == 0);
 
 }
@@ -128,10 +138,10 @@ void requestFriend(int clientSocket){
 
 
 int main(int argc, char const *argv[]){
-	int clientSocket, select, ret, requestFd, i, tmp1, countFriend;
-	char select1[MAXLINE];
+	int clientSocket, ret, select, requestFd, i, tmp1, countFriend;
 	struct sockaddr_in serverAddr;
 	char tmp[MAXLINE] = "hello";
+	char select1[MAXLINE];
 	MESSAGE mess;
 	char ok[MAXLINE] = "OK";
 	char notok[MAXLINE] = "NOT OK";
@@ -143,6 +153,14 @@ int main(int argc, char const *argv[]){
 	char friendName[MAXLINE];
 	char buffer[BUFFER_SZ];
 	char message[BUFFER_SZ + NAME_LEN] = "";
+
+    char offline[MAXLINE]= "offline";
+    char notfriend[MAXLINE]="NOT FRIEND"; 
+    char notUser[MAXLINE]="NOT USER";
+    char sansang[MAXLINE]="SAN SANG";
+    char notsansang[MAXLINE]="NOT SAN SANG";
+
+    int doi;
 	account myUser;
 	myUser.status = 0;
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -173,9 +191,9 @@ int main(int argc, char const *argv[]){
 		printf("2: Sign up\n");
 		printf("Nhap vao select : \n");
 		scanf("%s",select1);
-		if(strlen(select1)!=1|| !isdigit(select1[0])) break;
+		if(strlen(select1)!=1|| !isdigit(select1[0])) 
+			break;
 		select=atoi(select1);
-
 		switch(select){
 			case 1 :
 			printf("vao login\n");
@@ -214,14 +232,15 @@ int main(int argc, char const *argv[]){
 		printf("4: Ket ban\n");
 		printf("5: Xem danh sach ban be\n");
 		printf("6: Xem yeu cau ket ban\n");
-		printf("7: Log Out\n");
-		printf("8: Gui tin nhan \n");
+		printf("7: Gui tin nhan \n");
+		printf("8: Log Out\n");
 		printf("Nhap vao select : \n");
 		scanf("%d",&select);
 		printf("%d\n",select );
 		switch(select){
 			case 1:
 				SEND(clientSocket,playgame,PLAY_GAME_WITH_SEVER);
+				// mess=RECEVE(clientSocket);
 				char ss[10]="ok";
 
 				char answer[10];
@@ -236,24 +255,23 @@ int main(int argc, char const *argv[]){
 						printf("loi khi nhan %d\n",K );
 						exit(1);
 					}
-					printf("\n");
-					printf("%s\n",buff );
+					printf("\n%s\n",buff );
 					do{
 						printf("Tra loi: \n");
-						scanf("%s",answer);
+						scanf(" %s", answer);
+						// SEND(clientSocket,answer,PLAY_GAME_WITH_SEVER);
+
 					}while(strcmp(answer,"A")!=0&&strcmp(answer,"B")!=0&&strcmp(answer,"C")!=0&&strcmp(answer,"D")!=0);
 						send(clientSocket,answer,strlen(answer),0);
 						char cho[100];
 						recv(clientSocket,cho,100,0);
-						printf("%ss\n",cho );
+						printf("%s s\n",cho );
 						count++;
 
 					}
-					// char kq[19]="so cau tra loi dung";
-					// send(clientSocket,kq,strlen(kq)+1,0);
-					char kiki[2]="";
-					recv(clientSocket,kiki,2,0);
-					printf("so cau tra loi dung la %s\n", kiki);
+				char kiki[2]="";
+				recv(clientSocket,kiki,2,0);
+				printf("So cau tra loi dung la %s\n",kiki );
 				goto Layout2;
 				break;
 			case 2:
@@ -262,34 +280,115 @@ int main(int argc, char const *argv[]){
 			/*
 			* CHAT WITH FRIEND
 			*/
-			case 3:
-				do{
+			case 3:	
 					printf("Nhap ten nguoi ban muon chat cung : ");
 					scanf("%s",friendName);
-					SEND(clientSocket, friendName, CHAT);
-					printf("da send : %s\n", friendName);
-					mess = RECEVE(clientSocket);
-					if(strcmp(mess.mess, notok) == 0){
-						printf("Khong ton tai nguoi nay torng he thong");
-						printf("1 :tiep tuc / 0 :dung\n");
-						scanf("%d", &check);
+					fflush(stdin);
+					strcpy(tmp,friendName);
+					SEND(clientSocket, tmp, CHAT);
+					int receive = recv(clientSocket, buffer, BUFFER_SZ, 0);
+					printf("CHUOI T DA NHAN DC LAAAAA : %s\n", buffer );
+					if(strcmp(buffer,notUser)==0){
+						printf("Khong ton tai nguoi nay trong he thong\n");
 					}
-					else if(strcmp(mess.mess, "NOT FRIEND")){
-						printf("Cac ban khong phai ban be !\n");
-						printf("1 :tiep tuc / 0 :dung\n");
-						scanf("%d", &check);					
+					else if(strcmp(buffer,notfriend)==0){
+						printf("2 ban khong phai ban be\n");
 					}
-					else if(strcmp(mess.mess, "OFFLINE") == 0){
-						printf("Ban cua ban hien dang offline! \n");
+					else if(strcmp(buffer,offline)==0){
+						printf("User dang offline\n");
+					}else if(strcmp(buffer,notsansang)==0){
+						printf("run to here\n");
+						printf(">>%s\n",buffer);
+						printf("Ban co muon doi ban cua minh khong ?\n");
+						printf("1: co / 2: khong\n");
+						scanf("%d", &doi);
+						if(doi == 2){
+							printf("OK ! BYE----\n");
+							send(clientSocket,"KHONG DOI",strlen("KHONG DOI")+1,0);
+						}else{
+							bzero(buffer, BUFFER_SZ);
+							send(clientSocket,"DOI",strlen("DOI")+1,0);
+							printf("---------------Dang cho----------\n");
+							receive = recv(clientSocket, buffer, BUFFER_SZ, 0);
+							printf("Ban cua ban : %s\n",buffer);
+							 pthread_t send_msg_thread;
+						    if (pthread_create(&send_msg_thread, NULL, &send_msg_handler, &clientSocket) != 0)
+						    {
+						        printf("ERROR: pthread_create()");
+						        exit(EXIT_FAILURE);
+						    }
+
+						    pthread_t recv_msg_thread;
+						    if (pthread_create(&recv_msg_thread, NULL, &recv_msg_handler, &clientSocket ) != 0)
+						    {
+						        printf("ERROR: pthread_create()");
+						        exit(EXIT_FAILURE);
+						    }
+						}
+					}else{
+						printf("327 >> %s\n", buffer);
 					}
-					else if(strcmp(mess.mess,"BAN CUA BAN CHUA SAN SANG")){
-						printf("Ban cua ban chua san sang de chat! Vui long cho  \n");
-						check = 0;
-					}else if(strcmp(mess.mess, "SANSANG")== 0){
-						printf("Da san sang de chat\n");
-						check = 0;
-					}
-				}while(check == 1);
+
+				// 	printf("da send : %s\n", tmp);
+				// 	mess = RECEVE(clientSocket);
+				// 	char checklai[50]="check lai";
+				// 	int doi;
+				// 	if(strcmp(mess.mess, notok) == 0){
+				// 		printf("Khong ton tai nguoi nay torng he thong");
+				// 		printf("1 :tiep tuc / 0 :dung\n");
+				// 		scanf("%d", &check);
+				// 	}
+				// 	else if(strcmp(mess.mess, "NOT FRIEND")){
+				// 		printf("Cac ban khong phai ban be !\n");
+				// 		printf("1 :tiep tuc / 0 :dung\n");
+				// 		scanf("%d", &check);					
+				// 	}
+				// 	else if(strcmp(mess.mess, "OFFLINE") == 0){
+				// 		printf("Ban cua ban hien dang offline! \n");
+				// 	}
+				// 	else if(strcmp(mess.mess,"BAN CUA BAN CHUA SAN SANG")==0) {
+				// 		printf("Ban cua ban chua san sang de chat!\n");
+				// 		do{
+				// 			printf("Ban co muon doi ban cua minh khong ?\n");
+				// 			printf("1: co / 2: khong\n");
+				// 			scanf("%d", &doi);
+				// 			if(doi==1){
+				// 				sleep(15);
+				// 				SEND(clientSocket,checklai,CHAT);
+				// 				mess = RECEVE(clientSocket);
+				// 				if(strcmp(mess.mess,"BAN CUA BAN CHUA SAN SANG")==0) continue;
+				// 				if(strcmp(mess.mess, "SANSANG")== 0){
+				// 					printf("Da san sang de chat\n");
+				// 					printf("%s da tham gia chat\n", friendName);
+				// 					check = 0;
+				// 					doi = 0;
+				// 				}
+				// 			}
+				// 		}while(doi == 1);
+				// 		check = 2;
+				// 	}else if(strcmp(mess.mess, "SANSANG")== 0){
+				// 		printf("Da san sang de chat\n");
+				// 		check = 0;
+				// 	}
+				// }while(check == 1);
+
+				// if(check == 0){
+				// 	printf("bat dau chat ........\n");
+				// 	///cho lang ba nhanggggggggg
+				// 	    pthread_t send_msg_thread;
+				// 	    if (pthread_create(&send_msg_thread, NULL, &send_msg_handler, &clientSocket) != 0)
+				// 	    {
+				// 	        printf("ERROR: pthread_create()");
+				// 	        exit(EXIT_FAILURE);
+				// 	    }
+
+				// 	    pthread_t recv_msg_thread;
+				// 	    if (pthread_create(&recv_msg_thread, NULL, &recv_msg_handler, &clientSocket ) != 0)
+				// 	    {
+				// 	        printf("ERROR: pthread_create()");
+				// 	        exit(EXIT_FAILURE);
+				// 	    }
+				// }
 				goto Layout2;
 				break;
 
@@ -298,7 +397,7 @@ int main(int argc, char const *argv[]){
 			*/
 			case 4:
 				printf("Bat dau ket ban\n");
-				requestFriend(clientSocket);
+				requestFriend(clientSocket,myUser.name);
 				goto Layout2;
 				break;
 
@@ -328,33 +427,27 @@ int main(int argc, char const *argv[]){
 				requestFd = atoi(mess.mess);
 				printf("So yeu cau ket ban la %d\n",requestFd );
 				for(i=1; i<=requestFd; i++){
+					printf("254: bat dau in \n");
 					mess = RECEVE(clientSocket);
 					printf("%d: %s\n",i, mess.mess );
 					printf("1: dong y 0: tu choi\n");
 					scanf("%d",&tmp1);
+					printf("357 :da lua chon : %d\n",tmp1);
 					if(tmp1 == 1){
 						SEND(clientSocket, ok, YC_XEM_BAN_BE);
 					}else{
+						strcpy(notok,"NOT OK");
 						SEND(clientSocket, notok,YC_XEM_BAN_BE);
+						printf("381 : da gui %s\n", notok);
 					}
 				}
 				goto Layout2;
 				break;
 
 			/*
-			* LOGOUT
-			*/
-			case 7:
-				myUser.status = 0;
-				SEND(clientSocket,tmp,SIGN_OUT);
-				strcpy(myUser.name,"\0");
-				printf("-------------Bye-------\n");
-				goto Layout1;
-
-			/*
 			*GUI TIN NHAN
 			*/	
-			case 8:
+			case 7:
 				SEND(clientSocket,tmp,MESS);
 				char messageFriend[MAXLINE];
 				chat:
@@ -362,14 +455,14 @@ int main(int argc, char const *argv[]){
 				char messreact[MAXLINE];
 				if(mess.code==PHAN_HOI_CHAT){
 					printf("Tin nhan la :%s\n", mess.mess);
-					__fpurge(stdin);
+					fflush(stdin);
 					fgets(messreact,sizeof(messreact),stdin);
 					messreact[strlen(messreact)-1]='\0';
 					SEND(clientSocket,messreact,PHAN_HOI_CHAT);
 					goto chat;
 				}
 				else if(mess.code==MESS){
-					printf("mess nhan duoc la %s\n",mess.mess );
+					printf("%s\n",mess.mess );
 					char namefri[100];
 					tieptuc:
 					printf("nhap nguoi ban muon chat: ");
@@ -377,13 +470,12 @@ int main(int argc, char const *argv[]){
 					strcpy(namefri,friendName);
 					SEND(clientSocket,friendName,MESS);
 					mess=RECEVE(clientSocket);
-					printf("mess.mess nhan duoc la %s\n",mess.mess );
+					printf("%s\n",mess.mess );
 					if(strcmp(mess.mess,"NOT OK")==0){
-						printf("cacs ban khong phai ban be \n");
+					printf("cacs ban khong phai ban be \n");
 					}else{
-						printf("da san sang de chat\n");
-						printf("%s-> \n",namefri);
-						__fpurge(stdin);
+						printf("%s-> ",namefri);
+						fflush(stdin);
 						fgets(messageFriend,sizeof(messageFriend),stdin);
 						messageFriend[strlen(messageFriend)-1]='\0';
 						SEND(clientSocket,messageFriend,MESS);
@@ -391,6 +483,16 @@ int main(int argc, char const *argv[]){
 				}
 				goto Layout2;
 				break;
+						/*
+			* LOGOUT
+			*/
+			case 8:
+				myUser.status = 0;
+				SEND(clientSocket,tmp,SIGN_OUT);
+				strcpy(myUser.name,"\0");
+				printf("-------------Bye-------\n");
+				goto Layout1;
+
 			default:
 				printf("nhap lua chon hop le !\n");
 				goto Layout2;
