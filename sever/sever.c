@@ -33,6 +33,7 @@ int main(int argc, char*argv[]){
   socklen_t addr_size;
 
   pthread_t tid;
+  pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
 
   void *MAIN(void *socketfd);
 
@@ -78,20 +79,26 @@ int main(int argc, char*argv[]){
       continue;
     }
     printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
-      // pthread_mutex_lock(&clients_mutex);
+      pthread_mutex_lock(&clients_mutex);
       pthread_create(&tid,NULL, &MAIN, &newSocket);
-      // pthread_mutex_unlock(&clients_mutex);
+      pthread_mutex_unlock(&clients_mutex);
     }
     close(newSocket);
     return 0;
   }
 
 void *MAIN(void *socketfd){
-  pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
+  // pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
+  Client_t *cli = (Client_t *)malloc(sizeof(Client_t));
+  char offline[MAXLINE]= "offline";
+  char notfriend[MAXLINE]="NOT FRIEND"; 
+  char notUser[MAXLINE]="NOT USER";
+  char sansang[MAXLINE]="SAN SANG";
+  char notsansang[MAXLINE]="NOT SAN SANG";
+  char notok[MAXLINE] = "NOT OK";
+  char ok[MAXLINE] = "OK";
   int newSocket = *((int*)socketfd); 
       while(1){
-        char notok[MAXLINE] = "NOT OK";
-        char ok[MAXLINE] = "OK";
         int statususer=0, i;
         int statuspass=0;
         char fileNameFriend[MAXLINE];
@@ -106,17 +113,10 @@ void *MAIN(void *socketfd){
         int leave_flag;
         int receive;
 
-        char offline[MAXLINE]= "offline";
-        char notfriend[MAXLINE]="NOT FRIEND"; 
-        char notUser[MAXLINE]="NOT USER";
-        char sansang[MAXLINE]="SAN SANG";
-        char notsansang[MAXLINE]="NOT SAN SANG";
-
         MESSAGE mess;
 
         userInfo *user;
         userInfo *friend;
-        Client_t *cli = (Client_t *)malloc(sizeof(Client_t));
 
         listFriend *tmp1;
         printf("bat dau ket noi !\n");
@@ -139,9 +139,9 @@ void *MAIN(void *socketfd){
             printf("126: user name : %s\n", user->acc.name);
             strcpy(cli->name, user->acc.name);
             cli->sockfd = newSocket;
-            cli->id = ++id;
+            cli->id = client_count+1;
             cli->fdId = -1;
-            add_client(cli, clients_mutex);
+            add_client(cli);
 
             // Add client to queue
             user->status = 1;
@@ -166,7 +166,9 @@ void *MAIN(void *socketfd){
                 cli->sockfd = newSocket;
                 cli->id = client_count+1;
                 cli->fdId = -1;
-                add_client(cli, clients_mutex);
+                printf("170 : MY ID %d\n", cli->id );
+                add_client(cli);
+                printf("172 : MY ID %d \n",cli->id );
 
                 // Add client to queue
                 user->status = 1;
@@ -238,9 +240,11 @@ void *MAIN(void *socketfd){
           * CHAT WITH FRIEND
           */
           case CHAT:
+            printListUserOnline();
             printf("Danh sach nguoi online hien tai\n");
             printf("Yeu cau chat với : %s\n", mess.mess );
             friend= searchUser(mess.mess);
+            printf("***0 : Kiem tra myId : %d\n", cli->id );
             if(friend==NULL){
               printf("1>>>check ton tai !\n");
               send(newSocket, notUser, strlen(notUser)+1, 0);
@@ -259,16 +263,19 @@ void *MAIN(void *socketfd){
               printListUserOnline();
               cli->fdId = isOnline(friend->acc.name);
               printf("cli->fdId : %d\n",cli->fdId );
+              printf("***1 : Kiem tra myId : %d\n", cli->id );
               if(kiemTraSanSang(cli->fdId,cli->id)==0){
                 printf("User chua san sang de chat\n");
                 send(newSocket,notsansang,strlen(notsansang)+1,0);
                 bzero(buffer, BUFFER_SZ);
                 receive = recv(cli->sockfd, buffer, BUFFER_SZ, 0);
+                printf("***2 : Kiem tra myId : %d\n", cli->id );
                 if(strcmp(buffer,"KHONG DOI")==0){
                   printf("Client khong muon cho ! OK\n");
                   break;
                 }else{
                   printf("Client muon cho\n");
+                  printf("***3 : Kiem tra myId : %d\n", cli->id );
                   cli->status = CHAT;
                   while(kiemTraSanSang(cli->fdId,cli->id)==0){
                     printf("Infor of me : myID: %d -  FiendId : %d \n", cli->id, cli->fdId );
@@ -277,11 +284,14 @@ void *MAIN(void *socketfd){
                   }
                   send(newSocket,sansang,strlen(sansang)+1,0);
                   printf("Bat dau chat\n");
-                  chat(cli, clients_mutex);
+                  chat(cli);
+                  break;
                 }
               }else{
-                send(newSocket,"San sang !!",strlen(notsansang)+1,0);
-
+                send(newSocket,sansang,strlen(sansang)+1,0);
+                printf("Bat dau chat\n");
+                chat(cli);
+                break;
               }
             }
             // printf("yeu cau chat voi %s\n", mess.mess);
@@ -469,7 +479,7 @@ void *MAIN(void *socketfd){
           case SIGN_OUT:
             printf(" User %s exit.....!!\n", user->acc.name);
             user = NULL;
-            remove_client(cli->id, clients_mutex);
+            remove_client(cli->id);
             printf("368 : So user dang online hien tai %d\n", client_count);
             break;
 

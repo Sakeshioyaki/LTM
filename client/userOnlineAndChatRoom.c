@@ -30,3 +30,49 @@ void str_trim_lf(char *arr, int len)
         }
     }
 }
+
+void*  recv_msg_handler(void * sockfdd)
+{
+      int sockfd = *((int*)sockfdd); 
+    char message[BUFFER_SZ] = "";
+    while (1)
+    {
+        int receive = recv(sockfd, message, BUFFER_SZ, 0);
+        if (receive > 0)
+        {
+            printf("%s", message);
+            str_overwrite_stdout();
+        }
+        else if (receive == 0)
+        {
+            break;
+        }
+        bzero(message, BUFFER_SZ);
+    }
+}
+
+void* send_msg_handler(void * sockfdd)
+{
+          int sockfd = *((int*)sockfdd); 
+    char buffer[BUFFER_SZ] = "";
+    char message[BUFFER_SZ + NAME_LEN] = "";
+
+    while (1) 
+    {
+        str_overwrite_stdout();
+        fgets(buffer, BUFFER_SZ, stdin);
+        str_trim_lf(buffer, BUFFER_SZ);
+
+        if (strcmp(buffer, "exit") == 0)
+        {
+            break;
+        }
+        else 
+        {
+            sprintf(message, "ban cua ban: %s\n",  buffer);
+            send(sockfd, message, strlen(message), 0);
+        }
+        bzero(buffer, BUFFER_SZ);
+        bzero(message, BUFFER_SZ + NAME_LEN);
+    }
+}

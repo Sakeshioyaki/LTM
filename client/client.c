@@ -326,7 +326,20 @@ int main(int argc, char const *argv[]){
 						    }
 						}
 					}else{
-						printf("327 >> %s\n", buffer);
+						printf(" >> %s <<\n", buffer);
+						pthread_t send_msg_thread;
+					    if (pthread_create(&send_msg_thread, NULL, &send_msg_handler, &clientSocket) != 0)
+					    {
+					        printf("ERROR: pthread_create()");
+					        exit(EXIT_FAILURE);
+					    }
+
+					    pthread_t recv_msg_thread;
+					    if (pthread_create(&recv_msg_thread, NULL, &recv_msg_handler, &clientSocket ) != 0)
+					    {
+					        printf("ERROR: pthread_create()");
+					        exit(EXIT_FAILURE);
+					    }
 					}
 
 				// 	printf("da send : %s\n", tmp);

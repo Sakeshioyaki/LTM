@@ -56,9 +56,9 @@ void str_trim_lf(char *arr, int len)
     }
 }
 
-void add_client(Client_t *cl, pthread_mutex_t clients_mutex)
+void add_client(Client_t *cl)
 {
-    pthread_mutex_lock(&clients_mutex);
+    // pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (clients[i] == NULL)
@@ -68,12 +68,12 @@ void add_client(Client_t *cl, pthread_mutex_t clients_mutex)
             break;
         }
     }
-    pthread_mutex_unlock(&clients_mutex);
+    // pthread_mutex_unlock(&clients_mutex);
 }
 
-void remove_client(int uid, pthread_mutex_t clients_mutex)
+void remove_client(int uid)
 {
-    pthread_mutex_lock(&clients_mutex);
+    // pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (clients[i] != NULL && clients[i]->id == uid)
@@ -82,12 +82,12 @@ void remove_client(int uid, pthread_mutex_t clients_mutex)
             break;
         }
     }
-    pthread_mutex_unlock(&clients_mutex);
+    // pthread_mutex_unlock(&clients_mutex);
 }
 
-void send_message(char *msg, Client_t *from, pthread_mutex_t clients_mutex)
+void send_message(char *msg, Client_t *from)
 {
-    pthread_mutex_lock(&clients_mutex);
+    // pthread_mutex_lock(&clients_mutex);
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (clients[i] != NULL && clients[i]->id == from->fdId)
@@ -100,7 +100,7 @@ void send_message(char *msg, Client_t *from, pthread_mutex_t clients_mutex)
             }
         }
     }
-    pthread_mutex_unlock(&clients_mutex);
+    // pthread_mutex_unlock(&clients_mutex);
 }
 
 int isOnline(char name[MAXLINE]){
@@ -133,7 +133,7 @@ int kiemTraSanSang(int idOfFriend, int myId){
     {
         if (clients[i] != NULL && clients[i]->id == idOfFriend)
         {
-            printf("My Friend : ID : %d - FDiD : %", clients[i]->id, clients[i]->fdId);
+            printf("My Friend : ID : %d - FDiD : %d", clients[i]->id, clients[i]->fdId);
             if(clients[i]->fdId == myId){
                 printf("usser san sang ra : 1\n");
                 return 1;
@@ -145,7 +145,7 @@ int kiemTraSanSang(int idOfFriend, int myId){
     return 0;
 }
 
-void chat(Client_t *cli, pthread_mutex_t clients_mutex){
+void chat(Client_t *cli ){
     int leave_flag=0;
     char buffer[BUFFER_SZ];
     while (1)
@@ -156,7 +156,7 @@ void chat(Client_t *cli, pthread_mutex_t clients_mutex){
         int receive = recv(cli->sockfd, buffer, BUFFER_SZ, 0);
         if (receive > 0)
         {
-            send_message(buffer, cli, clients_mutex);
+            send_message(buffer, cli);
             str_trim_lf(buffer, strlen(buffer));
             printf("%s\n", buffer);
         }
@@ -164,7 +164,7 @@ void chat(Client_t *cli, pthread_mutex_t clients_mutex){
         {
             sprintf(buffer, "%s has left\n", cli->name);
             printf("%s", buffer);
-            send_message(buffer, cli, clients_mutex);
+            send_message(buffer, cli);
             leave_flag = 1;
         }
         else
@@ -174,7 +174,7 @@ void chat(Client_t *cli, pthread_mutex_t clients_mutex){
         }
         bzero(buffer, BUFFER_SZ);
     }
-    cli->fdId = -1;
+    cli->fdId = 0;
     return;
 }
 
