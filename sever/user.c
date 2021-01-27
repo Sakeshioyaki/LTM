@@ -235,22 +235,31 @@ int isFriend(char name[MAXLINE], userInfo **user){
     
 }
 
-void showListFriend(userInfo *user, int newSocket){
-  listFriend *tmp = user->listFd;
-  char name[MAXLINE];
-  int i;
-  if(tmp == NULL){
-    printf("Ban khong co nguoi ban nao\n" );
-  }else{
-    for(i=1;i<=countFriend;i++){
-      printf("%d : %s\n",i,tmp->myFriend.name);
-      strcpy(name, tmp->myFriend.name);
-      SEND(newSocket,name, YC_XEM_DS_BAN_BE);
-      tmp = tmp->next;
-      sleep(2);
-    }
-  }
-}
+// void showListFriend(userInfo *user, int newSocket){
+//   listFriend *tmp = user->listFd;
+//   char name[MAXLINE];
+//   char offline[MAXLINE] = "OFFLINE";
+//   CHAR online[MAXLINE] = "ONLINE";
+//   int i;
+//   if(tmp == NULL){
+//     printf("Ban khong co nguoi ban nao\n" );
+//   }else{
+//     for(i=1;i<=countFriend;i++){
+//       printf("%d : %s\n",i,tmp->myFriend.name);
+//       strcpy(name, tmp->myFriend.name);
+//       SEND(newSocket,name, YC_XEM_DS_BAN_BE);
+//       if(isOnline(tmp->myFriend.name) == 0){
+//         printf("user %s is offline\n", tmp->myFriend.name);
+//         SEND(newSocket, offline, YC_XEM_DS_BAN_BE);
+//       }else{
+//         printf("User %s is online\n", tmp->myFriend.name);
+//         SEND(newSocket, online, YC_XEM_DS_BAN_BE);
+//       }
+//       tmp = tmp->next;
+//       sleep(1);
+//     }
+//   }
+// }
 
 char* itoa(int value, char* result, int base) {
         // check that the base if valid

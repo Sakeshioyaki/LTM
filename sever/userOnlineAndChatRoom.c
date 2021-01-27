@@ -34,6 +34,11 @@ typedef struct
     char name[MAXLINE];
 } Client_t;
 
+typedef struct room{
+    Client_t user1;
+    Client_t user2;
+}room;
+
 //
 
 Client_t *clients[MAX_CLIENTS];
@@ -113,7 +118,7 @@ int isOnline(char name[MAXLINE]){
 			return clients[i]->id;
 		}
 	}
-    return -1;
+    return 0;
 }
 
 void printListUserOnline(){
@@ -127,21 +132,21 @@ void printListUserOnline(){
 
 int kiemTraSanSang(int idOfFriend, int myId){
     int i;
-    printf("ID cua ban kia : %d\n", idOfFriend);
-    printf("My id : %d\n", myId);
+    // printf("ID cua ban kia : %d\n", idOfFriend);
+    // printf("My id : %d\n", myId);
     for (int i = 0; i < MAX_CLIENTS; i++)
     {
         if (clients[i] != NULL && clients[i]->id == idOfFriend)
         {
             printf("My Friend : ID : %d - FDiD : %d", clients[i]->id, clients[i]->fdId);
             if(clients[i]->fdId == myId){
-                printf("usser san sang ra : 1\n");
+                // printf("usser san sang ra : 1\n");
                 return 1;
                 break;
             }
         }
     }
-    printf("usser san sang ra : 0\n");
+    // printf("usser san sang ra : 0\n");
     return 0;
 }
 
@@ -154,17 +159,21 @@ void chat(Client_t *cli ){
             break;
 
         int receive = recv(cli->sockfd, buffer, BUFFER_SZ, 0);
+        // printf("162 : chuoi nhan dc la : %s\n", buffer );
         if (receive > 0)
         {
             send_message(buffer, cli);
+            // printf("166: da send : %s\n",buffer );
             str_trim_lf(buffer, strlen(buffer));
             printf("%s\n", buffer);
         }
-        else if (receive == 0 || strcmp(buffer, "exit") == 0)
+        else if (receive == 0 || (strcmp(buffer, "exit") == 0))
         {
+            // printf("171: chay vo day \n");
             sprintf(buffer, "%s has left\n", cli->name);
             printf("%s", buffer);
             send_message(buffer, cli);
+            // printf("175: da send : %s\n",buffer );
             leave_flag = 1;
         }
         else
@@ -176,6 +185,32 @@ void chat(Client_t *cli ){
     }
     cli->fdId = 0;
     return;
+}
+
+void showListFriend(userInfo *user, int newSocket){
+  listFriend *tmp = user->listFd;
+  char name[MAXLINE];
+  char offline[MAXLINE] = "OFFLINE";
+  char online[MAXLINE] = "ONLINE";
+  int i;
+  if(tmp == NULL){
+    printf("Ban khong co nguoi ban nao\n" );
+  }else{
+    for(i=1;i<=countFriend;i++){
+      printf("%d : %s\n",i,tmp->myFriend.name);
+      // strcpy(name, tmp->myFriend.name);
+      // SEND(newSocket,name, YC_XEM_DS_BAN_BE);
+      if(isOnline(tmp->myFriend.name) == 0){
+        sprintf(name,"%s - OFFLINE\n", tmp->myFriend.name);
+        SEND(newSocket, name, YC_XEM_DS_BAN_BE);
+      }else{
+        sprintf(name, "%s - ONLINE\n", tmp->myFriend.name);
+        SEND(newSocket, name, YC_XEM_DS_BAN_BE);
+      }
+      tmp = tmp->next;
+      sleep(1);
+    }
+  }
 }
 
 

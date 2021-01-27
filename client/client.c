@@ -274,7 +274,12 @@ int main(int argc, char const *argv[]){
 				printf("So cau tra loi dung la %s\n",kiki );
 				goto Layout2;
 				break;
+			/*
+			* choi game voi ban
+			*/
 			case 2:
+
+				goto Layout2;
 				break;
 
 			/*
@@ -297,7 +302,7 @@ int main(int argc, char const *argv[]){
 					else if(strcmp(buffer,offline)==0){
 						printf("User dang offline\n");
 					}else if(strcmp(buffer,notsansang)==0){
-						printf("run to here\n");
+						// printf("run to here\n");
 						printf(">>%s\n",buffer);
 						printf("Ban co muon doi ban cua minh khong ?\n");
 						printf("1: co / 2: khong\n");
@@ -310,6 +315,7 @@ int main(int argc, char const *argv[]){
 							send(clientSocket,"DOI",strlen("DOI")+1,0);
 							printf("---------------Dang cho----------\n");
 							receive = recv(clientSocket, buffer, BUFFER_SZ, 0);
+							printf("318: %s\n", buffer);
 							printf("Ban cua ban : %s\n",buffer);
 							 pthread_t send_msg_thread;
 						    if (pthread_create(&send_msg_thread, NULL, &send_msg_handler, &clientSocket) != 0)
@@ -324,84 +330,39 @@ int main(int argc, char const *argv[]){
 						        printf("ERROR: pthread_create()");
 						        exit(EXIT_FAILURE);
 						    }
+						    while (1)
+						    {
+						        if(flag) 
+						        {
+						            printf("\nBye\n");
+						            break;
+						        }
+						    }
 						}
 					}else{
+						// receive = recv(clientSocket, buffer, BUFFER_SZ, 0);
 						printf(" >> %s <<\n", buffer);
+						pthread_t recv_msg_thread;
+					    if (pthread_create(&recv_msg_thread, NULL, &recv_msg_handler, &clientSocket ) != 0)
+					    {
+					        printf("ERROR: pthread_create()");
+					        exit(EXIT_FAILURE);
+					    }
 						pthread_t send_msg_thread;
 					    if (pthread_create(&send_msg_thread, NULL, &send_msg_handler, &clientSocket) != 0)
 					    {
 					        printf("ERROR: pthread_create()");
 					        exit(EXIT_FAILURE);
 					    }
-
-					    pthread_t recv_msg_thread;
-					    if (pthread_create(&recv_msg_thread, NULL, &recv_msg_handler, &clientSocket ) != 0)
+				        while (1)
 					    {
-					        printf("ERROR: pthread_create()");
-					        exit(EXIT_FAILURE);
+					        if (flag) 
+					        {
+					            // printf("\nBye\n");
+					            break;
+					        }
 					    }
 					}
-
-				// 	printf("da send : %s\n", tmp);
-				// 	mess = RECEVE(clientSocket);
-				// 	char checklai[50]="check lai";
-				// 	int doi;
-				// 	if(strcmp(mess.mess, notok) == 0){
-				// 		printf("Khong ton tai nguoi nay torng he thong");
-				// 		printf("1 :tiep tuc / 0 :dung\n");
-				// 		scanf("%d", &check);
-				// 	}
-				// 	else if(strcmp(mess.mess, "NOT FRIEND")){
-				// 		printf("Cac ban khong phai ban be !\n");
-				// 		printf("1 :tiep tuc / 0 :dung\n");
-				// 		scanf("%d", &check);					
-				// 	}
-				// 	else if(strcmp(mess.mess, "OFFLINE") == 0){
-				// 		printf("Ban cua ban hien dang offline! \n");
-				// 	}
-				// 	else if(strcmp(mess.mess,"BAN CUA BAN CHUA SAN SANG")==0) {
-				// 		printf("Ban cua ban chua san sang de chat!\n");
-				// 		do{
-				// 			printf("Ban co muon doi ban cua minh khong ?\n");
-				// 			printf("1: co / 2: khong\n");
-				// 			scanf("%d", &doi);
-				// 			if(doi==1){
-				// 				sleep(15);
-				// 				SEND(clientSocket,checklai,CHAT);
-				// 				mess = RECEVE(clientSocket);
-				// 				if(strcmp(mess.mess,"BAN CUA BAN CHUA SAN SANG")==0) continue;
-				// 				if(strcmp(mess.mess, "SANSANG")== 0){
-				// 					printf("Da san sang de chat\n");
-				// 					printf("%s da tham gia chat\n", friendName);
-				// 					check = 0;
-				// 					doi = 0;
-				// 				}
-				// 			}
-				// 		}while(doi == 1);
-				// 		check = 2;
-				// 	}else if(strcmp(mess.mess, "SANSANG")== 0){
-				// 		printf("Da san sang de chat\n");
-				// 		check = 0;
-				// 	}
-				// }while(check == 1);
-
-				// if(check == 0){
-				// 	printf("bat dau chat ........\n");
-				// 	///cho lang ba nhanggggggggg
-				// 	    pthread_t send_msg_thread;
-				// 	    if (pthread_create(&send_msg_thread, NULL, &send_msg_handler, &clientSocket) != 0)
-				// 	    {
-				// 	        printf("ERROR: pthread_create()");
-				// 	        exit(EXIT_FAILURE);
-				// 	    }
-
-				// 	    pthread_t recv_msg_thread;
-				// 	    if (pthread_create(&recv_msg_thread, NULL, &recv_msg_handler, &clientSocket ) != 0)
-				// 	    {
-				// 	        printf("ERROR: pthread_create()");
-				// 	        exit(EXIT_FAILURE);
-				// 	    }
-				// }
 				goto Layout2;
 				break;
 
@@ -426,7 +387,9 @@ int main(int argc, char const *argv[]){
 				printf("Ban hien co %d ban be\n", countFriend);
 				for(i=1;i<=countFriend;i++){
 					mess = RECEVE(clientSocket);
-					printf("%d: %s\n",i, mess.mess );
+					printf("%d: %s \n",i, mess.mess );
+					// mess = RECEVE(clientSocket);
+					// printf("%-50s\n", mess.mess);
 				}
 				goto Layout2;
 				break;
@@ -496,7 +459,7 @@ int main(int argc, char const *argv[]){
 				}
 				goto Layout2;
 				break;
-						/*
+			/*
 			* LOGOUT
 			*/
 			case 8:
@@ -504,6 +467,7 @@ int main(int argc, char const *argv[]){
 				SEND(clientSocket,tmp,SIGN_OUT);
 				strcpy(myUser.name,"\0");
 				printf("-------------Bye-------\n");
+				close(clientSocket);
 				goto Layout1;
 
 			default:
